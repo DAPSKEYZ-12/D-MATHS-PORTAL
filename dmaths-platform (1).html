@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#060E1A"/>
+<title>D-Maths Tuition Centre — Excellence in Mathematics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0A1628;--navy-d:#060E1A;--navy-m:#132240;--navy-l:#1C3260;
+  --gold:#D4A017;--gold-b:#F2BC3B;--gold-pale:#FDF6E3;--gold-dark:#A87C12;
+  --cream:#FAF7F0;--bg:#F0F2F7;--white:#FFFFFF;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
+  --g400:#94A3B8;--g500:#64748B;--g700:#334155;--g900:#0F172A;
+  --green:#059669;--green-bg:#D1FAE5;--green-t:#064E3B;
+  --red:#DC2626;--red-bg:#FEE2E2;--red-t:#7F1D1D;
+  --blue:#2563EB;--blue-bg:#DBEAFE;--blue-t:#1E3A8A;
+  --amber:#D97706;--amber-bg:#FEF3C7;--amber-t:#78350F;
+  --purple:#7C3AED;--purple-bg:#EDE9FE;
+  --sh:0 1px 3px rgba(10,22,40,.08),0 4px 16px rgba(10,22,40,.05);
+  --sh-m:0 6px 20px rgba(10,22,40,.12);--sh-l:0 12px 40px rgba(10,22,40,.16);
+  --sh-xl:0 24px 80px rgba(10,22,40,.24);
+  --r:10px;--r-l:16px;--r-xl:22px;
+  --fw:var(--font-body);--sidebar-w:252px;--topbar-h:60px;
+  --font-display:'Cormorant Garamond',serif;
+  --font-body:'Outfit',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);background:var(--bg);color:var(--g900);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--font-body);cursor:pointer}
+input,textarea,select{font-family:var(--font-body)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:99px}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.96)}}
+@keyframes loadBar{from{width:0}to{width:100%}}
+.fu{animation:fadeUp .5s cubic-bezier(.22,.68,0,1.15) both}
+.fu1{animation:fadeUp .5s cubic-bezier(.22,.68,0,1.15) .08s both}
+.fu2{animation:fadeUp .5s cubic-bezier(.22,.68,0,1.15) .16s both}
+.fu3{animation:fadeUp .5s cubic-bezier(.22,.68,0,1.15) .24s both}
+.fu4{animation:fadeUp .5s cubic-bezier(.22,.68,0,1.15) .32s both}
+.fi{animation:fadeIn .3s ease both}
+.si{animation:scaleIn .3s cubic-bezier(.22,.68,0,1.2) both}
+
+/* VIEWS */
+.view{display:none!important}.view.on{display:block!important}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--r);font-family:var(--font-body);font-weight:600;font-size:14.5px;cursor:pointer;white-space:nowrap;line-height:1;-webkit-tap-highlight-color:transparent;min-height:44px;padding:0 22px;transition:all .2s cubic-bezier(.22,.68,0,1.2);outline:none}
+.btn:active{transform:scale(.96)!important}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-b));color:var(--navy-d);font-weight:700;box-shadow:0 2px 8px rgba(212,160,23,.3)}
+.btn-gold:hover{box-shadow:0 6px 20px rgba(212,160,23,.45);transform:translateY(-2px)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy-m);box-shadow:0 6px 20px rgba(10,22,40,.3);transform:translateY(-2px)}
+.btn-og{background:transparent;color:var(--gold);border:2px solid var(--gold)}
+.btn-og:hover{background:var(--gold);color:var(--navy-d);transform:translateY(-2px)}
+.btn-ow{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.4)}
+.btn-ow:hover{background:rgba(255,255,255,.1);border-color:#fff}
+.btn-ghost{background:var(--g100);color:var(--g700);border:1.5px solid var(--g200)}
+.btn-ghost:hover{background:var(--g200);color:var(--g900)}
+.btn-ok{background:var(--green);color:#fff}.btn-ok:hover{background:#047857}
+.btn-err{background:var(--red);color:#fff}.btn-err:hover{background:#b91c1c}
+.btn-sm{min-height:36px;padding:0 16px;font-size:13px;border-radius:8px}
+.btn-xs{min-height:30px;padding:0 10px;font-size:12px;border-radius:7px}
+.btn-ico{min-height:36px;width:36px;padding:0;border-radius:9px;flex-shrink:0}
+.btn-lg{min-height:52px;padding:0 32px;font-size:16px;border-radius:12px}
+.btn-w{width:100%}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.02em}
+.b-green{background:var(--green-bg);color:var(--green-t)}
+.b-red{background:var(--red-bg);color:var(--red-t)}
+.b-amber{background:var(--amber-bg);color:var(--amber-t)}
+.b-blue{background:var(--blue-bg);color:var(--blue-t)}
+.b-gray{background:var(--g100);color:var(--g500)}
+.b-navy{background:var(--navy);color:#fff}
+.b-gold{background:var(--gold-pale);color:var(--gold-dark)}
+.b-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--r-l);box-shadow:var(--sh);overflow:hidden}
+.cp{padding:22px}
+@media(min-width:640px){.cp{padding:26px}}
+.card-hov{transition:transform .2s,box-shadow .2s}
+.card-hov:hover{transform:translateY(-3px);box-shadow:var(--sh-m)}
+
+/* FORMS */
+.fg{margin-bottom:18px}
+.fl{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-bottom:7px}
+.freq{color:var(--red);margin-left:3px}
+.fi-el{border:1.5px solid var(--g200);border-radius:var(--r);padding:11px 16px;width:100%;background:var(--white);color:var(--g900);font-size:14px;transition:border-color .18s,box-shadow .18s;line-height:1.5;outline:none}
+.fi-el::placeholder{color:var(--g400)}
+.fi-el:focus{border-color:var(--gold);box-shadow:0 0 0 3.5px rgba(212,160,23,.15)}
+textarea.fi-el{resize:vertical;min-height:96px}
+select.fi-el{appearance:none;cursor:pointer;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;padding-right:40px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.frow{grid-template-columns:1fr}}
+
+/* ALERTS & TOASTS */
+.al{border-radius:var(--r);padding:11px 15px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;font-size:13.5px;font-weight:500}
+.al-i{background:var(--amber-bg);border:1px solid rgba(217,119,6,.22);color:var(--amber-t)}
+.al-e{background:var(--red-bg);border:1px solid rgba(220,38,38,.22);color:var(--red-t)}
+.al-s{background:var(--green-bg);border:1px solid rgba(5,150,105,.22);color:var(--green-t)}
+.toast-host{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:calc(100vw - 36px)}
+.toast{background:var(--navy);color:#fff;padding:13px 18px;border-radius:var(--r);font-size:13.5px;font-weight:500;box-shadow:var(--sh-l);display:flex;align-items:center;gap:10px;animation:fadeUp .3s ease;min-width:260px;max-width:360px;pointer-events:all}
+.toast-s{border-left:3px solid var(--green)}
+.toast-e{border-left:3px solid var(--red)}
+.toast-i{border-left:3px solid var(--gold)}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(6,14,26,.62);backdrop-filter:blur(8px);z-index:400;animation:fadeIn .22s ease;display:none;align-items:flex-end;justify-content:center}
+.ov.open{display:flex}
+@media(min-width:640px){.ov{align-items:center}}
+.modal{background:var(--white);width:100%;max-width:540px;border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--sh-xl);max-height:92vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.22,.68,0,1.2)}
+@media(min-width:640px){.modal{border-radius:var(--r-xl);max-height:88vh;animation-name:scaleIn}}
+.modal.wide{max-width:640px}
+.mhandle{width:40px;height:4px;background:var(--g200);border-radius:99px;margin:10px auto 0}
+@media(min-width:640px){.mhandle{display:none}}
+.mhdr{position:sticky;top:0;background:var(--white);padding:18px 24px 14px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between;z-index:1;border-radius:var(--r-xl) var(--r-xl) 0 0}
+.mtitle{font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--g900)}
+.mbody{padding:20px 24px 28px}
+
+/* DIVIDER / CHIP / PROGRESS */
+.div{height:1px;background:var(--g100);margin:14px 0}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--g100);color:var(--g700);border-radius:99px;padding:4px 11px;font-size:12px;font-weight:600}
+.chip-gold{background:var(--gold-pale);color:var(--gold-dark)}
+.chip-navy{background:var(--navy);color:#fff}
+.pt{background:var(--g100);border-radius:99px;height:7px;overflow:hidden}
+.pf{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold-b));transition:width 1.2s cubic-bezier(.22,.68,0,1.2)}
+.spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0}
+.spd{border-color:rgba(10,22,40,.15);border-top-color:var(--navy)}
+
+/* AVATAR */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;letter-spacing:.02em;font-family:var(--font-display)}
+
+/* TABLES */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g400);border-bottom:1.5px solid var(--g100);background:var(--g50);white-space:nowrap}
+td{padding:13px 14px;font-size:13.5px;color:var(--g700);border-bottom:1px solid var(--g100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s}
+tbody tr:hover td{background:var(--g50)}
+
+/* STAT CARD */
+.sc{background:var(--white);border-radius:var(--r-l);padding:20px;box-shadow:var(--sh);transition:transform .2s,box-shadow .2s}
+.sc:hover{transform:translateY(-3px);box-shadow:var(--sh-m)}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gdash{display:grid;grid-template-columns:1.45fr 1fr;gap:20px}
+.gprog{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}
+.gcls{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.gsdet{display:grid;grid-template-columns:280px 1fr;gap:22px;align-items:start}
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.gdash{grid-template-columns:1fr}}
+@media(max-width:900px){.gprog{grid-template-columns:1fr}}
+@media(max-width:760px){.g2,.g3,.gcls{grid-template-columns:1fr}}
+@media(max-width:960px){.gsdet{grid-template-columns:1fr}}
+
+/* LANDING NAV */
+#lnav{position:fixed;top:0;left:0;right:0;z-index:900;padding:0 clamp(20px,5vw,80px);height:72px;display:flex;align-items:center;transition:all .3s}
+#lnav.scrolled{background:rgba(6,14,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 4px 30px rgba(0,0,0,.2);height:64px}
+.lnav-i{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1280px;margin:0 auto}
+.llinks{display:flex;align-items:center;gap:4px}
+@media(max-width:900px){.llinks{display:none}.lportal{display:none!important}}
+.llink{color:rgba(255,255,255,.72);font-size:14px;font-weight:500;padding:8px 14px;border-radius:8px;cursor:pointer;border:none;background:none;font-family:var(--font-body);transition:all .16s}
+.llink:hover{color:#fff;background:rgba(255,255,255,.08)}
+
+/* MOBILE DRAWER */
+#mdrawer{position:fixed;inset:0;z-index:1000;background:var(--navy-d);transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,.68,0,1.2);display:flex;flex-direction:column}
+#mdrawer.open{transform:translateX(0)}
+.dlink{background:none;border:none;color:rgba(255,255,255,.72);font-family:var(--font-display);font-size:20px;font-weight:600;padding:16px 20px;text-align:left;width:100%;cursor:pointer;border-radius:var(--r);transition:all .15s}
+.dlink:hover{background:rgba(255,255,255,.07);color:#fff}
+
+/* LANDING HERO */
+.hero{min-height:100vh;position:relative;overflow:hidden;background:var(--navy-d);display:flex;align-items:center;padding:0 clamp(20px,5vw,80px)}
+.hero-grid{max-width:1280px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding-top:80px}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;padding-top:100px;text-align:center}}
+.h1{font-family:var(--font-display);font-size:clamp(44px,6vw,78px);font-weight:700;line-height:1.04;color:#fff;letter-spacing:-.02em}
+.h1 em{font-style:italic;color:var(--gold-b)}
+.msym{position:absolute;font-family:var(--font-mono);color:rgba(255,255,255,.055);font-weight:500;pointer-events:none;user-select:none}
+
+/* SECTIONS */
+.sec{padding:clamp(60px,10vw,120px) clamp(20px,5vw,80px)}
+.sec-i{max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--font-mono);font-size:11.5px;font-weight:500;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.eyebrow::before{content:'';width:28px;height:1.5px;background:var(--gold);display:inline-block}
+.stitle{font-family:var(--font-display);font-size:clamp(34px,5vw,58px);font-weight:700;line-height:1.1;color:var(--g900)}
+.stitle.lt{color:#fff}
+.ssub{font-size:clamp(15px,2vw,18px);color:var(--g500);line-height:1.75;max-width:600px}
+.ssub.lt{color:rgba(255,255,255,.6)}
+.sctr .eyebrow{justify-content:center}
+
+/* SUBJECT CARD */
+.scard{border-radius:var(--r-l);overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--navy-m));padding:28px;border:1px solid rgba(255,255,255,.06);transition:all .3s;position:relative}
+.scard:hover{transform:translateY(-6px);box-shadow:var(--sh-l)}
+.scard::after{content:'';position:absolute;bottom:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(rgba(212,160,23,.15),transparent 70%)}
+
+/* TESTIMONIAL CARD */
+.tcard{background:var(--white);border-radius:var(--r-l);padding:28px;box-shadow:var(--sh);border:1px solid var(--g100);transition:all .25s;position:relative}
+.tcard:hover{transform:translateY(-4px);box-shadow:var(--sh-m);border-color:rgba(212,160,23,.3)}
+.tcard::before{content:'"';position:absolute;top:16px;right:22px;font-family:var(--font-display);font-size:80px;color:var(--g100);line-height:1;font-weight:700;pointer-events:none}
+
+/* STAT COUNTER */
+.scount{font-family:var(--font-display);font-size:clamp(40px,5vw,64px);font-weight:700;color:var(--gold-b);line-height:1}
+
+/* GATEWAY */
+.gw{min-height:100vh;background:var(--navy-d);display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+.gwcard{background:var(--white);border-radius:var(--r-xl);box-shadow:var(--sh-xl);overflow:hidden;width:100%;max-width:480px;animation:scaleIn .35s cubic-bezier(.22,.68,0,1.2)}
+.gwhdr{background:linear-gradient(140deg,var(--navy-d),var(--navy-m));padding:30px 28px;position:relative;overflow:hidden}
+
+/* SIGNUP */
+.suhdr{background:linear-gradient(135deg,var(--navy-d),var(--navy-m));padding:20px clamp(20px,5vw,60px);display:flex;align-items:center;justify-content:space-between}
+
+/* PORTAL SIDEBAR */
+#psidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy-d);display:flex;flex-direction:column;z-index:300;transition:transform .28s cubic-bezier(.22,.68,0,1.2)}
+@media(max-width:1023px){#psidebar{transform:translateX(-100%)}#psidebar.open{transform:translateX(0);box-shadow:var(--sh-xl)}}
+#ptopbar{display:none;position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--navy-d);z-index:200;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+@media(max-width:1023px){#ptopbar{display:flex}}
+#pmain{padding:20px 16px 90px}
+@media(min-width:640px){#pmain{padding:26px 22px 90px}}
+@media(min-width:1024px){#pmain{margin-left:var(--sidebar-w);padding:36px 32px 60px}}
+.pmc{padding-top:calc(var(--topbar-h) + 18px)!important}
+@media(min-width:1024px){.pmc{padding-top:36px!important}}
+#sovl{display:none;position:fixed;inset:0;background:rgba(6,14,26,.55);backdrop-filter:blur(6px);z-index:299}
+#sovl.open{display:block;animation:fadeIn .22s ease}
+.nl{display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:var(--r);cursor:pointer;transition:all .15s;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.52);border:none;background:none;width:100%;min-height:44px;font-family:var(--font-body);-webkit-tap-highlight-color:transparent}
+.nl:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.nl.act{background:linear-gradient(135deg,var(--gold),var(--gold-b));color:var(--navy-d);font-weight:700;box-shadow:0 3px 12px rgba(212,160,23,.32)}
+.nbadge{background:var(--red);color:#fff;border-radius:99px;font-size:10px;font-weight:700;padding:1px 6px;min-width:18px;text-align:center}
+#pbnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1.5px solid var(--g100);padding:6px 0;z-index:200;justify-content:space-around;box-shadow:0 -4px 20px rgba(10,22,40,.08)}
+@media(max-width:1023px){#pbnav{display:flex}}
+.bni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 10px;border-radius:9px;color:var(--g400);transition:color .14s;-webkit-tap-highlight-color:transparent;min-width:52px;border:none;background:none;font-family:var(--font-body)}
+.bni.act{color:var(--gold)}
+.bni span{font-size:10px;font-weight:700}
+
+/* PORTAL PAGES */
+.pg{display:none}.pg.on{display:block;animation:fadeIn .3s ease}
+.phdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+.ptitle{font-family:var(--font-display);font-size:clamp(20px,3vw,28px);font-weight:700;color:var(--g900)}
+.psub{font-size:13.5px;color:var(--g400);margin-top:4px}
+.dhero{background:linear-gradient(140deg,var(--navy-d) 0%,var(--navy-m) 60%,var(--navy-l) 100%);border-radius:var(--r-xl);padding:clamp(22px,3.5vw,36px) clamp(20px,3.5vw,40px);position:relative;overflow:hidden;margin-bottom:24px;box-shadow:var(--sh-m)}
+
+/* REQ CARD */
+.rcard{background:var(--white);border-radius:var(--r-l);border:1.5px solid var(--g100);padding:20px;position:relative;overflow:hidden;margin-bottom:14px;transition:all .2s}
+.rcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--amber)}
+.rcard.approved::before{background:var(--green)}
+.rcard.rejected::before{background:var(--red)}
+
+/* LOADING */
+#lov{position:fixed;inset:0;background:var(--navy-d);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;transition:opacity .4s}
+#lov.fade{opacity:0;pointer-events:none}
+.lbar{width:180px;height:3px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin-top:32px}
+.lfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-b));border-radius:99px;animation:loadBar 1.2s ease-in-out}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="lov">
+  <div style="font-family:var(--font-display);font-size:40px;font-weight:700;color:var(--gold-b);letter-spacing:-.02em">D-Maths</div>
+  <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:8px">Tuition Centre</div>
+  <div class="lbar"><div class="lfill"></div></div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-host" id="toast-host"></div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr">
+      <h3 class="mtitle" id="mtitle"></h3>
+      <button class="btn btn-ghost btn-ico" onclick="closeModal()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="mbody" id="mbody"></div>
+  </div>
+</div>
+
+<!-- ═══ LANDING ═══ -->
+<div id="vl" class="view on">
+  <nav id="lnav">
+    <div class="lnav-i">
+      <div id="logo-l" onclick="scrollTo0('home')" style="cursor:pointer"></div>
+      <div class="llinks" id="llinks"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-gold btn-sm lportal" onclick="goGateway()">Enter Portal</button>
+        <button class="btn btn-ghost btn-ico" id="hbtn" style="background:rgba(255,255,255,.1);color:#fff" aria-label="Menu" onclick="openDrawer()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div id="mdrawer">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div id="logo-d"></div>
+      <button class="btn btn-ghost btn-ico" style="background:rgba(255,255,255,.08);color:#fff" onclick="closeDrawer()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div style="flex:1;padding:24px;display:flex;flex-direction:column;gap:6px" id="dlinks"></div>
+    <div style="padding:24px">
+      <button class="btn btn-gold btn-lg btn-w" onclick="goGateway();closeDrawer()">Enter Student Portal →</button>
+    </div>
+  </div>
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div id="msyms"></div>
+    <div style="position:absolute;top:-10%;left:25%;width:65%;height:70%;background:radial-gradient(ellipse,rgba(212,160,23,.06) 0%,transparent 70%);pointer-events:none"></div>
+    <div class="hero-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px" class="fu">
+          <div style="width:36px;height:2px;background:linear-gradient(90deg,var(--gold),transparent)"></div>
+          <span style="font-family:var(--font-mono);font-size:11.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)">Excellence in Mathematics</span>
+        </div>
+        <h1 class="h1 fu1">Where Numbers<br><em>Make Sense</em><br>&amp; Students Thrive</h1>
+        <p style="font-size:clamp(15px,1.8vw,18px);color:rgba(255,255,255,.6);line-height:1.78;margin:24px 0 36px;max-width:480px" class="fu2">D-Maths Tuition Centre delivers world-class online mathematics education for JHS and SHS students. Expert tutors. Personalised learning. Proven results.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px" class="fu3">
+          <button class="btn btn-gold btn-lg" onclick="goGateway()">Enter Student Portal <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+          <button class="btn btn-ow btn-lg" onclick="scrollTo0('about')">Discover More</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:44px" class="fu4" id="hstats"></div>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center" class="fu2">
+        <div style="width:100%;max-width:400px;position:relative">
+          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-xl);padding:28px;backdrop-filter:blur(20px)">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)">
+              <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-b));display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A1628" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+              <div><div style="color:#fff;font-weight:700;font-size:15px">Student Progress Report</div><div style="color:rgba(255,255,255,.45);font-size:12px">This Week's Overview</div></div>
+            </div>
+            <div id="hbars"></div>
+            <div style="margin-top:18px;padding:12px 16px;background:rgba(212,160,23,.12);border-radius:10px;border:1px solid rgba(212,160,23,.25)">
+              <div style="font-size:12px;color:var(--gold-b);font-weight:700">🏆 Amara Osei — Top Performer this week!</div>
+            </div>
+          </div>
+          <div style="position:absolute;top:-16px;right:-16px;width:60px;height:60px;border-radius:50%;background:rgba(212,160,23,.2);filter:blur(20px)"></div>
+          <div style="position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:rgba(37,99,235,.15);filter:blur(24px)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ABOUT -->
+  <section id="about" class="sec" style="background:var(--cream)">
+    <div class="sec-i">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,100px);align-items:center" id="about-grid">
+        <div>
+          <div class="eyebrow">About D-Maths</div>
+          <h2 class="stitle" style="margin-bottom:20px">Ghana's Premier Online Mathematics Tuition Centre</h2>
+          <p style="font-size:16px;color:var(--g500);line-height:1.8;margin-bottom:18px">D-Maths Tuition Centre was founded with one mission: to make exceptional mathematics education accessible to every student. Our expert tutors combine rigorous academic instruction with modern technology to deliver results that speak for themselves.</p>
+          <p style="font-size:16px;color:var(--g500);line-height:1.8;margin-bottom:32px">Every student receives a personalised learning path, real-time progress tracking, and direct tutor support — all through our state-of-the-art online portal.</p>
+          <div class="g2" id="afeat" style="gap:14px;margin-bottom:28px"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="achips"></div>
+        </div>
+        <div><div style="background:linear-gradient(135deg,var(--navy),var(--navy-m));border-radius:var(--r-xl);padding:40px;color:#fff">
+          <p style="font-family:var(--font-display);font-size:clamp(18px,2.5vw,24px);font-weight:600;font-style:italic;color:rgba(255,255,255,.85);line-height:1.65;margin-bottom:28px">"Mathematics is not just a subject — it is the language of the universe. Our mission is to make every student fluent."</p>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
+            <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-b));display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--navy-d)">D</span></div>
+            <div><div style="font-weight:700;font-size:16px">Mr. D. Mensah</div><div style="font-size:13px;color:rgba(255,255,255,.5)">Founder &amp; Lead Tutor</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1)">
+            <div style="text-align:center"><div class="scount" style="font-size:clamp(28px,3.5vw,40px)">10+</div><div style="font-size:11.5px;color:rgba(255,255,255,.45);margin-top:4px">Years Teaching</div></div>
+            <div style="text-align:center"><div class="scount" style="font-size:clamp(28px,3.5vw,40px)">500+</div><div style="font-size:11.5px;color:rgba(255,255,255,.45);margin-top:4px">Students Taught</div></div>
+            <div style="text-align:center"><div class="scount" style="font-size:clamp(28px,3.5vw,40px)">98%</div><div style="font-size:11.5px;color:rgba(255,255,255,.45);margin-top:4px">Success Rate</div></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+  <!-- SUBJECTS -->
+  <section id="services" class="sec" style="background:var(--navy);position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(212,160,23,.07) 1px,transparent 1px);background-size:38px 38px;pointer-events:none"></div>
+    <div class="sec-i" style="position:relative;z-index:1">
+      <div class="sctr" style="text-align:center;margin-bottom:52px">
+        <div class="eyebrow" style="justify-content:center">What We Teach</div>
+        <h2 class="stitle lt" style="margin-bottom:14px">Our Subject Offerings</h2>
+        <p class="ssub lt" style="margin:0 auto">Comprehensive mathematics curricula aligned with Ghana Education Service standards and international best practices.</p>
+      </div>
+      <div class="g3" id="subs-grid"></div>
+    </div>
+  </section>
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" class="sec" style="background:var(--cream)">
+    <div class="sec-i">
+      <div style="text-align:center;margin-bottom:52px">
+        <div class="eyebrow" style="justify-content:center">The Process</div>
+        <h2 class="stitle" style="margin-bottom:14px">How It Works</h2>
+        <p class="ssub" style="margin:0 auto">Four simple steps to begin your mathematics journey with D-Maths.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px" id="steps-grid"></div>
+      <div style="text-align:center;margin-top:48px"><button class="btn btn-gold btn-lg" onclick="goSignup()">Start Your Application →</button></div>
+    </div>
+  </section>
+  <!-- STATS -->
+  <section class="sec" style="background:linear-gradient(135deg,var(--navy-d),var(--navy-m));padding:clamp(60px,8vw,100px) clamp(20px,5vw,80px)">
+    <div class="sec-i"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px" id="stats-grid"></div></div>
+  </section>
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="sec" style="background:var(--white)">
+    <div class="sec-i">
+      <div style="text-align:center;margin-bottom:52px">
+        <div class="eyebrow" style="justify-content:center">Student Stories</div>
+        <h2 class="stitle" style="margin-bottom:14px">What Our Students Say</h2>
+        <p class="ssub" style="margin:0 auto">Real results from real students and parents who trusted D-Maths.</p>
+      </div>
+      <div class="g2" id="test-grid"></div>
+    </div>
+  </section>
+  <!-- CONTACT -->
+  <section id="contact" class="sec" style="background:var(--cream)">
+    <div class="sec-i">
+      <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:clamp(40px,6vw,80px);align-items:start" id="contact-grid">
+        <div>
+          <div class="eyebrow">Get In Touch</div>
+          <h2 class="stitle" style="margin-bottom:20px">Ready to Start Your Journey?</h2>
+          <p style="font-size:16px;color:var(--g500);line-height:1.8;margin-bottom:36px">Have questions about our programmes, fees, or enrolment? Our team is ready to help.</p>
+          <div id="cinfo"></div>
+        </div>
+        <div style="background:var(--white);border-radius:var(--r-xl);padding:clamp(24px,4vw,48px);box-shadow:var(--sh-l)">
+          <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--g900);margin-bottom:22px">Send Us a Message</h3>
+          <div class="frow">
+            <div class="fg"><label class="fl">Full Name <span class="freq">*</span></label><input class="fi-el" id="cn" placeholder="Your full name"></div>
+            <div class="fg"><label class="fl">Email <span class="freq">*</span></label><input class="fi-el" id="ce" type="email" placeholder="your@email.com"></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Phone</label><input class="fi-el" id="cp" placeholder="+233 XX XXX XXXX"></div>
+            <div class="fg"><label class="fl">Subject</label><select class="fi-el" id="cs"><option>Enrolment Enquiry</option><option>Fees &amp; Payment</option><option>Curriculum Info</option><option>Technical Support</option><option>Other</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Message <span class="freq">*</span></label><textarea class="fi-el" id="cm" rows="4" placeholder="How can we help?"></textarea></div>
+          <button class="btn btn-gold btn-w" style="min-height:48px;font-size:15px" onclick="sendContact()">Send Message</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- FOOTER -->
+  <footer style="background:var(--navy-d);padding:clamp(48px,8vw,80px) clamp(20px,5vw,80px) 32px;border-top:1px solid rgba(255,255,255,.06)">
+    <div style="max-width:1280px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1.2fr;gap:40px;margin-bottom:48px" id="footer-g"></div>
+      <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <p style="font-size:13px;color:rgba(255,255,255,.3)">© <span id="yr"></span> D-Maths Tuition Centre. All rights reserved.</p>
+        <p style="font-size:13px;color:rgba(255,255,255,.3)">Designed with ♥ in Ghana</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══ GATEWAY ═══ -->
+<div id="vg" class="view">
+  <div class="gw">
+    <div style="position:absolute;top:-10%;left:-5%;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(rgba(212,160,23,.07),transparent 70%);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-5%;right:-5%;width:40vw;height:40vw;border-radius:50%;background:radial-gradient(rgba(10,22,40,.8),transparent 70%);pointer-events:none"></div>
+    <div style="position:relative;z-index:1;width:100%;max-width:500px">
+      <button onclick="goLanding()" style="background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;margin-bottom:28px;font-family:var(--font-body)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back to D-Maths
+      </button>
+      <div id="gw-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SIGNUP ═══ -->
+<div id="vs" class="view">
+  <div style="min-height:100vh;background:var(--cream)">
+    <div class="suhdr">
+      <div id="logo-s"></div>
+      <button onclick="goGateway()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);color:rgba(255,255,255,.7);padding:8px 18px;cursor:pointer;font-size:13.5px;display:flex;align-items:center;gap:7px;font-family:var(--font-body)">← Back</button>
+    </div>
+    <div style="background:var(--white);border-bottom:1px solid var(--g100);padding:20px clamp(20px,5vw,60px)">
+      <div style="max-width:760px;margin:0 auto" id="stepbar"></div>
+    </div>
+    <div style="max-width:760px;margin:0 auto;padding:32px clamp(16px,4vw,0px)">
+      <div class="card cp si" id="sucard"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:0">
+        <button class="btn btn-ghost" id="prev-btn" style="min-height:46px;display:none" onclick="suPrev()">← Previous</button>
+        <div></div>
+        <button class="btn btn-gold" id="next-btn" style="min-height:46px" onclick="suNext()">Next Step →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PENDING ═══ -->
+<div id="vp" class="view">
+  <div style="min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="width:100%;max-width:540px" id="pend-content"></div>
+  </div>
+</div>
+
+<!-- ═══ PORTAL ═══ -->
+<div id="vpt" class="view">
+  <nav id="psidebar">
+    <div style="padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:8px">
+      <div id="sb-logo"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:9px">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+        <span style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,.35);font-weight:500;letter-spacing:.08em" id="sb-role"></span>
+      </div>
+    </div>
+    <div style="flex:1;padding:6px 10px;overflow-y:auto" id="sb-nav"></div>
+    <div style="padding:12px 10px 20px;border-top:1px solid rgba(255,255,255,.06)">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:var(--r);margin-bottom:6px" id="sb-user"></div>
+      <button class="nl" style="color:rgba(255,255,255,.38)" onclick="logout()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign Out</button>
+    </div>
+  </nav>
+  <div id="sovl" onclick="closeSB()"></div>
+  <header id="ptopbar">
+    <button class="btn btn-ghost btn-ico" style="background:rgba(255,255,255,.08);color:#fff" onclick="toggleSB()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+    <div id="tb-logo"></div>
+    <div id="tb-av"></div>
+  </header>
+  <main id="pmain">
+    <div id="portal-pages"></div>
+  </main>
+  <nav id="pbnav"></nav>
+</div>
+
+<script>
+// ════════════════════════════════════
+//  GOOGLE SHEETS CONFIG
+//  Replace this URL after deploying your Apps Script web app.
+//  See: google-apps-script.gs for the backend code.
+// ════════════════════════════════════
+const SHEET_API = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID_HERE/exec";
+// ─────────────────────────────────────────────────────────────────
+
+// ════════════════════════════════════
+//  APP STATE
+// ════════════════════════════════════
+const S = {
+  user:null, role:null, gwMode:'choose', suStep:1, suData:{}, pendApp:null,
+  activePg:'dashboard', appFilter:'all', selStudent:null,
+  charts:{}, adminNotes:{},
+  apps:[
+    {id:'REQ-001',firstName:'Kofi',lastName:'Amponsah',email:'kofi@email.com',phone:'+233 24 111 2222',level:'SHS 1',subjects:['Algebra','Calculus'],paymentRef:'PAY-8821',paymentMethod:'MTN MoMo',paymentAmt:'450',paymentDate:'2024-02-14',status:'pending',applied:'2024-02-14'},
+    {id:'REQ-002',firstName:'Abena',lastName:'Owusu',email:'abena@email.com',phone:'+233 54 333 4444',level:'JHS 3',subjects:['Algebra','Statistics'],paymentRef:'PAY-8834',paymentMethod:'MTN MoMo',paymentAmt:'350',paymentDate:'2024-02-15',status:'pending',applied:'2024-02-15'},
+    {id:'REQ-003',firstName:'Kweku',lastName:'Darko',email:'kweku@email.com',phone:'+233 20 555 6666',level:'SHS 2',subjects:['Calculus','Geometry'],paymentRef:'PAY-8847',paymentMethod:'Telecel',paymentAmt:'500',paymentDate:'2024-02-16',status:'approved',applied:'2024-02-16'},
+    {id:'REQ-004',firstName:'Esi',lastName:'Bonsu',email:'esi@email.com',phone:'+233 24 777 8888',level:'JHS 2',subjects:['Algebra'],paymentRef:'PAY-8859',paymentMethod:'Bank',paymentAmt:'250',paymentDate:'2024-02-17',status:'rejected',applied:'2024-02-17'},
+    {id:'REQ-005',firstName:'Yaw',lastName:'Frimpong',email:'yaw@email.com',phone:'+233 20 999 0000',level:'SHS 3',subjects:['Calculus','Statistics','Geometry'],paymentRef:'PAY-8871',paymentMethod:'Telecel',paymentAmt:'600',paymentDate:'2024-02-18',status:'pending',applied:'2024-02-18'},
+  ],
+  students:[
+    {id:'DM-2024-0001',firstName:'Amara',lastName:'Osei',email:'amara@gmail.com',phone:'+233 24 111 2222',guardian:'Kofi Osei',guardianContact:'+233 20 333 4444',subjects:['Algebra','Calculus','Statistics'],level:'JHS 3',isActive:true,avgScore:87,attendance:92},
+    {id:'DM-2024-0002',firstName:'Kwame',lastName:'Mensah',email:'kwame@gmail.com',phone:'+233 24 555 6666',guardian:'Ama Mensah',guardianContact:'+233 20 777 8888',subjects:['Algebra','Geometry'],level:'SHS 1',isActive:true,avgScore:74,attendance:85},
+    {id:'DM-2024-0003',firstName:'Efua',lastName:'Asante',email:'efua@gmail.com',phone:'+233 24 999 0000',guardian:'Yaw Asante',guardianContact:'+233 20 111 3333',subjects:['Calculus','Statistics','Geometry'],level:'SHS 2',isActive:true,avgScore:93,attendance:97},
+    {id:'DM-2024-0004',firstName:'Nana',lastName:'Adjei',email:'nana@gmail.com',phone:'+233 24 222 4444',guardian:'Akua Adjei',guardianContact:'+233 20 555 7777',subjects:['Algebra'],level:'JHS 2',isActive:false,avgScore:61,attendance:70},
+    {id:'DM-2024-0005',firstName:'Serwaa',lastName:'Boateng',email:'serwaa@gmail.com',phone:'+233 24 888 9999',guardian:'Kwesi Boateng',guardianContact:'+233 20 444 6666',subjects:['Algebra','Statistics'],level:'JHS 3',isActive:true,avgScore:79,attendance:88},
+  ],
+  classes:[
+    {id:'c1',subject:'Algebra Fundamentals',tutor:'Mr. D. Mensah',day:'Monday',time:'4:00 PM',duration:'1.5 hrs',platform:'Zoom',link:'#',students:['DM-2024-0001','DM-2024-0002','DM-2024-0004','DM-2024-0005'],recording:false},
+    {id:'c2',subject:'Calculus & Integration',tutor:'Mrs. A. Darko',day:'Wednesday',time:'3:00 PM',duration:'2 hrs',platform:'Google Meet',link:'#',students:['DM-2024-0001','DM-2024-0003'],recording:true},
+    {id:'c3',subject:'Statistics & Probability',tutor:'Mr. D. Mensah',day:'Friday',time:'5:00 PM',duration:'1.5 hrs',platform:'Zoom',link:'#',students:['DM-2024-0001','DM-2024-0003','DM-2024-0005'],recording:false},
+    {id:'c4',subject:'Geometry & Trigonometry',tutor:'Mrs. A. Darko',day:'Thursday',time:'4:00 PM',duration:'1.5 hrs',platform:'Google Meet',link:'#',students:['DM-2024-0002','DM-2024-0003'],recording:true},
+  ],
+  assignments:[
+    {id:'a1',title:'Quadratic Equations Worksheet',subject:'Algebra',dueDate:'2024-02-20',instructions:'Complete all 20 problems. Show full working.',status:'Graded',grade:85,feedback:'Excellent work on factoring! Watch your signs in Q14.'},
+    {id:'a2',title:'Integration by Parts Practice',subject:'Calculus',dueDate:'2024-02-25',instructions:'Solve problems 1-10 from the attached sheet.',status:'Submitted',grade:null,feedback:null},
+    {id:'a3',title:'Normal Distribution Problems',subject:'Statistics',dueDate:'2024-02-28',instructions:'Use your Z-table and show all probability calculations.',status:'Pending',grade:null,feedback:null},
+    {id:'a4',title:'Trigonometric Identities',subject:'Geometry',dueDate:'2024-03-05',instructions:'Prove all 8 identities with step-by-step derivation.',status:'Pending',grade:null,feedback:null},
+  ],
+  scoreHistory:[
+    {m:'Sep',A:72,C:68,S:80},{m:'Oct',A:78,C:74,S:83},{m:'Nov',A:82,C:79,S:86},
+    {m:'Dec',A:85,C:83,S:89},{m:'Jan',A:88,C:87,S:91},{m:'Feb',A:87,C:90,S:92},
+  ],
+  enrollData:[{m:'Sep',n:8},{m:'Oct',n:12},{m:'Nov',n:15},{m:'Dec',n:14},{m:'Jan',n:18},{m:'Feb',n:22}],
+  notices:[
+    {id:'n1',title:'Mid-Term Assessment Schedule',body:'Mid-term assessments run March 10–14. All students must submit by 6 PM on respective days.',date:'2024-02-15',target:'all'},
+    {id:'n2',title:'Calculus Extra Session Added',body:'An extra Calculus session is scheduled for Saturday, Feb 24 at 10 AM. Attendance strongly encouraged.',date:'2024-02-18',target:'Calculus'},
+    {id:'n3',title:'Platform Maintenance – Feb 22',body:'The portal will be down for maintenance on Feb 22 from 12 AM – 4 AM.',date:'2024-02-19',target:'all'},
+  ],
+};
+
+// ════════════════════════════════════
+//  GOOGLE SHEETS API LAYER
+// ════════════════════════════════════
+const API = {
+  async call(action, params={}) {
+    try {
+      const url = new URL(SHEET_API);
+      url.searchParams.set('action', action);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, typeof v==='object'?JSON.stringify(v):v));
+      const res = await fetch(url.toString());
+      return await res.json();
+    } catch(e) { return null; }
+  },
+  async post(action, data={}) {
+    try {
+      const res = await fetch(SHEET_API, {
+        method:'POST',mode:'no-cors',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action,...data}),
+      });
+      // no-cors returns opaque response; treat as success
+      return {success:true};
+    } catch(e) { return null; }
+  },
+
+  // ── Auth ──────────────────────────────────────────────────────
+  async studentLogin(id, pw) {
+    const r = await this.call('studentLogin',{studentId:id,password:pw});
+    if (r?.success) return r.student;
+    // Fallback to local mock
+    return S.students.find(x=>x.id===id) && pw==='dmaths123' ? S.students.find(x=>x.id===id) : null;
+  },
+  async adminLogin(email, pw) {
+    const r = await this.call('adminLogin',{email,password:pw});
+    if (r?.success) return r.admin;
+    return email==='admin@dmaths.com' && pw==='admin123' ? {name:'D. Mensah',email,role:'admin'} : null;
+  },
+
+  // ── Applications ──────────────────────────────────────────────
+  async submitApp(data) {
+    const r = await this.post('submitApplication', data);
+    return !!r;
+  },
+  async getApps() {
+    const r = await this.call('getApplications');
+    return r?.data || S.apps;
+  },
+  async approveApp(id) {
+    await this.post('approveApplication',{id});
+    const a = S.apps.find(x=>x.id===id); if(a) a.status='approved';
+  },
+  async rejectApp(id) {
+    await this.post('rejectApplication',{id});
+    const a = S.apps.find(x=>x.id===id); if(a) a.status='rejected';
+  },
+
+  // ── Students ──────────────────────────────────────────────────
+  async getStudents() {
+    const r = await this.call('getStudents');
+    return r?.data || S.students;
+  },
+
+  // ── Classes ───────────────────────────────────────────────────
+  async getClasses() {
+    const r = await this.call('getClasses');
+    return r?.data || S.classes;
+  },
+  async addClass(data) { await this.post('addClass',data); },
+
+  // ── Notices ───────────────────────────────────────────────────
+  async addNotice(data) { await this.post('addNotice',data); },
+
+  // ── Contact ───────────────────────────────────────────────────
+  async sendContact(data) { await this.post('sendContact',data); },
+
+  // ── Notes ─────────────────────────────────────────────────────
+  async saveNote(studentId, note) { await this.post('saveNote',{studentId,note}); },
+};
+
+// ════════════════════════════════════
+//  SVG ICONS
+// ════════════════════════════════════
+const IC = {
+  home:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  users:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  video:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`,
+  file:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  trend:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  bell:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+  user:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  shield:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  chart:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+  uc:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>`,
+  eye:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  edit:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  trash:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  dl:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  chk:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+  x:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+  plus:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  send:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  ar:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`,
+  al:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>`,
+  calc:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/></svg>`,
+  star:`<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  warn:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  clock:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  cal:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  mail:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>`,
+  phone:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.64 2.88h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10.1a16 16 0 0 0 5.91 5.91l.82-.82a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.92 18z"/></svg>`,
+  map:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  lock:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  msg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  card:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+};
+
+// ════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════
+const logo = (light=false,sz=34)=>`<div style="display:flex;align-items:center;gap:10px"><div style="width:${sz}px;height:${sz}px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-b));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(212,160,23,.4);flex-shrink:0">${IC.calc.replace('stroke="currentColor"','stroke="#0A1628"')}</div><div><div style="font-family:var(--font-display);font-weight:700;font-size:${sz*.59}px;color:${light?'#fff':'var(--g900)'};line-height:1;letter-spacing:-.01em">D-Maths</div><div style="font-family:var(--font-mono);font-size:8.5px;font-weight:500;color:${light?'rgba(255,255,255,.38)':'var(--g400)'};letter-spacing:.14em;text-transform:uppercase;margin-top:1px">Tuition Centre</div></div></div>`;
+
+const av=(name,sz=36)=>{const i=(name||'U').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();const pal=['#D4A017','#0A1628','#059669','#2563EB','#EC4899','#7C3AED','#F97316'];const bg=pal[name.charCodeAt(0)%pal.length];const lc=['#D4A017','#059669','#F97316'].includes(bg);return `<div class="av" style="width:${sz}px;height:${sz}px;background:${bg};font-size:${sz*.36}px;color:${lc?'#060E1A':'#fff'}">${i}</div>`;};
+
+const bdg=(st)=>{const m={Graded:'b-green',Submitted:'b-blue',Pending:'b-amber',Active:'b-green',Inactive:'b-red',Zoom:'b-blue','Google Meet':'b-green',pending:'b-amber',approved:'b-green',rejected:'b-red'};return `<span class="badge ${m[st]||'b-gray'}">${st}</span>`;};
+
+const infoRow=(icon,label,val)=>`<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:13px"><div style="width:34px;height:34px;border-radius:9px;background:var(--g50);border:1px solid var(--g100);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--g400)">${icon}</div><div><div style="font-size:11px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">${label}</div><div style="font-size:13.5px;color:var(--g700);font-weight:500">${val||'—'}</div></div></div>`;
+
+function $id(id){return document.getElementById(id)}
+function html(id,h){const e=$id(id);if(e)e.innerHTML=h}
+
+// ════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════
+function toast(msg,type='i'){
+  const host=$id('toast-host');
+  const el=document.createElement('div');
+  const icons={s:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,e:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`,i:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`};
+  el.className=`toast toast-${type==='s'?'s':type==='e'?'e':'i'}`;
+  el.innerHTML=(icons[type]||icons.i)+msg;
+  host.appendChild(el);
+  setTimeout(()=>el.remove(),3400);
+}
+
+// ════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════
+function openModal(title,content,wide=false){
+  $id('mtitle').textContent=title;
+  $id('mbody').innerHTML=content;
+  $id('modal').classList.toggle('wide',wide);
+  $id('ov').classList.add('open');
+}
+function closeModal(){$id('ov').classList.remove('open')}
+
+// ════════════════════════════════════
+//  VIEW SWITCH
+// ════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  const el=$id(id); if(el)el.classList.add('on');
+  window.scrollTo(0,0);
+}
+function goLanding(){show('vl');initLanding()}
+function goGateway(){show('vg');renderGW('choose')}
+function goSignup(){show('vs');initSignup()}
+function logout(){S.user=null;S.role=null;goLanding()}
+
+// ════════════════════════════════════
+//  NAV / SIDEBAR
+// ════════════════════════════════════
+window.addEventListener('scroll',()=>$id('lnav')?.classList.toggle('scrolled',window.scrollY>40));
+function scrollTo0(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'})}
+function openDrawer(){$id('mdrawer').classList.add('open')}
+function closeDrawer(){$id('mdrawer').classList.remove('open')}
+function toggleSB(){$id('psidebar').classList.toggle('open');$id('sovl').classList.toggle('open')}
+function closeSB(){$id('psidebar').classList.remove('open');$id('sovl').classList.remove('open')}
+
+// ════════════════════════════════════
+//  LANDING INIT
+// ════════════════════════════════════
+function initLanding(){
+  // logos
+  html('logo-l',logo(true)); html('logo-d',logo(true)); $id('yr').textContent=new Date().getFullYear();
+
+  // nav links
+  const navs=[['home','Home'],['about','About'],['services','Subjects'],['how-it-works','How It Works'],['testimonials','Testimonials'],['contact','Contact']];
+  html('llinks',navs.map(([id,l])=>`<button class="llink" onclick="scrollTo0('${id}')">${l}</button>`).join(''));
+  html('dlinks',navs.map(([id,l])=>`<button class="dlink" onclick="scrollTo0('${id}');closeDrawer()">${l}</button>`).join(''));
+
+  // floating math symbols
+  const syms=['∑','∫','√','π','∞','∂','∆','θ','λ','Ω','≈','∇'];
+  const pos=[{top:'8%',left:'3%',s:48},{top:'18%',right:'4%',s:58},{top:'55%',left:'1%',s:34},{top:'72%',right:'6%',s:42},{top:'85%',left:'12%',s:30},{top:'40%',right:'1%',s:50},{top:'32%',left:'6%',s:26},{bottom:'8%',right:'14%',s:38}];
+  html('msyms',pos.map((p,i)=>{const ps=Object.entries(p).filter(([k])=>k!=='s').map(([k,v])=>`${k}:${v}`).join(';');return `<div class="msym" style="${ps};font-size:${p.s}px;animation:float ${3+i*.7}s ease-in-out ${i*.4}s infinite">${syms[i%syms.length]}</div>`}).join(''));
+
+  // hero stats
+  html('hstats',[['200+','Students Enrolled'],['98%','Pass Rate'],['5+','Expert Tutors'],['3yrs','Established']].map(([v,l])=>`<div><div style="font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--gold-b)">${v}</div><div style="font-size:12px;color:rgba(255,255,255,.42);margin-top:2px;font-weight:500">${l}</div></div>`).join(''));
+
+  // hero score bars
+  html('hbars',[['Algebra','87%',87,'#F2BC3B'],['Calculus','90%',90,'#60A5FA'],['Statistics','92%',92,'#34D399'],['Geometry','84%',84,'#F472B6']].map(([s,p,v,c])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:rgba(255,255,255,.72);font-weight:500">${s}</span><span style="font-size:13px;color:${c};font-weight:700">${p}</span></div><div style="background:rgba(255,255,255,.08);border-radius:99px;height:6px;overflow:hidden"><div style="width:${v}%;height:100%;border-radius:99px;background:linear-gradient(90deg,${c}80,${c})"></div></div></div>`).join(''));
+
+  // about features
+  const feats=[['✦','Expert Tutors','BSc & MSc qualified mathematics specialists'],['◎','Personalised Learning','Tailored curriculum for each student level'],['↗','Progress Tracking','Real-time performance analytics for parents'],['⊕','Online Delivery','Learn from anywhere via our portal']];
+  html('afeat',feats.map(([i,t,d])=>`<div style="display:flex;gap:12px;align-items:flex-start;padding:16px;background:var(--white);border-radius:var(--r-l);box-shadow:var(--sh)"><div style="width:36px;height:36px;border-radius:10px;background:rgba(212,160,23,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:var(--gold)">${i}</div><div><div style="font-weight:700;font-size:14px;color:var(--g900);margin-bottom:3px">${t}</div><div style="font-size:12.5px;color:var(--g500);line-height:1.5">${d}</div></div></div>`).join(''));
+  html('achips',['WAEC Syllabus','BECE Prep','WASSCE Prep','University Entrance'].map(t=>`<span class="chip chip-gold">${t}</span>`).join(''));
+
+  // subjects
+  const subs=[{t:'Algebra & Pre-Calculus',d:'Linear equations, polynomials, quadratics, functions, and inequalities.',l:'JHS 1–SHS 2',c:'#F2BC3B'},{t:'Calculus & Analysis',d:'Differential and integral calculus, limits, derivatives and real-world applications.',l:'SHS 2–3',c:'#60A5FA'},{t:'Statistics & Probability',d:'Data analysis, probability theory, distributions, regression and hypothesis testing.',l:'JHS 3–SHS 3',c:'#34D399'},{t:'Geometry & Trigonometry',d:'Euclidean geometry, circle theorems, trigonometric identities and coordinate geometry.',l:'JHS 1–SHS 2',c:'#F472B6'},{t:'Further Mathematics',d:'Complex numbers, matrices, vectors and advanced topics for university entrance.',l:'SHS 3 & above',c:'#A78BFA'},{t:'Core Maths Revision',d:'Intensive BECE & WASSCE revision covering the entire WAEC core curriculum.',l:'All Levels',c:'#F2BC3B'}];
+  html('subs-grid',subs.map(s=>`<div class="scard"><div style="width:48px;height:48px;border-radius:14px;background:${s.c}22;border:1px solid ${s.c}30;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:22px">🧮</div><h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:#fff;margin-bottom:10px">${s.t}</h3><p style="font-size:13.5px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:16px">${s.d}</p><span class="chip chip-navy" style="font-size:11px">${s.l}</span></div>`).join(''));
+
+  // steps
+  const steps=[{t:'Register & Pay',d:'Submit your registration and complete payment via Mobile Money or bank transfer. Your reference is your portal key.',e:'💳'},{t:'Admin Verification',d:'Our admin team verifies your payment and reviews your application within 24 hours.',e:'🔍'},{t:'Get Portal Access',d:'Once approved, receive your unique Student ID and temporary password via email.',e:'🎓'},{t:'Start Learning',d:'Attend live online classes, submit assignments and track your progress.',e:'📚'}];
+  html('steps-grid',steps.map((s,i)=>`<div class="card cp" style="text-align:center;position:relative"><div style="position:absolute;top:16px;right:20px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-b));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--navy-d)">${i+1}</div><div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-b));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 6px 20px rgba(212,160,23,.35);font-size:24px">${s.e}</div><h4 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--g900);margin-bottom:10px">${s.t}</h4><p style="font-size:13.5px;color:var(--g500);line-height:1.7">${s.d}</p></div>`).join(''));
+
+  // stats
+  html('stats-grid',[['98%','Student Pass Rate','in BECE & WASSCE'],['200+','Active Students','across JHS & SHS'],['5','Expert Tutors','MSc qualified'],['4','Core Subjects','full curriculum'],['3yrs','Years of Excellence','est. 2021'],['24h','Tutor Response','turnaround time']].map(([v,l,s])=>`<div style="text-align:center"><div class="scount">${v}</div><div style="font-weight:700;font-size:14px;color:#fff;margin-top:8px">${l}</div><div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px">${s}</div></div>`).join(''));
+
+  // testimonials
+  const td=[{n:'Ama Asante',r:'SHS 2 Student',t:'D-Maths transformed my understanding of calculus. I went from failing to scoring 91% in 3 months. The online classes are engaging and the tutor explains things so clearly.'},{n:'Kwabena Ofosu',r:'Parent of JHS 3 Student',t:"My daughter's confidence in mathematics has improved remarkably. The personalised feedback and progress tracking lets me stay involved in her learning journey."},{n:'Efua Mensah',r:'University Freshman',t:'D-Maths prepared me exceptionally well for my university entrance exams. I credit this centre for my distinction in mathematics. Highly recommended!'},{n:'Dr. Kofi Agyeman',r:'Parent & STEM Advocate',t:'The quality of instruction here rivals any international institution. The structured curriculum, modern tools and dedicated tutors make D-Maths truly exceptional.'}];
+  html('test-grid',td.map(t=>`<div class="tcard"><div style="display:flex;gap:4px;margin-bottom:14px">${IC.star.repeat(5)}</div><p style="font-size:14.5px;color:var(--g700);line-height:1.75;margin-bottom:20px;font-style:italic">"${t.t}"</p><div style="display:flex;align-items:center;gap:12px;padding-top:16px;border-top:1px solid var(--g100)"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-m));display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--gold-b)">${t.n[0]+t.n.split(' ')[1][0]}</span></div><div><div style="font-weight:700;font-size:14px;color:var(--g900)">${t.n}</div><div style="font-size:12px;color:var(--g400)">${t.r}</div></div></div></div>`).join(''));
+
+  // contact info
+  html('cinfo',[[IC.mail,'Email Us','info@dmaths.edu.gh','hello@dmaths.edu.gh'],[IC.phone,'Call / WhatsApp','+233 24 000 1234','+233 20 000 5678'],[IC.map,'Location','East Legon, Accra','Greater Accra Region, Ghana'],[IC.clock,'Office Hours','Mon–Fri: 8AM – 8PM','Sat: 9AM – 5PM']].map(([icon,l,l1,l2])=>`<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:20px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(212,160,23,.18);border:1px solid rgba(212,160,23,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)">${icon}</div><div><div style="font-size:12px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">${l}</div><div style="font-size:14px;color:var(--g900);font-weight:600">${l1}</div><div style="font-size:13.5px;color:var(--g500)">${l2}</div></div></div>`).join(''));
+
+  // footer
+  html('footer-g',`<div>${logo(true)}<p style="font-size:14px;color:rgba(255,255,255,.45);line-height:1.75;margin-top:16px;max-width:280px">Delivering world-class online mathematics education to JHS and SHS students across Ghana and beyond.</p></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Quick Links</h4><div style="display:flex;flex-direction:column;gap:10px">${['Home','About','Subjects','How It Works','Testimonials','Contact'].map(l=>`<span style="font-size:13.5px;color:rgba(255,255,255,.45);cursor:pointer">${l}</span>`).join('')}</div></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Subjects</h4><div style="display:flex;flex-direction:column;gap:10px">${['Algebra','Calculus','Statistics','Geometry','Further Maths','WASSCE Revision'].map(l=>`<span style="font-size:13.5px;color:rgba(255,255,255,.45);cursor:pointer">${l}</span>`).join('')}</div></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Student Portal</h4><p style="font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:16px">Already enrolled? Access your learning portal here.</p><button class="btn btn-gold btn-w" onclick="goGateway()">Enter Portal</button></div>`);
+
+  // fix about-grid on mobile
+  const ag=$id('about-grid'); if(ag&&window.innerWidth<860){ag.style.gridTemplateColumns='1fr';}
+  const cg=$id('contact-grid'); if(cg&&window.innerWidth<860){cg.style.gridTemplateColumns='1fr';}
+}
+
+async function sendContact(){
+  const n=$id('cn')?.value.trim(), e=$id('ce')?.value.trim(), m=$id('cm')?.value.trim();
+  if(!n||!e||!m){toast('Please fill in all required fields.','e');return;}
+  await API.sendContact({name:n,email:e,phone:$id('cp')?.value||'',subject:$id('cs')?.value||'',message:m});
+  toast('Message sent! We\'ll respond within 24 hours.','s');
+  ['cn','ce','cp','cm'].forEach(id=>{const el=$id(id);if(el)el.value='';});
+}
+
+// ════════════════════════════════════
+//  GATEWAY
+// ════════════════════════════════════
+function renderGW(mode){
+  S.gwMode=mode;
+  const host=$id('gw-content'); if(!host)return;
+  if(mode==='choose'){
+    host.innerHTML=`<div class="gwcard"><div class="gwhdr"><div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(212,160,23,.1)"></div>${logo(true)}<p style="color:rgba(255,255,255,.5);font-size:14px;margin-top:12px">Welcome back — choose your portal</p></div><div style="padding:28px;display:flex;flex-direction:column;gap:14px"><button class="btn btn-gold btn-w" style="min-height:52px" onclick="renderGW('student')">${IC.user} Student Login</button><button class="btn btn-navy btn-w" style="min-height:52px;border:1px solid rgba(255,255,255,.08)" onclick="renderGW('admin')">${IC.shield} Administrator Login</button><div class="div"></div><p style="text-align:center;font-size:14px;color:var(--g500)">New to D-Maths?</p><button class="btn btn-og btn-w" style="min-height:48px" onclick="goSignup()">${IC.plus} Apply for Enrolment</button></div></div>`;
+    return;
+  }
+  if(mode==='student'){
+    host.innerHTML=`<div class="gwcard"><div class="gwhdr"><div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="display:flex;align-items:center;justify-content:space-between">${logo(true)}<span class="badge b-gold">Student Portal</span></div></div><div style="padding:28px"><div id="gw-err"></div><div class="fg"><label class="fl">Student ID <span class="freq">*</span></label><input class="fi-el" id="gw-id" placeholder="e.g. DM-2024-0001" oninput="this.value=this.value.toUpperCase()"></div><div class="fg"><label class="fl">Password <span class="freq">*</span></label><div style="position:relative"><input class="fi-el" id="gw-pw" type="password" placeholder="Enter your password" style="padding-right:52px" onkeydown="if(event.key==='Enter')doSLogin()"><button onclick="tpw('gw-pw',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--g400);font-size:12px;font-weight:600;font-family:var(--font-body)">Show</button></div></div><div style="display:flex;justify-content:space-between;margin-top:-8px;margin-bottom:22px"><button onclick="renderGW('choose')" style="background:none;border:none;color:var(--g400);font-size:13px;cursor:pointer;font-family:var(--font-body)">← Back</button><button style="background:none;border:none;color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body)">Forgot password?</button></div><button class="btn btn-gold btn-w" style="min-height:48px;font-size:15px" id="gw-sb" onclick="doSLogin()">Sign In ${IC.ar}</button><p style="text-align:center;margin-top:18px;font-size:13px;color:var(--g400)">Not enrolled yet? <button onclick="goSignup()" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:13px;font-family:var(--font-body)">Apply here →</button></p><div style="margin-top:16px;padding:12px 14px;background:var(--g50);border-radius:var(--r);border:1px solid var(--g200);font-size:12.5px;color:var(--g500)">💡 Demo: <strong>DM-2024-0001</strong> / <strong>dmaths123</strong></div></div></div>`;
+    return;
+  }
+  if(mode==='admin'){
+    host.innerHTML=`<div class="gwcard"><div style="background:linear-gradient(140deg,var(--navy-d),var(--navy-l));padding:28px;position:relative;overflow:hidden"><div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="display:flex;align-items:center;justify-content:space-between">${logo(true)}<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);padding:4px 12px;border-radius:99px">${IC.shield}<span style="font-size:11px;color:rgba(255,255,255,.6);font-weight:700;letter-spacing:.08em">ADMIN</span></div></div></div><div style="padding:28px"><div id="gw-aerr"></div><div class="fg"><label class="fl">Admin Email</label><input class="fi-el" id="gw-aem" type="email" placeholder="admin@dmaths.com"></div><div class="fg"><label class="fl">Password</label><input class="fi-el" id="gw-apw" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')doALogin()"></div><div style="margin-bottom:20px"><button onclick="renderGW('choose')" style="background:none;border:none;color:var(--g400);font-size:13px;cursor:pointer;font-family:var(--font-body)">← Back</button></div><button class="btn btn-navy btn-w" style="min-height:48px;font-size:15px" id="gw-ab" onclick="doALogin()">${IC.shield} Access Dashboard</button><div style="margin-top:16px;padding:12px 14px;background:var(--g50);border-radius:var(--r);border:1px solid var(--g200);font-size:12.5px;color:var(--g500)">💡 Demo: <strong>admin@dmaths.com</strong> / <strong>admin123</strong></div></div></div>`;
+  }
+}
+
+function tpw(id,btn){const el=$id(id);if(!el)return;el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'Show':'Hide';}
+function gwErr(id,msg){const el=$id(id);if(el)el.innerHTML=`<div class="al al-e">${IC.warn} ${msg}</div>`;}
+
+async function doSLogin(){
+  const sid=$id('gw-id')?.value.trim(), pw=$id('gw-pw')?.value;
+  if(!sid||!pw){gwErr('gw-err','Please enter your Student ID and password.');return;}
+  const btn=$id('gw-sb'); if(btn)btn.innerHTML='<div class="spinner"></div>';
+  const student=await API.studentLogin(sid,pw);
+  if(student){S.user=student;S.role='student';show('vpt');initPortal();}
+  else{if(btn)btn.innerHTML=`Sign In ${IC.ar}`;gwErr('gw-err','Invalid Student ID or password.');}
+}
+
+async function doALogin(){
+  const em=$id('gw-aem')?.value.trim(), pw=$id('gw-apw')?.value;
+  if(!em||!pw){gwErr('gw-aerr','Please enter your admin credentials.');return;}
+  const btn=$id('gw-ab'); if(btn)btn.innerHTML='<div class="spinner spd"></div>';
+  const admin=await API.adminLogin(em,pw);
+  if(admin){S.user=admin;S.role='admin';show('vpt');initPortal();}
+  else{if(btn)btn.innerHTML=`${IC.shield} Access Dashboard`;gwErr('gw-aerr','Invalid admin credentials.');}
+}
+
+// ════════════════════════════════════
+//  SIGNUP FLOW
+// ════════════════════════════════════
+function initSignup(){
+  S.suStep=1; S.suData={};
+  html('logo-s',logo(true));
+  renderSUStep();
+}
+
+function renderSUBar(){
+  const titles=['Personal Info','Academic Details','Payment Info'];
+  html('stepbar',`<div style="display:flex;align-items:center">${titles.map((t,i)=>{const n=i+1,done=S.suStep>n,act=S.suStep===n;return`<div style="display:flex;align-items:center;${i<titles.length-1?'flex:1':''}"><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:${done?'var(--green)':act?'var(--gold)':'var(--g200)'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${act?'var(--navy-d)':'#fff'};flex-shrink:0;transition:all .3s">${done?IC.chk:n}</div><div><div style="font-size:11px;color:${act?'var(--gold)':'var(--g400)'};font-weight:700;text-transform:uppercase;letter-spacing:.07em">Step ${n}</div><div style="font-size:13px;font-weight:600;color:${act?'var(--g900)':'var(--g400)'}">${t}</div></div></div>${i<titles.length-1?`<div style="flex:1;height:2px;background:${done?'var(--green)':'var(--g200)'};margin:0 12px;transition:background .3s"></div>`:''}</div>`}).join('')}</div>`);
+}
+
+function renderSUStep(){
+  renderSUBar();
+  const d=S.suData;
+  const prev=$id('prev-btn'), nxt=$id('next-btn');
+  if(prev)prev.style.display=S.suStep>1?'inline-flex':'none';
+  if(nxt)nxt.innerHTML=S.suStep<3?`Next Step ${IC.ar}`:`${IC.send} Submit Application`;
+  const subs=['Algebra','Calculus','Statistics','Geometry','Further Mathematics','Core Maths Revision'];
+
+  let content='';
+  if(S.suStep===1){
+    content=`<h2 style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--g900);margin-bottom:6px">Personal Information</h2><p style="color:var(--g400);font-size:14px;margin-bottom:24px">Provide your personal details to begin your application.</p><div class="frow"><div class="fg"><label class="fl">First Name <span class="freq">*</span></label><input class="fi-el" id="su-fn" placeholder="e.g. Akosua" value="${d.firstName||''}"></div><div class="fg"><label class="fl">Last Name <span class="freq">*</span></label><input class="fi-el" id="su-ln" placeholder="e.g. Mensah" value="${d.lastName||''}"></div></div><div class="frow"><div class="fg"><label class="fl">Email Address <span class="freq">*</span></label><input class="fi-el" id="su-em" type="email" placeholder="student@email.com" value="${d.email||''}"></div><div class="fg"><label class="fl">Phone Number <span class="freq">*</span></label><input class="fi-el" id="su-ph" type="tel" placeholder="+233 XX XXX XXXX" value="${d.phone||''}"></div></div><div class="frow"><div class="fg"><label class="fl">Date of Birth</label><input class="fi-el" id="su-dob" type="date" value="${d.dob||''}"></div><div class="fg"><label class="fl">Home Address</label><input class="fi-el" id="su-addr" placeholder="Your area" value="${d.address||''}"></div></div>`;
+  }
+  if(S.suStep===2){
+    content=`<h2 style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--g900);margin-bottom:6px">Academic Details</h2><p style="color:var(--g400);font-size:14px;margin-bottom:24px">Tell us about your academic level and subjects you want to study.</p><div class="fg"><label class="fl">Academic Level <span class="freq">*</span></label><select class="fi-el" id="su-lvl">${['JHS 1','JHS 2','JHS 3','SHS 1','SHS 2','SHS 3','University'].map(l=>`<option ${(d.level||'JHS 1')===l?'selected':''}>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Subjects of Interest <span class="freq">*</span></label><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:8px">${subs.map(s=>{const sel=(d.subjects||[]).includes(s);return`<div class="subchk" data-sub="${s}" onclick="toggleSub('${s}',this)" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1.5px solid ${sel?'var(--gold)':'var(--g200)'};background:${sel?'var(--gold-pale)':'var(--white)'};cursor:pointer;transition:all .18s"><div style="width:18px;height:18px;border-radius:5px;border:2px solid ${sel?'var(--gold)':'var(--g300)'};background:${sel?'var(--gold)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${sel?IC.chk.replace('stroke="currentColor"','stroke="var(--navy-d)"'):''}</div><span style="font-size:13.5px;font-weight:500;color:${sel?'var(--gold-dark)':'var(--g700)'}">${s}</span></div>`;}).join('')}</div></div><div class="frow"><div class="fg"><label class="fl">Parent/Guardian Name <span class="freq">*</span></label><input class="fi-el" id="su-gn" placeholder="Full name" value="${d.guardian||''}"></div><div class="fg"><label class="fl">Guardian Contact <span class="freq">*</span></label><input class="fi-el" id="su-gc" type="tel" placeholder="+233 XX XXX XXXX" value="${d.guardianContact||''}"></div></div>`;
+  }
+  if(S.suStep===3){
+    content=`<h2 style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--g900);margin-bottom:6px">Payment Information</h2><p style="color:var(--g400);font-size:14px;margin-bottom:20px">Provide your payment details. Your account will be activated after admin verification.</p><div class="al al-i">${IC.warn} Payment must be made first. Send to: <strong>MTN MoMo: 024-000-1234</strong> or <strong>Telecel Cash: 020-000-5678</strong>. Use your full name as reference.</div><div class="frow"><div class="fg"><label class="fl">Payment Reference <span class="freq">*</span></label><input class="fi-el" id="su-ref" placeholder="e.g. PAY-8821 or transaction ID" value="${d.paymentRef||''}"></div><div class="fg"><label class="fl">Payment Method <span class="freq">*</span></label><select class="fi-el" id="su-pm"><option value="">Select method</option>${['MTN Mobile Money','Telecel Cash','AirtelTigo Money','Bank Transfer','Cash'].map(m=>`<option ${(d.paymentMethod||'')===m?'selected':''}>${m}</option>`).join('')}</select></div></div><div class="frow"><div class="fg"><label class="fl">Amount Paid (GHS) <span class="freq">*</span></label><input class="fi-el" id="su-amt" type="number" placeholder="e.g. 450" value="${d.paymentAmt||''}"></div><div class="fg"><label class="fl">Payment Date <span class="freq">*</span></label><input class="fi-el" id="su-pd" type="date" value="${d.paymentDate||''}"></div></div><div style="background:var(--gold-pale);border:1px solid rgba(212,160,23,.28);border-radius:var(--r-l);padding:18px 20px"><p style="font-size:13.5px;color:var(--gold-dark);font-weight:600;margin-bottom:8px">📋 What happens next?</p><p style="font-size:13px;color:var(--gold-dark);line-height:1.7">After submission, our admin team will verify your payment within <strong>24 hours</strong>. You'll receive an email with your Student ID and login credentials once approved.</p></div>`;
+  }
+  html('sucard',content);
+}
+
+function toggleSub(sub,el){
+  S.suData.subjects=S.suData.subjects||[];
+  const idx=S.suData.subjects.indexOf(sub);
+  const now=idx===-1;
+  if(now)S.suData.subjects.push(sub); else S.suData.subjects.splice(idx,1);
+  el.style.borderColor=now?'var(--gold)':'var(--g200)';
+  el.style.background=now?'var(--gold-pale)':'var(--white)';
+  const box=el.querySelector('div');
+  if(box){box.style.borderColor=now?'var(--gold)':'var(--g300)';box.style.background=now?'var(--gold)':'transparent';box.innerHTML=now?IC.chk.replace('stroke="currentColor"','stroke="var(--navy-d)"'):'';}
+  const sp=el.querySelector('span');
+  if(sp)sp.style.color=now?'var(--gold-dark)':'var(--g700)';
+}
+
+function suPrev(){if(S.suStep>1){S.suStep--;renderSUStep();}}
+
+async function suNext(){
+  const d=S.suData;
+  if(S.suStep===1){
+    d.firstName=$id('su-fn')?.value.trim()||''; d.lastName=$id('su-ln')?.value.trim()||'';
+    d.email=$id('su-em')?.value.trim()||''; d.phone=$id('su-ph')?.value.trim()||'';
+    d.dob=$id('su-dob')?.value||''; d.address=$id('su-addr')?.value.trim()||'';
+    if(!d.firstName||!d.lastName||!d.email||!d.phone){toast('Please fill in all required fields.','e');return;}
+    S.suStep=2; renderSUStep(); return;
+  }
+  if(S.suStep===2){
+    d.level=$id('su-lvl')?.value||'';
+    d.guardian=$id('su-gn')?.value.trim()||''; d.guardianContact=$id('su-gc')?.value.trim()||'';
+    if(!(d.subjects||[]).length){toast('Please select at least one subject.','e');return;}
+    if(!d.guardian||!d.guardianContact){toast('Please provide guardian details.','e');return;}
+    S.suStep=3; renderSUStep(); return;
+  }
+  if(S.suStep===3){
+    d.paymentRef=$id('su-ref')?.value.trim()||''; d.paymentMethod=$id('su-pm')?.value||'';
+    d.paymentAmt=$id('su-amt')?.value.trim()||''; d.paymentDate=$id('su-pd')?.value||'';
+    if(!d.paymentRef||!d.paymentMethod||!d.paymentAmt){toast('Please fill in all payment details.','e');return;}
+    const btn=$id('next-btn'); if(btn)btn.innerHTML='<div class="spinner spd"></div>';
+    const payload={...d,id:'REQ-'+Date.now(),status:'pending',applied:new Date().toISOString().split('T')[0]};
+    await API.submitApp(payload);
+    S.apps.push(payload); S.pendApp=payload;
+    renderPending(payload);
+    show('vp');
+  }
+}
+
+function renderPending(app){
+  html('pend-content',`<div class="gwcard"><div style="background:linear-gradient(135deg,var(--navy-d),var(--navy-m));padding:32px;text-align:center;position:relative;overflow:hidden"><div style="position:absolute;top:-40px;left:-40px;width:150px;height:150px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="width:72px;height:72px;border-radius:50%;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:pulse 2s infinite;font-size:32px">⏳</div><h2 style="font-family:var(--font-display);font-weight:700;font-size:26px;color:#fff;margin-bottom:8px">Application Under Review</h2><p style="color:rgba(255,255,255,.55);font-size:14px">Your enrolment request has been submitted</p></div><div style="padding:28px"><div class="al al-i">${IC.clock} Awaiting admin verification within <strong>24 hours</strong>. Watch for email at <strong>${app.email}</strong>.</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">${[['Applicant',`${app.firstName} ${app.lastName}`],['Reference',app.paymentRef],['Amount',`GHS ${app.paymentAmt}`],['Submitted',app.applied],['Status','Pending Review']].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--g50);border-radius:var(--r)"><span style="font-size:13px;color:var(--g500)">${l}</span><span style="font-size:13.5px;font-weight:700;color:${l==='Status'?'var(--amber)':'var(--g900)'}">${v}</span></div>`).join('')}</div><button class="btn btn-navy btn-w" onclick="goLanding()" style="margin-bottom:12px">${IC.home} Return to D-Maths</button><p style="text-align:center;font-size:13px;color:var(--g400)">Questions? Email <strong style="color:var(--gold)">info@dmaths.edu.gh</strong></p></div></div>`);
+}
+</script>
+<script>
+// ════════════════════════════════════
+//  PORTAL INIT
+// ════════════════════════════════════
+function initPortal(){
+  const isAdmin=S.role==='admin';
+  const u=S.user;
+  const name=isAdmin?u.name:`${u.firstName} ${u.lastName}`;
+
+  // Logos
+  html('sb-logo',logo(true));
+  html('tb-logo',logo(true));
+  $id('sb-role').textContent=isAdmin?'ADMINISTRATOR':'STUDENT PORTAL';
+
+  // User info
+  html('sb-user',`${isAdmin?`<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-b));display:flex;align-items:center;justify-content:center;flex-shrink:0">${IC.shield.replace('stroke="currentColor"','stroke="var(--navy-d)"')}</div>`:av(name,36)}<div style="overflow:hidden"><div style="color:#fff;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div><div style="color:rgba(255,255,255,.38);font-size:11px">${isAdmin?u.email:u.id}</div></div>`);
+  html('tb-av',av(name,32));
+  $id('pmain').classList.add('pmc');
+
+  // Nav items
+  const navItems=isAdmin?[
+    {id:'dashboard',ic:IC.home,label:'Dashboard'},
+    {id:'applications',ic:IC.uc,label:'Applications',badge:S.apps.filter(a=>a.status==='pending').length},
+    {id:'students',ic:IC.users,label:'Students'},
+    {id:'classes',ic:IC.video,label:'Classes'},
+    {id:'notices',ic:IC.bell,label:'Announcements'},
+    {id:'reports',ic:IC.chart,label:'Reports'},
+  ]:[
+    {id:'dashboard',ic:IC.home,label:'Dashboard'},
+    {id:'classes',ic:IC.video,label:'My Classes'},
+    {id:'assignments',ic:IC.file,label:'Assignments',badge:2},
+    {id:'progress',ic:IC.trend,label:'Progress'},
+    {id:'notices',ic:IC.bell,label:'Notices',badge:3},
+    {id:'profile',ic:IC.user,label:'Profile'},
+  ];
+
+  html('sb-nav',navItems.map(n=>`<button class="nl${S.activePg===n.id?' act':''}" onclick="navTo('${n.id}')">${n.ic}<span style="flex:1">${n.label}</span>${n.badge?`<span class="nbadge">${n.badge}</span>`:''}</button>`).join(''));
+
+  // Bottom nav (mobile)
+  const bnavItems=isAdmin?[
+    {id:'dashboard',ic:IC.home,label:'Home'},
+    {id:'applications',ic:IC.uc,label:'Apply'},
+    {id:'students',ic:IC.users,label:'Students'},
+    {id:'classes',ic:IC.video,label:'Classes'},
+    {id:'reports',ic:IC.chart,label:'Reports'},
+  ]:[
+    {id:'dashboard',ic:IC.home,label:'Home'},
+    {id:'classes',ic:IC.video,label:'Classes'},
+    {id:'assignments',ic:IC.file,label:'Tasks'},
+    {id:'progress',ic:IC.trend,label:'Progress'},
+    {id:'profile',ic:IC.user,label:'Profile'},
+  ];
+  html('pbnav',bnavItems.map(n=>`<button class="bni${S.activePg===n.id?' act':''}" onclick="navTo('${n.id}')">${n.ic.replace('width="16" height="16"','width="20" height="20"')}<span>${n.label}</span></button>`).join(''));
+
+  renderPage(S.activePg);
+}
+
+function navTo(pageId){
+  S.activePg=pageId;
+  // Update sidebar active
+  document.querySelectorAll('#sb-nav .nl').forEach(el=>{
+    el.classList.toggle('act',el.getAttribute('onclick').includes(`'${pageId}'`));
+  });
+  document.querySelectorAll('#pbnav .bni').forEach(el=>{
+    el.classList.toggle('act',el.getAttribute('onclick').includes(`'${pageId}'`));
+  });
+  closeSB();
+  renderPage(pageId);
+}
+
+function renderPage(id){
+  const isAdmin=S.role==='admin';
+  const pages={
+    dashboard: isAdmin?renderADash:renderSDash,
+    applications: renderAApps,
+    students: renderAStudents,
+    classes: isAdmin?renderAClasses:renderSClasses,
+    assignments: isAdmin?renderAAssignments:renderSAssignments,
+    notices: renderNotices,
+    reports: renderReports,
+    progress: renderSProgress,
+    profile: renderSProfile,
+  };
+  const fn=pages[id];
+  if(fn) fn();
+}
+
+// ════════════════════════════════════
+//  STUDENT PAGES
+// ════════════════════════════════════
+function renderSDash(){
+  const u=S.user;
+  html('portal-pages',`
+    <div class="pg on fi">
+      <div class="dhero">
+        <div style="position:absolute;right:-20px;top:-20px;width:220px;height:220px;border-radius:50%;background:radial-gradient(rgba(212,160,23,.22),transparent 70%)"></div>
+        <span class="chip chip-gold" style="margin-bottom:12px;font-size:11px;position:relative;z-index:1">🎓 ${u.level}</span>
+        <h1 style="font-family:var(--font-display);font-size:clamp(20px,4vw,32px);font-weight:700;color:#fff;margin-bottom:6px;position:relative;z-index:1">Welcome back, ${u.firstName}! 👋</h1>
+        <p style="color:rgba(255,255,255,.5);font-size:14px;position:relative;z-index:1">Student ID: <strong style="color:rgba(255,255,255,.8)">${u.id}</strong></p>
+      </div>
+      <div class="g4" style="margin-bottom:22px">
+        ${statCard('📅','Upcoming Classes','3',null,'var(--blue)')}
+        ${statCard('📝','Assignments Due','2','Due soon','var(--amber)')}
+        ${statCard('⭐','Average Score',u.avgScore+'%','+5 pts','var(--green)')}
+        ${statCard('✓','Attendance',u.attendance+'%',null,'var(--purple)')}
+      </div>
+      <div class="gdash">
+        <div class="card cp">
+          <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Score Progress</h3>
+          <canvas id="chart-score" height="180"></canvas>
+        </div>
+        <div class="card cp">
+          <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">Recent Activity</h3>
+          ${[['✅','Assignment graded: Quadratic Equations','2h ago','var(--green)'],['🔔','New notice: Mid-Term Schedule','5h ago','var(--gold)'],['🎬','Calculus class recording available','1d ago','var(--blue)'],['📄','Assignment submitted: Integration','2d ago','var(--purple)'],['✅','Attendance marked: Algebra class','3d ago','var(--green)']].map(([e,t,ts,c])=>`<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:13px"><div style="width:32px;height:32px;border-radius:9px;background:${c}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px">${e}</div><div><p style="font-size:13px;color:var(--g700);line-height:1.45">${t}</p><p style="font-size:11px;color:var(--g400);margin-top:2px">${ts}</p></div></div>`).join('')}
+        </div>
+      </div>
+    </div>`);
+  setTimeout(()=>makeScoreChart('chart-score'),50);
+}
+
+function renderSClasses(){
+  const myClasses=S.classes.filter(c=>c.students.includes(S.user.id));
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">My Classes</h2><p class="psub">${myClasses.length} enrolled subjects</p></div></div><div class="gcls">${myClasses.map(cls=>`<div class="card fu"><div style="border-top:3px solid var(--gold)"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:4px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400)">with ${cls.tutor}</p></div>${bdg(cls.platform)}</div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${cls.time}`)}${infoRow(IC.clock,'Duration',cls.duration)}<div class="div"></div><div style="display:flex;gap:9px;padding-top:4px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="toast('Opening class link...','i')">${IC.video} Join Class</button>${cls.recording?`<button class="btn btn-ghost btn-sm" onclick="toast('Opening recording...','i')">${IC.dl} Recording</button>`:''}</div></div></div>`).join('')}</div></div>`);
+}
+
+function renderSAssignments(){
+  const cols={Graded:'var(--green)',Submitted:'var(--blue)',Pending:'var(--amber)'};
+  const bgs={Graded:'var(--green-bg)',Submitted:'var(--blue-bg)',Pending:'var(--amber-bg)'};
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Track and submit your work</p></div></div><div style="display:flex;flex-direction:column;gap:14px">${S.assignments.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:46px;height:46px;border-radius:12px;background:${bgs[a.status]};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400)">${a.subject} · Due ${a.dueDate}</p></div>${bdg(a.status)}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65">${a.instructions}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 14px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:700;color:var(--green-t);margin-bottom:4px">Grade: ${a.grade}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.8">${a.feedback}</p></div>`:''}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="toast('Upload feature coming soon','i')">${IC.plus} Upload Submission</button>`:''}</div></div></div>`).join('')}</div></div>`);
+}
+
+function renderSProgress(){
+  const u=S.user;
+  const subData=[{n:'Algebra',s:87,c:'#F2BC3B',topics:[{n:'Quadratics',p:90},{n:'Polynomials',p:85},{n:'Inequalities',p:75}]},{n:'Calculus',s:90,c:'#60A5FA',topics:[{n:'Differentiation',p:92},{n:'Integration',p:88},{n:'Limits',p:80}]},{n:'Statistics',s:92,c:'#34D399',topics:[{n:'Probability',p:95},{n:'Distributions',p:91},{n:'Regression',p:85}]}];
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Progress Tracker</h2><p class="psub">Your academic growth at a glance</p></div></div><div class="gprog" style="margin-bottom:20px"><div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Score History</h3><canvas id="chart-progress" height="200"></canvas></div><div class="card cp" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px"><div style="position:relative;width:130px;height:130px"><svg viewBox="0 0 130 130" style="transform:rotate(-90deg);width:100%;height:100%"><circle cx="65" cy="65" r="54" fill="none" stroke="var(--g100)" stroke-width="10"/><circle cx="65" cy="65" r="54" fill="none" stroke="var(--gold-b)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${2*Math.PI*54*u.avgScore/100} ${2*Math.PI*54}"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--g900)">${u.avgScore}</span><span style="font-size:11px;color:var(--g400);font-weight:600">Overall</span></div></div><p style="font-weight:700;color:var(--g900);font-size:15px">Overall Average</p><p style="font-size:13px;color:var(--green);font-weight:600">↑ +5 points this month</p></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">${subData.map(s=>`<div class="card cp"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h4 style="font-weight:700;color:var(--g900);font-size:15px">${s.n}</h4><span style="font-family:var(--font-display);font-weight:700;font-size:22px;color:${s.c}">${s.s}%</span></div>${s.topics.map(t=>`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12.5px;color:var(--g500)">${t.n}</span><span style="font-size:12.5px;font-weight:700;color:var(--g900)">${t.p}%</span></div><div class="pt"><div class="pf" style="width:${t.p}%;background:linear-gradient(90deg,${s.c}bb,${s.c})"></div></div></div>`).join('')}</div>`).join('')}</div></div>`);
+  setTimeout(()=>makeProgressChart('chart-progress'),50);
+}
+
+function renderNotices(){
+  const isAdmin=S.role==='admin';
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">${isAdmin?'Announcements':'Notices & Announcements'}</h2></div>${isAdmin?`<button class="btn btn-gold" onclick="openAddNoticeModal()">${IC.send} Post Announcement</button>`:''}</div><div style="display:flex;flex-direction:column;gap:14px">${S.notices.map((n,i)=>`<div class="card fu" style="border-left:4px solid var(--gold)"><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:38px;height:38px;border-radius:10px;background:rgba(212,160,23,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🔔</div><div><h3 style="font-weight:700;font-size:15px;color:var(--g900)">${n.title}</h3><p style="font-size:12px;color:var(--g400);margin-top:2px">Posted ${n.date} · <strong>${n.target==='all'?'All Students':n.target}</strong></p></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${n.target==='all'?'b-navy':'b-blue'}">${n.target==='all'?'All':n.target}</span>${isAdmin?`<button class="btn btn-ghost btn-ico btn-xs" onclick="S.notices.splice(${i},1);renderNotices();toast('Deleted','s')">${IC.trash}</button>`:''}</div></div><p style="font-size:14px;color:var(--g500);line-height:1.7;padding-left:${isAdmin?50:0}px">${n.body}</p></div></div>`).join('')}</div></div>`);
+}
+
+function renderSProfile(){
+  const u=S.user;
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">My Profile</h2></div></div><div class="gsdet"><div style="display:flex;flex-direction:column;gap:14px"><div class="card cp" style="text-align:center">${av(`${u.firstName} ${u.lastName}`,72).replace('class="av"','class="av" style="margin:0 auto 14px"')}<h3 style="font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--g900)">${u.firstName} ${u.lastName}</h3><p style="font-size:13px;color:var(--g400);margin-bottom:8px">${u.id}</p><span class="chip chip-gold" style="font-size:11px">${u.level}</span><div class="div"></div><div style="display:flex;justify-content:space-around"><div style="text-align:center"><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--green)">${u.avgScore}%</div><div style="font-size:11px;color:var(--g400);margin-top:2px">Avg Score</div></div><div style="text-align:center"><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--blue)">${u.attendance}%</div><div style="font-size:11px;color:var(--g400);margin-top:2px">Attendance</div></div></div><div class="div"></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${u.subjects.map(s=>`<span class="badge b-blue">${s}</span>`).join('')}</div></div></div><div style="display:flex;flex-direction:column;gap:14px"><div class="card cp"><h4 style="font-family:var(--font-display);font-weight:700;color:var(--g900);margin-bottom:16px;font-size:18px">Personal Details</h4>${infoRow(IC.mail,'Email',u.email)}${infoRow(IC.phone,'Phone',u.phone)}${infoRow(IC.user,'Guardian',u.guardian)}${infoRow(IC.phone,'Guardian Contact',u.guardianContact)}</div><div class="card cp"><h4 style="font-family:var(--font-display);font-weight:700;color:var(--g900);margin-bottom:16px;font-size:18px">Change Password</h4><div class="fg"><label class="fl">Current Password</label><input class="fi-el" type="password" placeholder="••••••••"></div><div class="frow"><div class="fg"><label class="fl">New Password</label><input class="fi-el" type="password" placeholder="••••••••"></div><div class="fg"><label class="fl">Confirm New</label><input class="fi-el" type="password" placeholder="••••••••"></div></div><button class="btn btn-gold" onclick="toast('Password updated successfully','s')">Update Password</button></div></div></div></div>`);
+}
+
+// ════════════════════════════════════
+//  ADMIN PAGES
+// ════════════════════════════════════
+function renderADash(){
+  const pend=S.apps.filter(a=>a.status==='pending').length;
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h1 class="ptitle">Admin Dashboard</h1><p class="psub">D-Maths Tuition Centre — Control Panel</p></div></div>${pend?`<div style="background:var(--amber-bg);border:1px solid rgba(217,119,6,.28);border-radius:var(--r-l);padding:14px 20px;margin-bottom:22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">${IC.warn}<p style="flex:1;font-size:14px;color:var(--amber-t);font-weight:600">You have <strong>${pend} pending application${pend>1?'s':''}</strong> awaiting payment verification.</p><button class="btn btn-gold btn-sm" onclick="navTo('applications')">Review Now</button></div>`:''}<div class="g4" style="margin-bottom:22px">${statCard('👥','Total Students',S.students.length,'22% this month','var(--blue)')}${statCard('📋','Pending Applications',pend,null,'var(--amber)')}${statCard('🎬','Classes Today','2',null,'var(--gold)')}${statCard('📈','Avg Pass Rate','87%','+3% this term','var(--green)')}</div><div class="gdash" style="margin-bottom:22px"><div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Enrollment Growth</h3><canvas id="chart-enroll" height="180"></canvas></div><div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">Quick Actions</h3><div style="display:flex;flex-direction:column;gap:9px">${[['Review Applications','📋','applications'],['Manage Students','👥','students'],['Create Class','🎬','classes'],['Post Announcement','🔔','notices'],['View Reports','📊','reports']].map(([l,e,pg])=>`<button class="btn btn-ghost" style="justify-content:flex-start;padding:10px 14px;min-height:44px" onclick="navTo('${pg}')"><span style="font-size:18px">${e}</span><span style="flex:1;text-align:left;font-size:13.5px;color:var(--g700)">${l}</span>${l==='Review Applications'&&pend?`<span class="nbadge">${pend}</span>`:''}</button>`).join('')}</div></div></div><div class="card"><div style="padding:14px 20px 10px;border-bottom:1px solid var(--g100)"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900)">Recent Student Activity</h3></div><div class="tw"><table><thead><tr><th>Student</th><th>Activity</th><th>Subject</th><th>Time</th><th>Status</th></tr></thead><tbody>${[{n:'Amara Osei',a:'Assignment Submitted',s:'Calculus',t:'2h ago',st:'Active'},{n:'Kwame Mensah',a:'Class Attended',s:'Algebra',t:'4h ago',st:'Active'},{n:'Efua Asante',a:'Score Updated',s:'Statistics',t:'6h ago',st:'Active'},{n:'Nana Adjei',a:'Missed Class',s:'Algebra',t:'1d ago',st:'Inactive'}].map(r=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${av(r.n,32)}<span style="font-weight:700;font-size:13.5px">${r.n}</span></div></td><td style="color:var(--g500);font-size:13px">${r.a}</td><td><span class="chip" style="font-size:11px">${r.s}</span></td><td style="color:var(--g400);font-size:12px">${r.t}</td><td>${bdg(r.st)}</td></tr>`).join('')}</tbody></table></div></div></div>`);
+  setTimeout(()=>makeEnrollChart('chart-enroll'),50);
+}
+
+function renderAApps(){
+  const filtered=S.appFilter==='all'?S.apps:S.apps.filter(a=>a.status===S.appFilter);
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Enrolment Applications</h2><p class="psub">${S.apps.filter(a=>a.status==='pending').length} pending · ${S.apps.filter(a=>a.status==='approved').length} approved</p></div><div style="display:flex;gap:8px;flex-wrap:wrap">${['all','pending','approved','rejected'].map(f=>`<button class="btn btn-sm ${S.appFilter===f?'btn-navy':'btn-ghost'}" onclick="S.appFilter='${f}';renderAApps()" style="text-transform:capitalize">${f}</button>`).join('')}</div></div>${filtered.map((req,i)=>`<div class="rcard ${req.status}"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px"><div style="display:flex;gap:14px;align-items:flex-start">${av(`${req.firstName} ${req.lastName}`,48)}<div><h3 style="font-weight:700;font-size:16px;color:var(--g900)">${req.firstName} ${req.lastName}</h3><p style="font-size:13px;color:var(--g400);margin-bottom:6px">${req.email} · ${req.phone}</p><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="chip" style="font-size:11px">${req.level}</span>${req.subjects.map(s=>`<span class="badge b-blue" style="font-size:10px">${s}</span>`).join('')}</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">${bdg(req.status)}<button class="btn btn-ghost btn-sm" onclick="openAppModal(${i})">${IC.eye} View Details</button></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">${[[IC.card,'Ref',req.paymentRef],[IC.card,'Amount',`GHS ${req.paymentAmt}`],[IC.cal,'Date',req.paymentDate],[IC.clock,'Applied',req.applied]].map(([icon,l,v])=>`<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="color:var(--g300)">${icon}</span><span style="color:var(--g400)">${l}:</span><strong style="color:var(--g700)">${v}</strong></div>`).join('')}</div>${req.status==='pending'?`<div style="display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)"><button class="btn btn-ok btn-sm" style="flex:1" onclick="approveApp('${req.id}')">${IC.chk} Approve &amp; Create Account</button><button class="btn btn-err btn-sm" style="flex:1" onclick="rejectApp('${req.id}')">${IC.x} Reject</button></div>`:''}</div>`).join('')}</div>`);
+}
+
+async function approveApp(id){
+  await API.approveApp(id);
+  toast('Application approved — credentials will be emailed','s');
+  renderAApps();
+}
+async function rejectApp(id){
+  await API.rejectApp(id);
+  toast('Application rejected','e');
+  renderAApps();
+}
+
+function openAppModal(idx){
+  const req=S.apps[idx];
+  if(!req)return;
+  const filt=S.apps.filter((_,i)=>i===idx)[0];
+  openModal(`Application — ${req.firstName} ${req.lastName}`,`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">${infoRow(IC.user,'Full Name',`${req.firstName} ${req.lastName}`)}${infoRow(IC.mail,'Email',req.email)}${infoRow(IC.phone,'Phone',req.phone)}${infoRow('🎓','Level',req.level)}${infoRow(IC.card,'Payment Ref',req.paymentRef)}${infoRow(IC.card,'Amount Paid',`GHS ${req.paymentAmt}`)}${infoRow(IC.cal,'Payment Date',req.paymentDate)}${infoRow(IC.card,'Method',req.paymentMethod)}</div><div style="margin-bottom:16px"><label class="fl">Subjects</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${req.subjects.map(s=>`<span class="badge b-blue">${s}</span>`).join('')}</div></div>${req.status==='pending'?`<div style="display:flex;gap:10px;padding-top:8px"><button class="btn btn-ok" style="flex:1" onclick="approveApp('${req.id}');closeModal()">${IC.chk} Approve &amp; Send Credentials</button><button class="btn btn-err" onclick="rejectApp('${req.id}');closeModal()">${IC.x} Reject</button></div>`:req.status==='approved'?'<div class="al al-s">This application has been <strong>approved</strong>.</div>':'<div class="al al-e">This application was <strong>rejected</strong>.</div>'}`,true);
+}
+
+function renderAStudents(){
+  if(S.selStudent){renderStudentDetail();return;}
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Student Management</h2><p class="psub">${S.students.length} registered students</p></div><button class="btn btn-gold" onclick="openAddStudentModal()">${IC.plus} Add Student</button></div><div class="card"><div class="tw"><table><thead><tr><th>Student</th><th>ID</th><th>Level</th><th>Subjects</th><th>Score</th><th>Attend.</th><th>Status</th><th></th></tr></thead><tbody>${S.students.map(s=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<span style="font-weight:700;font-size:13.5px">${s.firstName} ${s.lastName}</span></div></td><td><code style="font-size:12px;background:var(--g50);border:1px solid var(--g100);padding:2px 7px;border-radius:6px">${s.id}</code></td><td style="color:var(--g500);font-size:13px">${s.level}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${s.subjects.slice(0,2).map(sub=>`<span class="badge b-blue" style="font-size:10px">${sub}</span>`).join('')}${s.subjects.length>2?`<span class="badge b-gray" style="font-size:10px">+${s.subjects.length-2}</span>`:''}</div></td><td><span style="font-weight:700;color:${s.avgScore>=80?'var(--green)':s.avgScore>=70?'var(--gold)':'var(--red)'};font-size:14px">${s.avgScore}%</span></td><td style="color:var(--g500);font-size:13px">${s.attendance}%</td><td>${bdg(s.isActive?'Active':'Inactive')}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico" onclick="S.selStudent='${s.id}';renderAStudents()">${IC.eye}</button><button class="btn btn-ghost btn-ico" onclick="toast('Edit coming soon','i')">${IC.edit}</button><button class="btn btn-ghost btn-ico" onclick="toast('Confirm in production','i')" style="color:var(--red)">${IC.trash}</button></div></td></tr>`).join('')}</tbody></table></div></div></div>`);
+}
+
+function renderStudentDetail(){
+  const s=S.students.find(x=>x.id===S.selStudent); if(!s){S.selStudent=null;renderAStudents();return;}
+  const notes=S.adminNotes[s.id]||[];
+  html('portal-pages',`<div class="pg on fi"><button class="btn btn-ghost btn-sm" style="margin-bottom:20px" onclick="S.selStudent=null;renderAStudents()">${IC.al} Back to Students</button><div class="gsdet"><div style="display:flex;flex-direction:column;gap:14px"><div class="card cp" style="text-align:center">${av(`${s.firstName} ${s.lastName}`,68).replace('class="av"','class="av" style="margin:0 auto 14px"')}<h2 style="font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--g900)">${s.firstName} ${s.lastName}</h2><p style="font-size:13px;color:var(--g400);margin-bottom:4px">${s.id}</p><span class="chip chip-gold" style="font-size:11px">${s.level}</span><div style="margin:12px 0">${bdg(s.isActive?'Active':'Inactive')}</div><div style="display:flex;justify-content:space-around;padding-top:12px;border-top:1px solid var(--g100);margin-bottom:12px"><div><div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--g900)">${s.avgScore}%</div><div style="font-size:11px;color:var(--g400)">Avg Score</div></div><div><div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--g900)">${s.attendance}%</div><div style="font-size:11px;color:var(--g400)">Attendance</div></div></div><div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:14px">${s.subjects.map(sub=>`<span class="badge b-blue">${sub}</span>`).join('')}</div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" style="flex:1" onclick="toast('Reset email sent','s')">${IC.lock} Reset PW</button><button class="btn btn-sm ${s.isActive?'btn-err':'btn-navy'}" style="flex:1" onclick="toast('Status updated','s')">${s.isActive?'Deactivate':'Activate'}</button></div></div><div class="card cp">${infoRow(IC.mail,'Email',s.email)}${infoRow(IC.phone,'Phone',s.phone)}${infoRow(IC.user,'Guardian',s.guardian)}${infoRow(IC.phone,'Contact',s.guardianContact)}</div></div><div style="display:flex;flex-direction:column;gap:16px"><div class="card cp"><h4 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Score Growth</h4><canvas id="chart-stu" height="200"></canvas></div><div class="card cp"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h4 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900)">Admin Notes</h4></div>${notes.map(n=>`<div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--r);padding:10px 12px;margin-bottom:9px"><p style="font-size:13px;color:var(--g700);line-height:1.55">${typeof n==='string'?n:n.note}</p></div>`).join('')}<textarea class="fi-el" id="note-ta" placeholder="Add a note about this student..." rows="3" style="margin-top:4px;margin-bottom:10px"></textarea><button class="btn btn-gold btn-sm" onclick="addNote('${s.id}')">Add Note</button></div></div></div></div>`);
+  setTimeout(()=>makeStudentChart('chart-stu'),50);
+}
+
+async function addNote(sid){
+  const ta=$id('note-ta'); if(!ta||!ta.value.trim())return;
+  const note=ta.value.trim();
+  if(!S.adminNotes[sid])S.adminNotes[sid]=[];
+  S.adminNotes[sid].push(note);
+  await API.saveNote(sid,note);
+  toast('Note saved','s');
+  ta.value='';
+  const container=ta.parentElement;
+  const noteEl=document.createElement('div');
+  noteEl.style.cssText='background:var(--g50);border:1px solid var(--g100);border-radius:var(--r);padding:10px 12px;margin-bottom:9px';
+  noteEl.innerHTML=`<p style="font-size:13px;color:var(--g700);line-height:1.55">${note}</p>`;
+  container.insertBefore(noteEl,ta);
+}
+
+function renderAClasses(){
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Class Management</h2><p class="psub">${S.classes.length} active classes</p></div><button class="btn btn-gold" onclick="openAddClassModal()">${IC.plus} Create Class</button></div><div class="gcls">${S.classes.map(cls=>`<div class="card" style="border-top:3px solid var(--gold)"><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:42px;height:42px;border-radius:12px;background:rgba(212,160,23,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">📹</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400)">${cls.tutor}</p></div></div><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico btn-xs" onclick="toast('Edit coming','i')">${IC.edit}</button><button class="btn btn-ghost btn-ico btn-xs" onclick="toast('Delete in production','i')" style="color:var(--red)">${IC.trash}</button></div></div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${cls.time}`)}${infoRow(IC.clock,'Duration',cls.duration)}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px">${S.students.filter(s=>cls.students.includes(s.id)).map(s=>`${av(`${s.firstName} ${s.lastName}`,26)}`).join('')}<span style="font-size:12px;color:var(--g400);align-self:center;margin-left:4px">${cls.students.length} students</span></div><div class="div"></div><div style="display:flex;gap:9px;padding-top:4px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="toast('Attendance marked','s')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="toast('Recording saved','s')">+ Recording</button></div></div></div>`).join('')}</div></div>`);
+}
+
+function renderAAssignments(){
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Manage and grade student work</p></div><button class="btn btn-gold" onclick="openAddAssignModal()">${IC.plus} New Assignment</button></div><div class="tw"><div class="card"><table><thead><tr><th>Assignment</th><th>Subject</th><th>Due Date</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>${S.assignments.map(a=>`<tr><td><div><p style="font-weight:700;font-size:14px;color:var(--g900)">${a.title}</p><p style="font-size:12px;color:var(--g400);margin-top:2px">${a.instructions.slice(0,50)}...</p></div></td><td><span class="chip" style="font-size:11px">${a.subject}</span></td><td style="font-size:13px;color:var(--g500)">${a.dueDate}</td><td style="font-size:13px;color:var(--g500)">${a.status==='Graded'?'✅ Graded':a.status==='Submitted'?'📩 Submitted':'⏳ Pending'}</td><td>${bdg(a.status)}</td><td>${a.status==='Submitted'?`<button class="btn btn-gold btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Grade</button>`:''}</td></tr>`).join('')}</tbody></table></div></div></div>`);
+}
+
+function gradeModal(aid){
+  const a=S.assignments.find(x=>x.id===aid);if(!a)return;
+  openModal(`Grade: ${a.title}`,`<div class="fg"><label class="fl">Grade (out of 100)</label><input class="fi-el" id="grade-score" type="number" min="0" max="100" placeholder="e.g. 85"></div><div class="fg"><label class="fl">Feedback</label><textarea class="fi-el" id="grade-fb" rows="3" placeholder="Write your feedback for the student..."></textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitGrade('${aid}')">Submit Grade</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+
+function submitGrade(aid){
+  const a=S.assignments.find(x=>x.id===aid);if(!a)return;
+  const score=$id('grade-score')?.value;
+  const fb=$id('grade-fb')?.value;
+  if(!score){toast('Please enter a grade','e');return;}
+  a.grade=parseInt(score); a.feedback=fb||''; a.status='Graded';
+  toast('Grade submitted','s'); closeModal();
+}
+
+function renderReports(){
+  html('portal-pages',`<div class="pg on fi"><div class="phdr"><div><h2 class="ptitle">Reports &amp; Analytics</h2></div><button class="btn btn-ghost btn-sm" onclick="toast('Exporting...','i')">${IC.dl} Export All</button></div><div class="gdash" style="margin-bottom:20px"><div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Subject Performance</h3><canvas id="chart-subj" height="200"></canvas></div><div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Enrollment Trend</h3><canvas id="chart-enroll2" height="200"></canvas></div></div><div class="g2">${[{title:'Top Performers',list:[...S.students].sort((a,b)=>b.avgScore-a.avgScore)},{title:'Needs Attention',list:[...S.students].sort((a,b)=>a.avgScore-b.avgScore)}].map(({title,list})=>`<div class="card cp"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900)">${title}</h3><button class="btn btn-ghost btn-xs" onclick="toast('Downloading...','i')">${IC.dl} CSV</button></div>${list.slice(0,4).map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:13px"><span style="width:22px;font-size:13px;font-weight:800;color:${i===0&&title==='Top Performers'?'var(--gold)':'var(--g300)'};text-align:center">#${i+1}</span>${av(`${s.firstName} ${s.lastName}`,32)}<div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:700;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.firstName} ${s.lastName}</p><div class="pt" style="margin-top:5px"><div class="pf" style="width:${s.avgScore}%;${title==='Needs Attention'&&s.avgScore<70?'background:linear-gradient(90deg,var(--red),#f87171)':''}"></div></div></div><span style="font-weight:800;color:${s.avgScore>=80?'var(--green)':s.avgScore>=70?'var(--gold)':'var(--red)'};font-size:14px">${s.avgScore}%</span></div>`).join('')}</div>`).join('')}</div></div>`);
+  setTimeout(()=>{
+    makeSubjectChart('chart-subj');
+    makeEnrollChart('chart-enroll2');
+  },50);
+}
+
+// ════════════════════════════════════
+//  MODALS — add/create
+// ════════════════════════════════════
+function openAddNoticeModal(){
+  openModal('Post Announcement',`<div class="fg"><label class="fl">Title <span class="freq">*</span></label><input class="fi-el" id="n-title" placeholder="Announcement title..."></div><div class="fg"><label class="fl">Message <span class="freq">*</span></label><textarea class="fi-el" id="n-body" rows="4" placeholder="Write your message..."></textarea></div><div class="frow"><div class="fg"><label class="fl">Target</label><select class="fi-el" id="n-tgt"><option value="all">All Students</option><option>Algebra Students</option><option>Calculus Students</option><option>Statistics Students</option></select></div><div class="fg"><label class="fl">Schedule (optional)</label><input class="fi-el" id="n-sched" type="datetime-local"></div></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitNotice()">Send Now</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+
+async function submitNotice(){
+  const t=$id('n-title')?.value.trim(), b=$id('n-body')?.value.trim();
+  if(!t||!b){toast('Please fill in title and message','e');return;}
+  const notice={id:'n'+Date.now(),title:t,body:b,date:new Date().toISOString().split('T')[0],target:$id('n-tgt')?.value||'all'};
+  await API.addNotice(notice);
+  S.notices.unshift(notice);
+  toast('Announcement posted to all students','s');
+  closeModal();
+}
+
+function openAddClassModal(){
+  openModal('Create New Class',`<div class="fg"><label class="fl">Subject Name <span class="freq">*</span></label><input class="fi-el" id="cl-subj" placeholder="e.g. Algebra Fundamentals"></div><div class="fg"><label class="fl">Tutor Name <span class="freq">*</span></label><input class="fi-el" id="cl-tutor" placeholder="e.g. Mr. D. Mensah"></div><div class="frow"><div class="fg"><label class="fl">Day</label><select class="fi-el" id="cl-day"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div><div class="fg"><label class="fl">Time</label><input class="fi-el" id="cl-time" type="time"></div></div><div class="frow"><div class="fg"><label class="fl">Duration</label><input class="fi-el" id="cl-dur" placeholder="e.g. 1.5 hrs"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="cl-plat"><option>Zoom</option><option>Google Meet</option></select></div></div><div class="fg"><label class="fl">Meeting Link</label><input class="fi-el" id="cl-link" placeholder="https://..." type="url"></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitClass()">Create Class</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+
+async function submitClass(){
+  const subj=$id('cl-subj')?.value.trim();
+  if(!subj){toast('Please enter a subject name','e');return;}
+  const cls={id:'c'+Date.now(),subject:subj,tutor:$id('cl-tutor')?.value||'',day:$id('cl-day')?.value||'Monday',time:$id('cl-time')?.value||'',duration:$id('cl-dur')?.value||'',platform:$id('cl-plat')?.value||'Zoom',link:$id('cl-link')?.value||'#',students:[],recording:false};
+  await API.addClass(cls);
+  S.classes.push(cls);
+  toast('Class created successfully','s');
+  closeModal();
+}
+
+function openAddStudentModal(){
+  openModal('Add Student Manually',`<div class="al al-i">${IC.warn} A unique Student ID and temporary password will be auto-generated and emailed upon creation.</div><div class="frow"><div class="fg"><label class="fl">First Name <span class="freq">*</span></label><input class="fi-el" id="as-fn" placeholder="e.g. Akua"></div><div class="fg"><label class="fl">Last Name <span class="freq">*</span></label><input class="fi-el" id="as-ln" placeholder="e.g. Boateng"></div></div><div class="fg"><label class="fl">Email <span class="freq">*</span></label><input class="fi-el" id="as-em" type="email" placeholder="student@email.com"></div><div class="frow"><div class="fg"><label class="fl">Level</label><select class="fi-el" id="as-lvl">${['JHS 1','JHS 2','JHS 3','SHS 1','SHS 2','SHS 3'].map(l=>`<option>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Phone</label><input class="fi-el" id="as-ph" placeholder="+233 XX XXX XXXX"></div></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitAddStudent()">Create Account</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+
+function submitAddStudent(){
+  const fn=$id('as-fn')?.value.trim(), ln=$id('as-ln')?.value.trim(), em=$id('as-em')?.value.trim();
+  if(!fn||!ln||!em){toast('Please fill in all required fields','e');return;}
+  const newId='DM-2024-000'+(S.students.length+1);
+  S.students.push({id:newId,firstName:fn,lastName:ln,email:em,phone:$id('as-ph')?.value||'',guardian:'',guardianContact:'',subjects:[],level:$id('as-lvl')?.value||'JHS 1',isActive:true,avgScore:0,attendance:0});
+  toast(`Student account created (${newId}) — credentials emailed`,'s');
+  closeModal();
+}
+
+function openAddAssignModal(){
+  openModal('New Assignment',`<div class="fg"><label class="fl">Title <span class="freq">*</span></label><input class="fi-el" id="aa-t" placeholder="Assignment title..."></div><div class="frow"><div class="fg"><label class="fl">Subject</label><select class="fi-el" id="aa-s"><option>Algebra</option><option>Calculus</option><option>Statistics</option><option>Geometry</option></select></div><div class="fg"><label class="fl">Due Date</label><input class="fi-el" id="aa-d" type="date"></div></div><div class="fg"><label class="fl">Instructions</label><textarea class="fi-el" id="aa-i" rows="3" placeholder="Instructions for students..."></textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitAssign()">Create Assignment</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+
+function submitAssign(){
+  const t=$id('aa-t')?.value.trim();
+  if(!t){toast('Please enter assignment title','e');return;}
+  S.assignments.push({id:'a'+Date.now(),title:t,subject:$id('aa-s')?.value||'Algebra',dueDate:$id('aa-d')?.value||'',instructions:$id('aa-i')?.value||'',status:'Pending',grade:null,feedback:null});
+  toast('Assignment created and assigned','s');
+  closeModal();
+}
+
+// ════════════════════════════════════
+//  STAT CARD HTML
+// ════════════════════════════════════
+function statCard(emoji,label,value,trend,color){
+  return `<div class="sc"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g400)">${label}</span><div style="width:42px;height:42px;border-radius:12px;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:20px">${emoji}</div></div><div style="font-family:var(--font-display);font-size:clamp(24px,3.5vw,30px);font-weight:700;color:var(--g900);margin-top:10px">${value}</div>${trend?`<div style="font-size:12px;color:var(--green);margin-top:6px;font-weight:600">↑ ${trend}</div>`:''}</div>`;
+}
+
+// ════════════════════════════════════
+//  CHARTS (Chart.js)
+// ════════════════════════════════════
+const CHART_DEFAULTS={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:"'Outfit',sans-serif",size:12},color:'#64748B',boxWidth:12}},tooltip:{backgroundColor:'#0A1628',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10,titleFont:{family:"'Outfit',sans-serif",size:13},bodyFont:{family:"'Outfit',sans-serif",size:12}}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Outfit',sans-serif",size:11},color:'#94A3B8'},border:{display:false}},y:{grid:{color:'#F1F5F9'},ticks:{font:{family:"'Outfit',sans-serif",size:11},color:'#94A3B8'},border:{display:false}}}};
+
+function destroyChart(id){if(S.charts[id]){S.charts[id].destroy();delete S.charts[id];}}
+
+function makeScoreChart(canvasId){
+  const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:S.scoreHistory.map(d=>d.m),datasets:[{label:'Algebra',data:S.scoreHistory.map(d=>d.A),borderColor:'#F2BC3B',backgroundColor:'rgba(242,188,59,.12)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4},{label:'Calculus',data:S.scoreHistory.map(d=>d.C),borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4},{label:'Statistics',data:S.scoreHistory.map(d=>d.S),borderColor:'#34D399',backgroundColor:'rgba(52,211,153,.1)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:60,max:100}}}});
+}
+
+function makeProgressChart(canvasId){
+  const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:S.scoreHistory.map(d=>d.m),datasets:[{label:'Algebra',data:S.scoreHistory.map(d=>d.A),borderColor:'#F2BC3B',tension:.4,borderWidth:2.5,pointRadius:3},{label:'Calculus',data:S.scoreHistory.map(d=>d.C),borderColor:'#60A5FA',tension:.4,borderWidth:2.5,pointRadius:3},{label:'Statistics',data:S.scoreHistory.map(d=>d.S),borderColor:'#34D399',tension:.4,borderWidth:2.5,pointRadius:3}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:60,max:100}}}});
+}
+
+function makeStudentChart(canvasId){
+  const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:S.scoreHistory.map(d=>d.m),datasets:[{label:'Algebra',data:S.scoreHistory.map(d=>d.A),borderColor:'#F2BC3B',tension:.4,borderWidth:2.5,pointRadius:3},{label:'Calculus',data:S.scoreHistory.map(d=>d.C),borderColor:'#60A5FA',tension:.4,borderWidth:2.5,pointRadius:3},{label:'Statistics',data:S.scoreHistory.map(d=>d.S),borderColor:'#34D399',tension:.4,borderWidth:2.5,pointRadius:3}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:60,max:100}}}});
+}
+
+function makeEnrollChart(canvasId){
+  const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:S.enrollData.map(d=>d.m),datasets:[{label:'Students',data:S.enrollData.map(d=>d.n),borderColor:'#D4A017',backgroundColor:'rgba(212,160,23,.12)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4}]},options:CHART_DEFAULTS});
+}
+
+function makeSubjectChart(canvasId){
+  const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
+  S.charts[canvasId]=new Chart(el,{type:'bar',data:{labels:['Algebra','Calculus','Statistics','Geometry'],datasets:[{label:'Class Average',data:[79,85,88,76],backgroundColor:['rgba(212,160,23,.8)','rgba(96,165,250,.8)','rgba(52,211,153,.8)','rgba(244,114,182,.8)'],borderRadius:6,borderSkipped:false}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:100}}}});
+}
+
+// ════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════
+window.addEventListener('load',()=>{
+  initLanding();
+  setTimeout(()=>{
+    const lov=$id('lov'); if(lov){lov.classList.add('fade');setTimeout(()=>lov.remove(),400);}
+  },1300);
+});
+</script>
+</body>
+</html>
