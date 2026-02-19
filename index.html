@@ -366,7 +366,7 @@ tbody tr:hover td{background:var(--g50)}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,100px);align-items:center" id="about-grid">
         <div>
           <div class="eyebrow">About D-Maths</div>
-          <h2 class="stitle" style="margin-bottom:20px">Ghana's Premier Online Mathematics Tuition Centre</h2>
+          <h2 class="stitle" style="margin-bottom:20px">Nigeria's Premier Online Mathematics Tuition Centre</h2>
           <p style="font-size:16px;color:var(--g500);line-height:1.8;margin-bottom:18px">D-Maths Tuition Centre was founded with one mission: to make exceptional mathematics education accessible to every student. Our expert tutors combine rigorous academic instruction with modern technology to deliver results that speak for themselves.</p>
           <p style="font-size:16px;color:var(--g500);line-height:1.8;margin-bottom:32px">Every student receives a personalised learning path, real-time progress tracking, and direct tutor support — all through our state-of-the-art online portal.</p>
           <div class="g2" id="afeat" style="gap:14px;margin-bottom:28px"></div>
@@ -394,7 +394,7 @@ tbody tr:hover td{background:var(--g50)}
       <div class="sctr" style="text-align:center;margin-bottom:52px">
         <div class="eyebrow" style="justify-content:center">What We Teach</div>
         <h2 class="stitle lt" style="margin-bottom:14px">Our Subject Offerings</h2>
-        <p class="ssub lt" style="margin:0 auto">Comprehensive mathematics curricula aligned with Ghana Education Service standards and international best practices.</p>
+        <p class="ssub lt" style="margin:0 auto">Comprehensive mathematics curricula aligned with Nigeria Education Service standards and international best practices.</p>
       </div>
       <div class="g3" id="subs-grid"></div>
     </div>
@@ -458,7 +458,7 @@ tbody tr:hover td{background:var(--g50)}
       <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1.2fr;gap:40px;margin-bottom:48px" id="footer-g"></div>
       <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <p style="font-size:13px;color:rgba(255,255,255,.3)">© <span id="yr"></span> D-Maths Tuition Centre. All rights reserved.</p>
-        <p style="font-size:13px;color:rgba(255,255,255,.3)">Designed with ♥ in Ghana</p>
+        <p style="font-size:13px;color:rgba(255,255,255,.3)">Designed with ♥ in Nigeria</p>
       </div>
     </div>
   </footer>
@@ -540,7 +540,7 @@ tbody tr:hover td{background:var(--g50)}
 //  Replace this URL after deploying your Apps Script web app.
 //  See: google-apps-script.gs for the backend code.
 // ════════════════════════════════════
-const SHEET_API = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID_HERE/exec";
+const SHEET_API = "https://script.google.com/macros/s/AKfycbzlN6onU5miTwtgojkNSiJxZaaqkk0WqAYV2qeASuvblYiWA-REpFOM4-VGNqJlix-l/exec";
 // ─────────────────────────────────────────────────────────────────
 
 // ════════════════════════════════════
@@ -809,10 +809,10 @@ function initLanding(){
   html('test-grid',td.map(t=>`<div class="tcard"><div style="display:flex;gap:4px;margin-bottom:14px">${IC.star.repeat(5)}</div><p style="font-size:14.5px;color:var(--g700);line-height:1.75;margin-bottom:20px;font-style:italic">"${t.t}"</p><div style="display:flex;align-items:center;gap:12px;padding-top:16px;border-top:1px solid var(--g100)"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-m));display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--gold-b)">${t.n[0]+t.n.split(' ')[1][0]}</span></div><div><div style="font-weight:700;font-size:14px;color:var(--g900)">${t.n}</div><div style="font-size:12px;color:var(--g400)">${t.r}</div></div></div></div>`).join(''));
 
   // contact info
-  html('cinfo',[[IC.mail,'Email Us','info@dmaths.edu.gh','hello@dmaths.edu.gh'],[IC.phone,'Call / WhatsApp','+233 24 000 1234','+233 20 000 5678'],[IC.map,'Location','East Legon, Accra','Greater Accra Region, Ghana'],[IC.clock,'Office Hours','Mon–Fri: 8AM – 8PM','Sat: 9AM – 5PM']].map(([icon,l,l1,l2])=>`<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:20px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(212,160,23,.18);border:1px solid rgba(212,160,23,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)">${icon}</div><div><div style="font-size:12px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">${l}</div><div style="font-size:14px;color:var(--g900);font-weight:600">${l1}</div><div style="font-size:13.5px;color:var(--g500)">${l2}</div></div></div>`).join(''));
+  html('cinfo',[[IC.mail,'Email Us','info@dmaths.edu.gh','hello@dmaths.edu.gh'],[IC.phone,'Call / WhatsApp','+233 24 000 1234','+233 20 000 5678'],[IC.map,'Location','East Legon, Accra','Greater Accra Region, Nigeria'],[IC.clock,'Office Hours','Mon–Fri: 8AM – 8PM','Sat: 9AM – 5PM']].map(([icon,l,l1,l2])=>`<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:20px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(212,160,23,.18);border:1px solid rgba(212,160,23,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)">${icon}</div><div><div style="font-size:12px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">${l}</div><div style="font-size:14px;color:var(--g900);font-weight:600">${l1}</div><div style="font-size:13.5px;color:var(--g500)">${l2}</div></div></div>`).join(''));
 
   // footer
-  html('footer-g',`<div>${logo(true)}<p style="font-size:14px;color:rgba(255,255,255,.45);line-height:1.75;margin-top:16px;max-width:280px">Delivering world-class online mathematics education to JHS and SHS students across Ghana and beyond.</p></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Quick Links</h4><div style="display:flex;flex-direction:column;gap:10px">${['Home','About','Subjects','How It Works','Testimonials','Contact'].map(l=>`<span style="font-size:13.5px;color:rgba(255,255,255,.45);cursor:pointer">${l}</span>`).join('')}</div></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Subjects</h4><div style="display:flex;flex-direction:column;gap:10px">${['Algebra','Calculus','Statistics','Geometry','Further Maths','WASSCE Revision'].map(l=>`<span style="font-size:13.5px;color:rgba(255,255,255,.45);cursor:pointer">${l}</span>`).join('')}</div></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Student Portal</h4><p style="font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:16px">Already enrolled? Access your learning portal here.</p><button class="btn btn-gold btn-w" onclick="goGateway()">Enter Portal</button></div>`);
+  html('footer-g',`<div>${logo(true)}<p style="font-size:14px;color:rgba(255,255,255,.45);line-height:1.75;margin-top:16px;max-width:280px">Delivering world-class online mathematics education to JHS and SHS students across Nigeria and beyond.</p></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Quick Links</h4><div style="display:flex;flex-direction:column;gap:10px">${['Home','About','Subjects','How It Works','Testimonials','Contact'].map(l=>`<span style="font-size:13.5px;color:rgba(255,255,255,.45);cursor:pointer">${l}</span>`).join('')}</div></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Subjects</h4><div style="display:flex;flex-direction:column;gap:10px">${['Algebra','Calculus','Statistics','Geometry','Further Maths','WASSCE Revision'].map(l=>`<span style="font-size:13.5px;color:rgba(255,255,255,.45);cursor:pointer">${l}</span>`).join('')}</div></div><div><h4 style="font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;margin-bottom:18px">Student Portal</h4><p style="font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:16px">Already enrolled? Access your learning portal here.</p><button class="btn btn-gold btn-w" onclick="goGateway()">Enter Portal</button></div>`);
 
   // fix about-grid on mobile
   const ag=$id('about-grid'); if(ag&&window.innerWidth<860){ag.style.gridTemplateColumns='1fr';}
