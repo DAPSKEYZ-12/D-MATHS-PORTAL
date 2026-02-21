@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -1287,7 +1287,7 @@ function renderPage(id){
 function renderSDash(){
   const u=S.user;
   const myClasses=S.classes.filter(c=>safeArr(c.students).includes(u.id));
-  const myAssigns=S.assignments.filter(a=>safeArr(u.subjects).some(s=>a.subject===s)||safeArr(a.assignedTo).includes(u.id));
+  const myAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||safeArr(a.assignedTo).includes(u.id));
   const pending=myAssigns.filter(a=>a.status==='Pending').length;
   const recent=S.notices.slice(0,3);
   html('portal-pages',`<div class="pg on fi">
@@ -1330,7 +1330,7 @@ function renderSClasses(){
 
 function renderSAssignments(){
   const u=S.user;
-  const myAssigns=S.assignments.filter(a=>safeArr(u.subjects).some(s=>a.subject===s)||safeArr(a.assignedTo).includes(u.id));
+  const myAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||safeArr(a.assignedTo).includes(u.id));
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Track and submit your work</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSAssignments)">${IC.refresh}</button>
@@ -1358,22 +1358,35 @@ function renderSProgress(){
     <div class="phdr"><div><h2 class="ptitle">Progress Tracker</h2><p class="psub">Your academic journey at a glance</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(()=>{const f=S.students.find(x=>x.id===S.user.id);if(f)S.user=f;renderSProgress();})">${IC.refresh} Refresh</button>
     </div>
-    <div class="gprog" style="margin-bottom:20px">
-      <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Score History</h3><canvas id="chart-progress" height="200"></canvas></div>
-      <div class="card cp" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
-        <div style="position:relative;width:140px;height:140px">
-          <svg viewBox="0 0 140 140" style="transform:rotate(-90deg);width:100%;height:100%">
-            <circle cx="70" cy="70" r="58" fill="none" stroke="var(--g100)" stroke-width="11"/>
-            <circle cx="70" cy="70" r="58" fill="none" stroke="url(#scG)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${circumference*score/100} ${circumference}"/>
-            <defs><linearGradient id="scG"><stop offset="0%" stop-color="var(--gold)"/><stop offset="100%" stop-color="var(--gold-b)"/></linearGradient></defs>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <span style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--g900)">${score}</span>
-            <span style="font-size:11px;color:var(--g400);font-weight:700">OVERALL</span>
-          </div>
-        </div>
-        <div style="text-align:center"><p style="font-weight:800;color:var(--g900);font-size:15px">Overall Average Score</p><p style="font-size:13px;color:var(--g400);margin-top:4px">Attendance: <strong style="color:var(--blue)">${u.attendance||0}%</strong></p></div>
-      </div>
+    <div class="card cp" style="margin-bottom:20px">
+      <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">📋 My Activity Log</h3>
+      ${(()=>{
+        const allAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||safeArr(a.assignedTo).includes(u.id));
+        if(!allAssigns.length) return '<p style="color:var(--g400);font-size:13.5px;font-weight:500;padding:8px 0">No activity yet — your assignment history will appear here.</p>';
+        return allAssigns.slice().reverse().map(a=>{
+          const statusColor=a.status==='Graded'?'var(--green)':a.status==='Submitted'?'var(--blue)':'var(--amber)';
+          const statusBg=a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)';
+          const icon=a.status==='Graded'?'✅':a.status==='Submitted'?'📤':'📝';
+          const typeTag=a.type==='CBT'?'<span class="badge b-blue" style="font-size:10px;margin-left:6px">🖥️ CBT</span>':'';
+          const gradeTag=a.status==='Graded'?`<span style="font-family:var(--font-mono);font-size:13px;font-weight:800;color:${(+a.grade||0)>=80?'var(--green)':(+a.grade||0)>=60?'var(--gold)':'var(--red)'}">${a.grade}/100</span>`:'';
+          return `<div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--g100)">
+            <div style="width:36px;height:36px;border-radius:10px;background:${statusBg};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">${icon}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">
+                <span style="font-size:13.5px;font-weight:700;color:var(--g900)">${a.title}${typeTag}</span>
+                ${gradeTag}
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
+                <span style="font-size:12px;color:var(--g400);font-weight:500">${a.subject}</span>
+                <span style="font-size:12px;color:var(--g400)">·</span>
+                <span style="font-size:12px;color:var(--g400);font-weight:500">Due: ${a.dueDate||'TBD'}</span>
+                <span style="font-size:11px;font-weight:800;color:${statusColor};background:${statusBg};padding:2px 8px;border-radius:99px">${a.status}</span>
+              </div>
+              ${a.status==='Graded'&&a.feedback?`<p style="font-size:12px;color:var(--g500);margin-top:5px;font-style:italic;line-height:1.5">"${a.feedback}"</p>`:''}
+            </div>
+          </div>`;
+        }).join('');
+      })()}
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
       ${mySubjects.length?mySubjects.map(sub=>{
@@ -1383,7 +1396,7 @@ function renderSProgress(){
         return `<div class="card cp"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h4 style="font-weight:800;color:var(--g900);font-size:14px">${sub}</h4><span style="font-family:var(--font-display);font-weight:800;font-size:22px;color:${c}">${avg}%</span></div><div class="pt"><div class="pf" style="width:${avg}%;background:linear-gradient(90deg,${c}aa,${c})"></div></div><p style="font-size:12px;color:var(--g400);margin-top:8px;font-weight:500">${subAssigns.length} graded</p></div>`;}).join(''):'<div class="card cp" style="grid-column:1/-1;text-align:center;padding:32px"><p style="color:var(--g400);font-weight:500">No subject data yet — check back after your first graded assignment.</p></div>'}
     </div>
   </div>`);
-  setTimeout(()=>makeProgressChart('chart-progress'),50);
+
 }
 
 function renderSProfile(){
