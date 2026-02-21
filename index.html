@@ -770,9 +770,9 @@ body{overflow-x:hidden}
 // ════════════════════════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════════════════════════
-const SHEET_API = "https://script.google.com/macros/s/AKfycbwSSg5vavB1soKRUmMplFx7ueZME1e_aYdxLZ5p3K04SxtrVyHEyYf4WF1i17BU3ZeA/exec";
+const SHEET_API = "https://script.google.com/macros/s/AKfycbzlN6onU5miTwtgojkNSiJxZaaqkk0WqAYV2qeASuvblYiWA-REpFOM4-VGNqJlix-l/exec";
 
-const S = {
+const S = { token:null,
   user:null,role:null,gwMode:'choose',suStep:1,suData:{subjects:[]},
   activePg:'dashboard',appFilter:'all',selStudent:null,
   charts:{},
@@ -846,7 +846,9 @@ const API = {
     } catch(e) { console.warn('API POST error:', action, e.message); return null; }
   },
   async studentLogin(id, pw)  { const r=await this.call('studentLogin',{studentId:id,password:pw}); return r?.success?r.student:null; },
+  async studentLoginFull(id,pw){ return await this.call('studentLogin',{studentId:id,password:pw}); },
   async adminLogin(em, pw)    { const r=await this.call('adminLogin',{email:em,password:pw}); return r?.success?r.admin:null; },
+  async adminLoginFull(em,pw)  { return await this.call('adminLogin',{email:em,password:pw}); },
   async getApps()             { const r=await this.call('getApplications');  return Array.isArray(r?.data)?r.data:[]; },
   async getStudents()         { const r=await this.call('getStudents');       return Array.isArray(r?.data)?r.data:[]; },
   async getClasses()          { const r=await this.call('getClasses');        return Array.isArray(r?.data)?r.data:[]; },
@@ -1173,9 +1175,10 @@ async function doSLogin(){
   const lockSecs=checkLoginRate('student');
   if(lockSecs>0){ gwErr('gw-err',`Too many attempts. Please wait ${lockSecs} seconds.`); return; }
   const btn=$id('gw-sb'); if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Signing in...'; }
-  const student=await API.studentLogin(validateLen(sid,'id'),validateLen(pw,'password'));
-  if(student){ clearLoginFail('student'); S.user=student; S.role='student';
-    try{sessionStorage.setItem('dm_sess',JSON.stringify({user:student,role:'student',ts:Date.now()}));}catch(e){}
+  const sr=await API.studentLoginFull(validateLen(sid,'id'),validateLen(pw,'password'));
+  const student=sr?.student||null;
+  if(student){ clearLoginFail('student'); S.user=student; S.role='student'; S.token=sr.token||null;
+    try{sessionStorage.setItem('dm_sess',JSON.stringify({user:student,role:'student',token:sr.token||null,ts:Date.now()}));}catch(e){}
     show('vpt'); await initPortal(); }
   else { recordLoginFail('student'); if(btn){ btn.disabled=false; btn.innerHTML=`Sign In ${IC.ar}`; } gwErr('gw-err','Invalid Student ID or password. Please check your credentials.'); }
 }
@@ -1186,9 +1189,10 @@ async function doALogin(){
   const lockSecs=checkLoginRate('admin');
   if(lockSecs>0){ gwErr('gw-aerr',`Too many attempts. Please wait ${lockSecs} seconds.`); return; }
   const btn=$id('gw-ab'); if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner spd"></div>'; }
-  const admin=await API.adminLogin(validateLen(em,'email'),validateLen(pw,'password'));
-  if(admin){ clearLoginFail('admin'); S.user=admin; S.role='admin';
-    try{sessionStorage.setItem('dm_sess',JSON.stringify({user:admin,role:'admin',ts:Date.now()}));}catch(e){}
+  const ar=await API.adminLoginFull(validateLen(em,'email'),validateLen(pw,'password'));
+  const admin=ar?.admin||null;
+  if(admin){ clearLoginFail('admin'); S.user=admin; S.role='admin'; S.token=ar.token||null;
+    try{sessionStorage.setItem('dm_sess',JSON.stringify({user:admin,role:'admin',token:ar.token||null,ts:Date.now()}));}catch(e){}
     show('vpt'); await initPortal(); }
   else { recordLoginFail('admin'); if(btn){ btn.disabled=false; btn.innerHTML=`${IC.shield} Access Dashboard`; } gwErr('gw-aerr','Invalid credentials. Please try again.'); }
 }
@@ -2023,7 +2027,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if(raw){
       const sess=JSON.parse(raw);
       if(sess&&sess.user&&['student','admin'].includes(sess.role)&&(Date.now()-sess.ts)<8*60*60*1000){
-        S.user=sess.user; S.role=sess.role;
+        S.user=sess.user; S.role=sess.role; S.token=sess.token||null;
         S.activePg=sessionStorage.getItem('dm_pg')||'dashboard';
         document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
         const vpt=document.getElementById('vpt'); if(vpt) vpt.classList.add('on');
