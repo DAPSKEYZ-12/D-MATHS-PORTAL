@@ -602,7 +602,44 @@ tbody tr:hover td{background:var(--g50)}
       <style>
         @media(max-width:900px){#programs-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:580px){#programs-grid{grid-template-columns:1fr}}
-      </style>
+      
+/* ═══ ENHANCED MOBILE RESPONSIVENESS ═══ */
+@media(max-width:480px){
+  .phdr{flex-direction:column;align-items:flex-start}
+  .phdr>div:last-child{width:100%;display:flex;gap:6px;flex-wrap:wrap}
+  .gdash,.gprog{grid-template-columns:1fr}
+  .gsdet{grid-template-columns:1fr}
+  .g2,.gcls{grid-template-columns:1fr}
+  .gw{padding:16px;align-items:flex-end}
+  .gwcard{border-radius:16px}
+  .hero{padding:0 14px}
+  .hero-grid{padding-top:82px;padding-bottom:24px}
+  .suhdr{padding:12px 14px}
+}
+@media(max-width:400px){
+  :root{--topbar-h:56px}
+  #pmain{padding:12px 10px 90px}
+  .pmc{padding-top:calc(var(--topbar-h)+12px)!important}
+  .cp{padding:14px 12px}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .frow{grid-template-columns:1fr}
+  .btn{font-size:13.5px}
+}
+@media(max-width:360px){
+  .g4{grid-template-columns:1fr}
+  .bni{min-width:36px;padding:4px 2px}
+  .bni span{font-size:9px}
+}
+@media(max-width:600px){th,td{padding:10px 9px;font-size:12px}}
+@media(pointer:coarse){
+  .btn,.nl{min-height:46px}
+  .fi-el{min-height:46px;font-size:15px}
+  .bni{min-height:50px}
+  .btn-xs{min-height:34px}
+}
+body{overflow-x:hidden}
+.card,.sc,.gwcard,.tcard{max-width:100%}
+</style>
 
     </div>
   </section>
@@ -951,7 +988,7 @@ function show(id){
 function goLanding(){ stopPolling(); show('vl'); }
 function goGateway(){ stopPolling(); show('vg'); renderGW('choose'); }
 function goSignup(){ show('vs'); initSignup(); }
-function logout(){ stopPolling(); S.user=null; S.role=null; goLanding(); }
+function logout(){ stopPolling(); S.user=null; S.role=null; try{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}catch(e){} goLanding(); }
 
 window.addEventListener('scroll',()=>{
   const nav=$id('lnav');
@@ -1008,7 +1045,10 @@ function initLanding(){
       {t:'Statistics & Probability',d:'Data analysis, probability distributions, regression, and hypothesis testing.',l:'JSS 3–SSS 3',c:'#34D399',e:'σ'},
       {t:'Geometry & Trigonometry',d:'Euclidean geometry, circle theorems, trigonometric identities, coordinate geometry.',l:'JSS 1–SSS 2',c:'#F472B6',e:'△'},
       {t:'Further Mathematics',d:'Complex numbers, matrices, vectors, and advanced topics for university entrance.',l:'SSS 3+',c:'#A78BFA',e:'∑'},
-      {t:'Core Maths Revision',d:'Intensive BECE & WASSCE revision covering the complete core curriculum.',l:'All Levels',c:'#F2BC3B',e:'π'}
+      {t:'Core Maths Revision',d:'Intensive BECE & WASSCE revision covering the complete core curriculum.',l:'All Levels',c:'#F2BC3B',e:'π'},
+      {t:'Physics',d:'Mechanics, waves, electricity, magnetism and modern physics for exam success.',l:'SSS 1–3',c:'#22D3EE',e:'⚡'},
+      {t:'JavaScript',d:'Web development fundamentals, DOM manipulation and modern ES6+ techniques.',l:'All Levels',c:'#FDE68A',e:'{}'},
+      {t:'Python',d:'Data structures, algorithms, automation and data science basics with Python.',l:'All Levels',c:'#86EFAC',e:'🐍'}
     ].map(s=>`<div class="scard"><div style="width:50px;height:50px;border-radius:14px;background:${s.c}22;border:1px solid ${s.c}35;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-family:var(--font-mono);font-size:24px;color:${s.c};font-weight:600">${s.e}</div><h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:#fff;margin-bottom:10px">${s.t}</h3><p style="font-size:13.5px;color:rgba(255,255,255,.52);line-height:1.72;margin-bottom:16px">${s.d}</p><span class="chip chip-navy" style="font-size:11px">${s.l}</span></div>`).join(''));
 
     // How it works steps
@@ -1089,7 +1129,9 @@ async function doSLogin(){
   if(!sid||!pw){ gwErr('gw-err','Please enter your Student ID and password.'); return; }
   const btn=$id('gw-sb'); if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Signing in...'; }
   const student=await API.studentLogin(sid,pw);
-  if(student){ S.user=student; S.role='student'; show('vpt'); await initPortal(); }
+  if(student){ S.user=student; S.role='student';
+    try{sessionStorage.setItem('dm_sess',JSON.stringify({user:student,role:'student',ts:Date.now()}));}catch(e){}
+    show('vpt'); await initPortal(); }
   else { if(btn){ btn.disabled=false; btn.innerHTML=`Sign In ${IC.ar}`; } gwErr('gw-err','Invalid Student ID or password. Please check your credentials.'); }
 }
 
@@ -1098,7 +1140,9 @@ async function doALogin(){
   if(!em||!pw){ gwErr('gw-aerr','Please enter your credentials.'); return; }
   const btn=$id('gw-ab'); if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner spd"></div>'; }
   const admin=await API.adminLogin(em,pw);
-  if(admin){ S.user=admin; S.role='admin'; show('vpt'); await initPortal(); }
+  if(admin){ S.user=admin; S.role='admin';
+    try{sessionStorage.setItem('dm_sess',JSON.stringify({user:admin,role:'admin',ts:Date.now()}));}catch(e){}
+    show('vpt'); await initPortal(); }
   else { if(btn){ btn.disabled=false; btn.innerHTML=`${IC.shield} Access Dashboard`; } gwErr('gw-aerr','Invalid credentials. Please try again.'); }
 }
 
@@ -1120,7 +1164,7 @@ function renderSUStep(){
   const d=S.suData, prev=$id('prev-btn'), nxt=$id('next-btn');
   if(prev) prev.style.display=S.suStep>1?'inline-flex':'none';
   if(nxt) nxt.innerHTML=S.suStep<3?`Next Step ${IC.ar}`:`${IC.send} Submit Application`;
-  const subs=['Algebra','Calculus','Statistics','Geometry','Further Mathematics','Core Maths Revision'];
+  const subs=['Algebra', 'Calculus', 'Statistics', 'Geometry', 'Further Mathematics', 'Core Maths Revision', 'Physics', 'JavaScript', 'Python', 'External Examinations'];
   let content='';
   if(S.suStep===1){
     content=`<h2 style="font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--g900);margin-bottom:6px">Personal Information</h2><p style="color:var(--g400);font-size:14px;margin-bottom:24px;font-weight:500">Provide your personal details to begin.</p><div class="frow"><div class="fg"><label class="fl">First Name <span class="freq">*</span></label><input class="fi-el" id="su-fn" placeholder="e.g. Akosua" value="${d.firstName||''}"></div><div class="fg"><label class="fl">Last Name <span class="freq">*</span></label><input class="fi-el" id="su-ln" placeholder="e.g. Bakare" value="${d.lastName||''}"></div></div><div class="frow"><div class="fg"><label class="fl">Email <span class="freq">*</span></label><input class="fi-el" id="su-em" type="email" placeholder="student@email.com" value="${d.email||''}"></div><div class="fg"><label class="fl">Phone <span class="freq">*</span></label><input class="fi-el" id="su-ph" type="tel" placeholder="+234 XX XXX XXXX" value="${d.phone||''}"></div></div><div class="frow"><div class="fg"><label class="fl">Date of Birth</label><input class="fi-el" id="su-dob" type="date" value="${d.dob||''}"></div><div class="fg"><label class="fl">Town / Area</label><input class="fi-el" id="su-addr" placeholder="e.g. East Legon, Accra" value="${d.address||''}"></div></div>`;
@@ -1218,6 +1262,7 @@ async function initPortal(){
 
 function navTo(pageId){
   S.activePg=pageId; S.selStudent=null;
+  try{sessionStorage.setItem('dm_pg',pageId);}catch(e){}
   document.querySelectorAll('#sb-nav .nl').forEach(el=>el.classList.toggle('act',(el.getAttribute('onclick')||'').includes(`'${pageId}'`)));
   document.querySelectorAll('#pbnav .bni').forEach(el=>el.classList.toggle('act',(el.getAttribute('onclick')||'').includes(`'${pageId}'`)));
   closeSB(); renderPage(pageId);
@@ -1291,7 +1336,7 @@ function renderSAssignments(){
     <div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Track and submit your work</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSAssignments)">${IC.refresh}</button>
     </div>
-    ${myAssigns.length?`<div style="display:flex;flex-direction:column;gap:14px">${myAssigns.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:48px;height:48px;border-radius:12px;background:${a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400);font-weight:500">${a.subject} · Due ${a.dueDate||'TBD'}</p></div>${bdg(a.status||'Pending')}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65;font-weight:400">${a.instructions||''}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 16px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:800;color:var(--green-t);margin-bottom:4px">Grade: ${a.grade}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.85;font-weight:400">${a.feedback||''}</p></div>`:''}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="submitAssignmentStudent('${a.id}')">${IC.send} Mark as Submitted</button>`:''}</div></div></div>`).join('')}</div>`:
+    ${myAssigns.length?`<div style="display:flex;flex-direction:column;gap:14px">${myAssigns.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:48px;height:48px;border-radius:12px;background:${a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400);font-weight:500">${a.subject} · Due ${a.dueDate||'TBD'}</p></div>${bdg(a.status||'Pending')}${a.type==='CBT'?'<span class="badge b-blue" style="font-size:10px">🖥️ CBT</span>':''}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65;font-weight:400">${a.instructions||''}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 16px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:800;color:var(--green-t);margin-bottom:4px">Grade: ${a.grade}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.85;font-weight:400">${a.feedback||''}</p></div>`:''}${a.type==='CBT'?`<div style='margin-top:12px;padding:12px 16px;background:var(--blue-bg);border-radius:var(--r);border-left:3px solid var(--blue)'><div style='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px'><div><p style='font-size:12.5px;font-weight:800;color:var(--blue-t)'>🖥️ CBT Test — Computer Based</p><p style='font-size:12px;color:var(--blue-t);opacity:.8;margin-top:2px'>Click the button to open your CBT test.</p></div>${a.cbtLink?`<a href='${a.cbtLink}' target='_blank' class='btn btn-navy btn-sm'>Start CBT →</a>`:'<span style="font-size:12px;color:var(--blue-t);opacity:.6">Link coming soon</span>'}</div></div>`:''}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="submitAssignmentStudent('${a.id}')">${IC.send} Mark as Submitted</button>`:''}</div></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">✅</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Assignments Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Your assignments will appear here once posted by your tutor.</p></div>`}
   </div>`);
 }
@@ -1307,7 +1352,7 @@ async function submitAssignmentStudent(aid){
 function renderSProgress(){
   const u=S.user;
   const mySubjects=safeArr(u.subjects);
-  const subColors={'Algebra':'#F2BC3B','Calculus':'#60A5FA','Statistics':'#34D399','Geometry':'#F472B6','Further Mathematics':'#A78BFA','Core Maths Revision':'#FB923C'};
+  const subColors={'Algebra':'#F2BC3B','Calculus':'#60A5FA','Statistics':'#34D399','Geometry':'#F472B6','Further Mathematics':'#A78BFA','Core Maths Revision':'#FB923C','Physics':'#22D3EE','JavaScript':'#FDE68A','Python':'#86EFAC','External Examinations':'#FDA4AF'};
   const circumference=2*Math.PI*58;
   const score=+(u.avgScore||0);
   html('portal-pages',`<div class="pg on fi">
@@ -1511,7 +1556,7 @@ function renderAStudents(){
       <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAStudents)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddStudentModal()">${IC.plus} Add Student</button></div>
     </div>
     <div class="card"><div class="tw"><table><thead><tr><th>Student</th><th>ID</th><th>Level</th><th>Subjects</th><th>Score</th><th>Attend.</th><th>Status</th><th></th></tr></thead>
-      <tbody>${S.students.length?S.students.map(s=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<span style="font-weight:800;font-size:13.5px">${s.firstName} ${s.lastName}</span></div></td><td><code style="font-size:11px;background:var(--g50);border:1px solid var(--g100);padding:2px 7px;border-radius:6px;font-family:var(--font-mono)">${s.id}</code></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.level}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${safeArr(s.subjects).slice(0,2).map(sub=>`<span class="badge b-blue" style="font-size:10px">${sub}</span>`).join('')}${safeArr(s.subjects).length>2?`<span class="badge b-gray" style="font-size:10px">+${safeArr(s.subjects).length-2}</span>`:''}</div></td><td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.attendance||0}%</td><td>${bdg((s.isActive===true||s.isActive==='true'||s.isActive===1)?'Active':'Inactive')}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico" title="View" onclick="S.selStudent='${s.id}';renderAStudents()">${IC.eye}</button><button class="btn btn-ghost btn-ico" title="Edit" onclick="openEditStudentModal('${s.id}')">${IC.edit}</button></div></td></tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--g400)">No students yet. Students appear once applications are approved.</td></tr>`}
+      <tbody>${S.students.length?S.students.map(s=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<span style="font-weight:800;font-size:13.5px">${s.firstName} ${s.lastName}</span></div></td><td><code style="font-size:11px;background:var(--g50);border:1px solid var(--g100);padding:2px 7px;border-radius:6px;font-family:var(--font-mono)">${s.id}</code></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.level}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${safeArr(s.subjects).slice(0,2).map(sub=>`<span class="badge b-blue" style="font-size:10px">${sub}</span>`).join('')}${safeArr(s.subjects).length>2?`<span class="badge b-gray" style="font-size:10px">+${safeArr(s.subjects).length-2}</span>`:''}</div></td><td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.attendance||0}%</td><td>${bdg((s.isActive===true||s.isActive==='true'||s.isActive===1)?'Active':'Inactive')}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico" title="View" onclick="S.selStudent='${s.id}';renderAStudents()">${IC.eye}</button><button class="btn btn-ghost btn-ico" title="Edit" onclick="openEditStudentModal('${s.id}')">${IC.edit}</button><button class="btn btn-err btn-ico" title="Delete" onclick="deleteStudent('${s.id}','${s.firstName} ${s.lastName}')">${IC.trash}</button></div></td></tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--g400)">No students yet. Students appear once applications are approved.</td></tr>`}
       </tbody>
     </table></div></div>
   </div>`);
@@ -1539,6 +1584,7 @@ async function renderStudentDetail(){
             <button class="btn btn-ghost btn-sm" style="flex:1" onclick="resetStudentPassword('${s.id}','${s.email}')">${IC.lock} Reset PW</button>
             <button class="btn btn-sm ${(s.isActive===true||s.isActive==='true'||s.isActive===1)?'btn-err':'btn-ok'}" style="flex:1" onclick="toggleStudentStatus('${s.id}')">${(s.isActive===true||s.isActive==='true'||s.isActive===1)?'Deactivate':'Activate'}</button>
           </div>
+          <button class="btn btn-err btn-sm btn-w" style="margin-top:8px" onclick="deleteStudent('${s.id}','${s.firstName} ${s.lastName}')">${IC.trash} Delete Student</button>
         </div>
         <div class="card cp">
           ${infoRow(IC.mail,'Email',s.email)}
@@ -1584,6 +1630,14 @@ async function resetStudentPassword(sid,email){
   toast('Password reset email sent to '+email+' ✅','s');
 }
 
+async function deleteStudent(sid, name){
+  if(!confirm('⚠️ DELETE student "'+name+'"?\n\nThis permanently removes all their data. This cannot be undone.')) return;
+  await API.post('deleteStudent',{id:sid});
+  toast('Student "'+name+'" has been deleted.','s');
+  S.students=await API.getStudents();
+  S.selStudent=null;
+  renderAStudents();
+}
 async function toggleStudentStatus(sid){
   const s=S.students.find(x=>x.id===sid); if(!s) return;
   const cur=s.isActive===true||s.isActive==='true'||s.isActive===1;
@@ -1644,24 +1698,64 @@ async function submitGrade(aid){
   closeModal(); renderAAssignments();
 }
 
+function calcActivity(s){
+  const stuAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).includes(s.id)||safeArr(s.subjects||[]).some(sub=>a.subject===sub));
+  const stuSub=stuAssigns.filter(a=>a.status==='Submitted'||a.status==='Graded').length;
+  const subRate=stuAssigns.length?Math.round((stuSub/stuAssigns.length)*100):0;
+  const sub={total:stuAssigns.length,submitted:stuSub,rate:subRate};
+  const actScore=Math.round(((+s.avgScore||0)*0.5)+((+s.attendance||0)*0.3)+(subRate*0.2));
+  return {actScore,sub};
+}
+function starsHtml(n){let h='';for(let i=0;i<5;i++) h+=i<n?'⭐':'☆';return h;}
+
 function renderReports(){
   const avgScore=S.students.length?Math.round(S.students.reduce((s,st)=>s+(+st.avgScore||0),0)/S.students.length):0;
+  const totalA=S.assignments.length;
+  const subA=S.assignments.filter(a=>a.status==='Submitted'||a.status==='Graded').length;
+  const cbtA=S.assignments.filter(a=>a.type==='CBT').length;
+  const subRate=totalA?Math.round((subA/totalA)*100):0;
   const top=[...S.students].sort((a,b)=>(+b.avgScore||0)-(+a.avgScore||0));
   const needs=[...S.students].sort((a,b)=>(+a.avgScore||0)-(+b.avgScore||0));
+  const actRanked=[...S.students].map(s=>{const r=calcActivity(s);return{...s,...r};}).sort((a,b)=>b.actScore-a.actScore);
   html('portal-pages',`<div class="pg on fi">
-    <div class="phdr"><div><h2 class="ptitle">Reports & Analytics</h2><p class="psub">Live data from Google Sheets</p></div>
+    <div class="phdr"><div><h2 class="ptitle">Reports & Analytics</h2><p class="psub">Student activity, submissions & rewards</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderReports)">${IC.refresh} Sync</button>
     </div>
     <div class="g4" style="margin-bottom:22px">
       ${statCard('👥','Total Students',S.students.length,null,'var(--blue)')}
-      ${statCard('📊','Avg Score',avgScore+'%',null,'var(--green)')}
-      ${statCard('📝','Assignments',S.assignments.length,null,'var(--amber)')}
-      ${statCard('🔔','Notices',S.notices.length,null,'var(--purple)')}
+      ${statCard('📊','Class Average',avgScore+'%',null,'var(--green)')}
+      ${statCard('📤','Submit Rate',subRate+'%',subA+'/'+totalA+' submitted','var(--amber)')}
+      ${statCard('🖥️','CBT Tests',cbtA,null,'var(--purple)')}
     </div>
     <div class="gdash" style="margin-bottom:22px">
       <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Subject Performance</h3><canvas id="chart-subj" height="200"></canvas></div>
       <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Enrollment Trend</h3><canvas id="chart-enroll2" height="200"></canvas></div>
     </div>
+
+    <div class="card" style="margin-bottom:22px;overflow:hidden">
+      <div class="cp" style="border-bottom:1px solid var(--g100);padding-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900)">📊 Student Activity & Rewards</h3>
+        <p style="font-size:12px;color:var(--g400);margin-top:3px;font-weight:500">Activity = Avg Score (50%) + Attendance (30%) + Submission Rate (20%)</p></div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>#</th><th>Student</th><th>Avg Score</th><th>Attend.</th><th>Submissions</th><th>Activity</th><th>Stars</th><th>Reward</th></tr></thead>
+        <tbody>${actRanked.length?actRanked.map((s,i)=>{
+          const rankColor=i===0?'var(--gold)':i===1?'#94A3B8':i===2?'var(--amber)':'var(--g300)';
+          const stars=s.actScore>=90?5:s.actScore>=75?4:s.actScore>=60?3:s.actScore>=45?2:s.actScore>=25?1:0;
+          return `<tr>
+            <td style="font-weight:900;font-size:13px;color:${rankColor}">#${i+1}</td>
+            <td><div style="display:flex;align-items:center;gap:9px">${av(`${s.firstName} ${s.lastName}`,32)}<div><p style="font-weight:700;font-size:13px">${s.firstName} ${s.lastName}</p><p style="font-size:11px;color:var(--g400);font-family:var(--font-mono)">${s.id}</p></div></div></td>
+            <td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=60?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td>
+            <td><span style="font-weight:700;color:${(+s.attendance||0)>=80?'var(--green)':'var(--amber)'}">${s.attendance||0}%</span></td>
+            <td style="font-size:13px;font-weight:600">${s.sub.submitted}/${s.sub.total} <span style="color:var(--g400)">(${s.sub.rate}%)</span></td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div class="pt" style="width:72px"><div class="pf" style="width:${s.actScore}%"></div></div><strong>${s.actScore}</strong></div></td>
+            <td style="font-size:14px;letter-spacing:1px">${starsHtml(stars)}</td>
+            <td><button class="btn btn-gold btn-xs" onclick="rewardStudent('${s.id}','${s.firstName} ${s.lastName}',${stars})">${IC.edit} Reward</button></td>
+          </tr>`;
+        }).join(''):`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--g400)">No student data yet.</td></tr>`}</tbody>
+      </table></div>
+    </div>
+
     <div class="g2">
       ${[{title:'🏆 Top Performers',list:top},{title:'⚠️ Needs Attention',list:needs}].map(({title,list})=>`<div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">${title}</h3>${list.slice(0,5).map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;cursor:pointer" onclick="S.selStudent='${s.id}';navTo('students')"><span style="width:24px;font-size:13px;font-weight:900;color:${i===0&&title.includes('Top')?'var(--gold)':'var(--g300)'};text-align:center">#${i+1}</span>${av(`${s.firstName} ${s.lastName}`,34)}<div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:700;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.firstName} ${s.lastName}</p><div class="pt" style="margin-top:5px"><div class="pf" style="width:${s.avgScore||0}%;${(+s.avgScore||0)<70&&title.includes('Attention')?'background:linear-gradient(90deg,var(--red),#f87171)':''}"></div></div></div><span style="font-weight:900;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></div>`).join('')}${!list.length?'<p style="color:var(--g400);text-align:center;font-size:13.5px">No student data</p>':''}</div>`).join('')}
     </div>
@@ -1669,11 +1763,24 @@ function renderReports(){
   setTimeout(()=>{makeSubjectChart('chart-subj');makeEnrollChart('chart-enroll2');},50);
 }
 
+function rewardStudent(sid, name, currentStars){
+  const starsRow=[1,2,3,4,5].map(n=>`<button type="button" class="star-rwd-btn" data-n="${n}" style="flex:1;padding:10px 0;border:2px solid ${n<=currentStars?'var(--gold)':'var(--g200)'};border-radius:var(--r);font-size:18px;cursor:pointer;background:${n<=currentStars?'var(--gold-pale)':'#fff'};font-family:var(--font-body);transition:all .15s" onclick="document.querySelectorAll('.star-rwd-btn').forEach((b,i)=>{const sel=i<${n};b.style.borderColor=sel?'var(--gold)':'var(--g200)';b.style.background=sel?'var(--gold-pale)':'#fff'});document.getElementById('reward-stars').value='${n}'">⭐</button>`).join('');
+  openModal('⭐ Reward Student — '+name,`<div style="text-align:center;margin-bottom:16px;font-size:36px">${starsHtml(currentStars)}<p style="font-size:13px;color:var(--g400);margin-top:6px;font-weight:500">Current rating: ${currentStars}/5 stars</p></div><div class="fg"><label class="fl">New Star Rating</label><div style="display:flex;gap:6px;margin-top:6px">${starsRow}</div><input type="hidden" id="reward-stars" value="${currentStars}"></div><div class="fg"><label class="fl">Message to Student</label><textarea class="fi-el" id="reward-msg" rows="3" placeholder="e.g. Excellent work this month! Keep it up! 🏆"></textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitReward('${sid}','${name}')">Send Reward ⭐</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+}
+async function submitReward(sid, name){
+  const stars=+($id('reward-stars')?.value||1);
+  const msg=$id('reward-msg')?.value||'';
+  if(!msg){ toast('Please add a reward message','e'); return; }
+  await API.post('rewardStudent',{studentId:sid,stars,message:msg,date:new Date().toISOString().split('T')[0]});
+  toast('Reward sent to '+name+'! ⭐','s');
+  closeModal();
+}
+
 // ════════════════════════════════════════════════════════════════
 //  MODAL FORMS
 // ════════════════════════════════════════════════════════════════
 function openAddNoticeModal(){
-  openModal('Post Announcement',`<div class="fg"><label class="fl">Title <span class="freq">*</span></label><input class="fi-el" id="nt-t" placeholder="Notice title..."></div><div class="fg"><label class="fl">Target</label><select class="fi-el" id="nt-tg"><option value="all">All Students</option>${['Algebra','Calculus','Statistics','Geometry','Further Mathematics'].map(s=>`<option value="${s}">${s} Students</option>`).join('')}</select></div><div class="fg"><label class="fl">Message <span class="freq">*</span></label><textarea class="fi-el" id="nt-b" rows="5" placeholder="Write your announcement here..."></textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitNotice()">Post & Notify Students</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+  openModal('Post Announcement',`<div class="fg"><label class="fl">Title <span class="freq">*</span></label><input class="fi-el" id="nt-t" placeholder="Notice title..."></div><div class="fg"><label class="fl">Target</label><select class="fi-el" id="nt-tg"><option value="all">All Students</option>${['Algebra','Calculus','Statistics','Geometry','Further Mathematics','Physics','JavaScript','Python','External Examinations'].map(s=>`<option value="${s}">${s} Students</option>`).join('')}</select></div><div class="fg"><label class="fl">Message <span class="freq">*</span></label><textarea class="fi-el" id="nt-b" rows="5" placeholder="Write your announcement here..."></textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitNotice()">Post & Notify Students</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
 }
 async function submitNotice(){
   const t=$id('nt-t')?.value.trim(), b=$id('nt-b')?.value.trim();
@@ -1685,13 +1792,15 @@ async function submitNotice(){
 }
 
 function openAddClassModal(){
-  openModal('Create New Class',`<div class="fg"><label class="fl">Subject Name <span class="freq">*</span></label><input class="fi-el" id="cl-subj" placeholder="e.g. Algebra Fundamentals"></div><div class="frow"><div class="fg"><label class="fl">Tutor Name <span class="freq">*</span></label><input class="fi-el" id="cl-tutor" placeholder="e.g. Mr. D. Bakare"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="cl-plat"><option>Zoom</option><option>Google Meet</option><option>Microsoft Teams</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Day</label><select class="fi-el" id="cl-day">${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=>`<option>${d}</option>`).join('')}</select></div><div class="fg"><label class="fl">Time</label><input class="fi-el" id="cl-time" type="time"></div></div><div class="frow"><div class="fg"><label class="fl">Duration</label><input class="fi-el" id="cl-dur" placeholder="e.g. 1.5 hrs"></div><div class="fg"><label class="fl">Class Link</label><input class="fi-el" id="cl-link" placeholder="https://zoom.us/..."></div></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitClass()">Create Class</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+  const stuOptions=S.students.length?S.students.map(s=>`<label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--r);cursor:pointer;background:#fff;transition:border-color .15s"><input type="checkbox" value="${s.id}" class="cl-stu-cb" style="width:16px;height:16px;accent-color:var(--gold);flex-shrink:0" onchange="this.closest('label').style.borderColor=this.checked?'var(--gold)':'var(--g200)';this.closest('label').style.background=this.checked?'var(--gold-pale)':'#fff'">${av(`${s.firstName} ${s.lastName}`,28)}<span style="font-size:13px;font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</span><span class="badge b-gray" style="font-size:10px;margin-left:auto">${s.level}</span></label>`).join(''):'<p style="color:var(--g400);font-size:13.5px;padding:12px 0">No registered students yet.</p>';
+  openModal('Create New Class',`<div class="fg"><label class="fl">Subject Name <span class="freq">*</span></label><input class="fi-el" id="cl-subj" placeholder="e.g. Algebra Fundamentals"></div><div class="frow"><div class="fg"><label class="fl">Tutor Name <span class="freq">*</span></label><input class="fi-el" id="cl-tutor" placeholder="e.g. Mr. D. Bakare"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="cl-plat"><option>Zoom</option><option>Google Meet</option><option>Microsoft Teams</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Day</label><select class="fi-el" id="cl-day">${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=>`<option>${d}</option>`).join('')}</select></div><div class="fg"><label class="fl">Time</label><input class="fi-el" id="cl-time" type="time"></div></div><div class="frow"><div class="fg"><label class="fl">Duration</label><input class="fi-el" id="cl-dur" placeholder="e.g. 1.5 hrs"></div><div class="fg"><label class="fl">Class Link <span class="freq">*</span></label><input class="fi-el" id="cl-link" placeholder="https://zoom.us/..."></div></div><div class="fg"><label class="fl" style="display:flex;justify-content:space-between">Assign Students <button type="button" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-body)" onclick="document.querySelectorAll('.cl-stu-cb').forEach(cb=>{cb.checked=!cb.checked;cb.closest('label').style.borderColor=cb.checked?'var(--gold)':'var(--g200)';cb.closest('label').style.background=cb.checked?'var(--gold-pale)':'#fff'})">Toggle All</button></label><div style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px;border:1px solid var(--g100);border-radius:var(--r)">${stuOptions}</div></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitClass()">Create Class</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`,true);
 }
 async function submitClass(){
   const subj=$id('cl-subj')?.value.trim(), tutor=$id('cl-tutor')?.value.trim();
   if(!subj||!tutor){ toast('Please fill in required fields','e'); return; }
-  await API.addClass({subject:subj,tutor,day:$id('cl-day')?.value,time:$id('cl-time')?.value,duration:$id('cl-dur')?.value||'',platform:$id('cl-plat')?.value,link:$id('cl-link')?.value||'',students:[]});
-  toast('Class created! 🎬','s'); S.classes=await API.getClasses(); closeModal(); renderAClasses();
+  const selStudents=[...document.querySelectorAll('.cl-stu-cb:checked')].map(cb=>cb.value);
+  await API.addClass({subject:subj,tutor,day:$id('cl-day')?.value,time:$id('cl-time')?.value,duration:$id('cl-dur')?.value||'',platform:$id('cl-plat')?.value,link:$id('cl-link')?.value||'',students:selStudents});
+  toast(`Class created — ${selStudents.length} student(s) assigned! 🎬`,'s'); S.classes=await API.getClasses(); closeModal(); renderAClasses();
 }
 
 function openAddStudentModal(){
@@ -1705,13 +1814,25 @@ async function submitAddStudent(){
 }
 
 function openAddAssignModal(){
-  const subs=['Algebra','Calculus','Statistics','Geometry','Further Mathematics','Core Maths Revision'];
-  openModal('New Assignment',`<div class="fg"><label class="fl">Title <span class="freq">*</span></label><input class="fi-el" id="aa-t" placeholder="e.g. Differentiation Practice Set 3"></div><div class="frow"><div class="fg"><label class="fl">Subject</label><select class="fi-el" id="aa-s">${subs.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">Due Date</label><input class="fi-el" id="aa-d" type="date"></div></div><div class="fg"><label class="fl">Instructions</label><textarea class="fi-el" id="aa-i" rows="4" placeholder="Detailed instructions for students..."></textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitAssign()">Create & Notify Students</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+  const subs=['Algebra','Calculus','Statistics','Geometry','Further Mathematics','Core Maths Revision','Physics','JavaScript','Python','External Examinations'];
+  const stuOptions=S.students.length?S.students.map(s=>`<label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--r);cursor:pointer;background:#fff;transition:border-color .15s"><input type="checkbox" value="${s.id}" class="aa-stu-cb" style="width:16px;height:16px;accent-color:var(--gold);flex-shrink:0" onchange="this.closest('label').style.borderColor=this.checked?'var(--gold)':'var(--g200)';this.closest('label').style.background=this.checked?'var(--gold-pale)':'#fff'">${av(`${s.firstName} ${s.lastName}`,28)}<span style="font-size:13px;font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</span><span class="badge b-gray" style="font-size:10px;margin-left:auto">${s.level}</span></label>`).join(''):'<p style="color:var(--g400);font-size:13.5px;padding:12px 0">No registered students yet.</p>';
+  openModal('New Assignment',`<div class="fg"><label class="fl">Title <span class="freq">*</span></label><input class="fi-el" id="aa-t" placeholder="e.g. Differentiation Practice Set 3"></div><div class="frow"><div class="fg"><label class="fl">Subject</label><select class="fi-el" id="aa-s">${subs.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">Due Date</label><input class="fi-el" id="aa-d" type="date"></div></div><div class="fg"><label class="fl">Type <span class="freq">*</span></label><div style="display:flex;gap:8px;margin-top:6px"><label id="lbl-written" style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--gold);border-radius:var(--r);cursor:pointer;background:var(--gold-pale)"><input type="radio" name="aa-type" id="aa-type-written" value="Written" checked style="accent-color:var(--gold)" onchange="toggleCBTRow(false)"><span style="font-size:13px;font-weight:700">✏️ Written</span></label><label id="lbl-cbt" style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--g200);border-radius:var(--r);cursor:pointer;background:#fff"><input type="radio" name="aa-type" id="aa-type-cbt" value="CBT" style="accent-color:var(--blue)" onchange="toggleCBTRow(true)"><span style="font-size:13px;font-weight:700;color:var(--blue)">🖥️ CBT</span></label></div></div><div id="aa-cbt-row" style="display:none" class="fg"><label class="fl">CBT Test Link <span class="freq">*</span></label><input class="fi-el" id="aa-cbt-link" placeholder="Paste CBT platform link (e.g. https://...)"></div><div class="fg"><label class="fl">Instructions</label><textarea class="fi-el" id="aa-i" rows="3" placeholder="Detailed instructions for students..."></textarea></div><div class="fg"><label class="fl" style="display:flex;justify-content:space-between">Assign to Students <span style="font-weight:400;color:var(--g400);font-size:11px">(blank = all)</span></label><button type="button" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-body);text-align:left;margin-bottom:6px" onclick="document.querySelectorAll('.aa-stu-cb').forEach(cb=>{cb.checked=!cb.checked;cb.closest('label').style.borderColor=cb.checked?'var(--gold)':'var(--g200)';cb.closest('label').style.background=cb.checked?'var(--gold-pale)':'#fff'})">Toggle All</button><div style="max-height:170px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px;border:1px solid var(--g100);border-radius:var(--r)">${stuOptions}</div></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitAssign()">Create & Notify</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`,true);
+}
+function toggleCBTRow(show){
+  const row=$id('aa-cbt-row'); if(row) row.style.display=show?'block':'none';
+  const lblW=$id('lbl-written'),lblC=$id('lbl-cbt');
+  if(lblW){lblW.style.borderColor=show?'var(--g200)':'var(--gold)';lblW.style.background=show?'#fff':'var(--gold-pale)';}
+  if(lblC){lblC.style.borderColor=show?'var(--blue)':'var(--g200)';lblC.style.background=show?'var(--blue-bg)':'#fff';}
 }
 async function submitAssign(){
   const t=$id('aa-t')?.value.trim(); if(!t){ toast('Please enter a title','e'); return; }
-  await API.addAssignment({title:t,subject:$id('aa-s')?.value||'Algebra',dueDate:$id('aa-d')?.value||'',instructions:$id('aa-i')?.value||'',status:'Pending'});
-  toast('Assignment created & students notified! 📝','s'); S.assignments=await API.getAssignments(); closeModal(); renderAAssignments();
+  const isCBT=document.getElementById('aa-type-cbt')?.checked;
+  const cbtLink=isCBT?($id('aa-cbt-link')?.value.trim()||''):'';
+  if(isCBT&&!cbtLink){ toast('Please enter the CBT test link','e'); return; }
+  const selStudents=[...document.querySelectorAll('.aa-stu-cb:checked')].map(cb=>cb.value);
+  await API.addAssignment({title:t,subject:$id('aa-s')?.value||'Algebra',dueDate:$id('aa-d')?.value||'',instructions:$id('aa-i')?.value||'',type:isCBT?'CBT':'Written',cbtLink,assignedTo:selStudents,status:'Pending'});
+  toast(selStudents.length?`Sent to ${selStudents.length} student(s)! 📝`:'Created & all students notified! 📝','s');
+  S.assignments=await API.getAssignments(); closeModal(); renderAAssignments();
 }
 
 function openEditStudentModal(sid){
@@ -1795,6 +1916,24 @@ function makeSubjectChart(canvasId){
 //  BOOT — GUARANTEED LANDING PAGE FIX
 // ════════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  // ── SESSION RESTORE ──────────────────────────────────────────
+  try {
+    const raw=sessionStorage.getItem('dm_sess');
+    if(raw){
+      const sess=JSON.parse(raw);
+      if(sess&&sess.user&&sess.role&&(Date.now()-sess.ts)<8*60*60*1000){
+        S.user=sess.user; S.role=sess.role;
+        const pg=sessionStorage.getItem('dm_pg')||'dashboard';
+        S.activePg=pg;
+        document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+        const vpt=document.getElementById('vpt'); if(vpt) vpt.classList.add('on');
+        setTimeout(()=>{const lov=document.getElementById('lov');if(lov){lov.classList.add('fade');setTimeout(()=>{try{lov.remove();}catch(e){}},500);}},600);
+        initPortal().catch(e=>console.warn('Restore err:',e));
+        return;
+      }else{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}
+    }
+  }catch(e){console.warn('Session err:',e);}
+  // ── NORMAL LANDING BOOT ──────────────────────────────────────
   // Guarantee landing view is shown
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   const vl = document.getElementById('vl');
@@ -1818,6 +1957,9 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     if (lov) { lov.classList.add('fade'); setTimeout(() => { try { lov.remove(); } catch(e) {} }, 520); }
   }
 }
+window.addEventListener('beforeunload', e => {
+  if(S.role&&S.user){ e.preventDefault(); e.returnValue=''; }
+});
 window.addEventListener('resize', () => {
   const w=window.innerWidth;
   const ag=$id('about-grid');if(ag)ag.style.gridTemplateColumns=w<860?'1fr':'1fr 1fr';
