@@ -1,5 +1,4 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -1304,8 +1303,7 @@ function renderSDash(){
       ${statCard('⭐','Avg Score',(u.avgScore||0)+'%',null,'var(--green)')}
       ${statCard('✅','Attendance',(u.attendance||0)+'%',null,'var(--purple)')}
     </div>
-    <div class="gdash">
-      <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Score Progress</h3><canvas id="chart-score" height="180"></canvas></div>
+    <div>
       <div class="card cp">
         <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">Latest Notices</h3>
         ${recent.length?recent.map(n=>`<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)"><div style="width:36px;height:36px;border-radius:10px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">🔔</div><div><p style="font-size:13px;color:var(--g700);font-weight:700;line-height:1.4">${n.title}</p><p style="font-size:11px;color:var(--g400);margin-top:2px;font-weight:500">${n.date||''}</p></div></div>`).join(''):'<p style="font-size:13.5px;color:var(--g400);text-align:center;padding:20px 0;font-weight:500">No recent notices</p>'}
@@ -1313,7 +1311,7 @@ function renderSDash(){
       </div>
     </div>
   </div>`);
-  setTimeout(()=>makeScoreChart('chart-score'),50);
+
 }
 
 function renderSClasses(){
@@ -1478,8 +1476,7 @@ function renderADash(){
       ${statCard('🎬','Active Classes',S.classes.length,null,'var(--gold)')}
       ${statCard('📈','Class Average',avgScore+'%',null,'var(--green)')}
     </div>
-    <div class="gdash" style="margin-bottom:22px">
-      <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Enrollment Growth</h3><canvas id="chart-enroll" height="180"></canvas></div>
+    <div style="margin-bottom:22px">
       <div class="card cp">
         <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">Quick Actions</h3>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -1497,7 +1494,7 @@ function renderADash(){
       </table></div>
     </div>
   </div>`);
-  setTimeout(()=>makeEnrollChart('chart-enroll'),50);
+
 }
 
 function renderAApps(){
@@ -1970,4 +1967,3 @@ window.addEventListener('resize', () => {
 </html>
 
  
-
