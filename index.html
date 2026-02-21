@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -1727,9 +1727,9 @@ function renderReports(){
       ${statCard('📤','Submit Rate',subRate+'%',subA+'/'+totalA+' submitted','var(--amber)')}
       ${statCard('🖥️','CBT Tests',cbtA,null,'var(--purple)')}
     </div>
-    <div class="gdash" style="margin-bottom:22px">
-      <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Subject Performance</h3><canvas id="chart-subj" height="200"></canvas></div>
-      <div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Enrollment Trend</h3><canvas id="chart-enroll2" height="200"></canvas></div>
+    <div class="card cp" style="margin-bottom:22px">
+      <h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:14px">Subject Averages</h3>
+      <div style="max-width:420px"><canvas id="chart-subj" height="110"></canvas></div>
     </div>
 
     <div class="card" style="margin-bottom:22px;overflow:hidden">
@@ -1760,7 +1760,7 @@ function renderReports(){
       ${[{title:'🏆 Top Performers',list:top},{title:'⚠️ Needs Attention',list:needs}].map(({title,list})=>`<div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">${title}</h3>${list.slice(0,5).map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;cursor:pointer" onclick="S.selStudent='${s.id}';navTo('students')"><span style="width:24px;font-size:13px;font-weight:900;color:${i===0&&title.includes('Top')?'var(--gold)':'var(--g300)'};text-align:center">#${i+1}</span>${av(`${s.firstName} ${s.lastName}`,34)}<div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:700;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.firstName} ${s.lastName}</p><div class="pt" style="margin-top:5px"><div class="pf" style="width:${s.avgScore||0}%;${(+s.avgScore||0)<70&&title.includes('Attention')?'background:linear-gradient(90deg,var(--red),#f87171)':''}"></div></div></div><span style="font-weight:900;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></div>`).join('')}${!list.length?'<p style="color:var(--g400);text-align:center;font-size:13.5px">No student data</p>':''}</div>`).join('')}
     </div>
   </div>`);
-  setTimeout(()=>{makeSubjectChart('chart-subj');makeEnrollChart('chart-enroll2');},50);
+  setTimeout(()=>{makeSubjectChart('chart-subj');},50);
 }
 
 function rewardStudent(sid, name, currentStars){
@@ -1907,9 +1907,9 @@ function makeEnrollChart(canvasId){
 }
 function makeSubjectChart(canvasId){
   const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
-  const subs=['Algebra','Calculus','Statistics','Geometry'];
-  const vals=subs.map(sub=>{const g=S.assignments.filter(a=>a.subject===sub&&a.status==='Graded');return g.length?Math.round(g.reduce((s,a)=>s+(+a.grade||0),0)/g.length):Math.floor(72+Math.random()*20);});
-  S.charts[canvasId]=new Chart(el,{type:'bar',data:{labels:subs,datasets:[{label:'Class Average',data:vals,backgroundColor:['rgba(212,160,23,.85)','rgba(96,165,250,.85)','rgba(52,211,153,.85)','rgba(244,114,182,.85)'],borderRadius:7,borderSkipped:false}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:100}}}});
+  const subs=['Algebra','Calculus','Statistics','Geometry','Further Mathematics'];
+  const vals=subs.map(sub=>{const g=S.assignments.filter(a=>a.subject===sub&&a.status==='Graded');return g.length?Math.round(g.reduce((s,a)=>s+(+a.grade||0),0)/g.length):Math.floor(68+Math.random()*22);});
+  S.charts[canvasId]=new Chart(el,{type:'bar',data:{labels:subs,datasets:[{data:vals,backgroundColor:['rgba(212,160,23,.82)','rgba(96,165,250,.82)','rgba(52,211,153,.82)','rgba(244,114,182,.82)','rgba(167,139,250,.82)'],borderRadius:5,borderSkipped:false,barThickness:26}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0A1628',padding:8,titleFont:{family:"'Nunito',sans-serif",size:12},bodyFont:{family:"'Nunito',sans-serif",size:12},callbacks:{label:ctx=>`Avg: ${ctx.raw}%`}}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Nunito',sans-serif",size:11},color:'#94A3B8'},border:{display:false}},y:{display:false,min:0,max:110}}}});
 }
 
 // ════════════════════════════════════════════════════════════════
