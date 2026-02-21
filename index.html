@@ -1,3 +1,4 @@
+
  <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1727,10 +1728,7 @@ function renderReports(){
       ${statCard('📤','Submit Rate',subRate+'%',subA+'/'+totalA+' submitted','var(--amber)')}
       ${statCard('🖥️','CBT Tests',cbtA,null,'var(--purple)')}
     </div>
-    <div class="card cp" style="margin-bottom:22px">
-      <h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:14px">Subject Averages</h3>
-      <div style="max-width:420px"><canvas id="chart-subj" height="110"></canvas></div>
-    </div>
+
 
     <div class="card" style="margin-bottom:22px;overflow:hidden">
       <div class="cp" style="border-bottom:1px solid var(--g100);padding-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
@@ -1760,7 +1758,7 @@ function renderReports(){
       ${[{title:'🏆 Top Performers',list:top},{title:'⚠️ Needs Attention',list:needs}].map(({title,list})=>`<div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">${title}</h3>${list.slice(0,5).map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;cursor:pointer" onclick="S.selStudent='${s.id}';navTo('students')"><span style="width:24px;font-size:13px;font-weight:900;color:${i===0&&title.includes('Top')?'var(--gold)':'var(--g300)'};text-align:center">#${i+1}</span>${av(`${s.firstName} ${s.lastName}`,34)}<div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:700;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.firstName} ${s.lastName}</p><div class="pt" style="margin-top:5px"><div class="pf" style="width:${s.avgScore||0}%;${(+s.avgScore||0)<70&&title.includes('Attention')?'background:linear-gradient(90deg,var(--red),#f87171)':''}"></div></div></div><span style="font-weight:900;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></div>`).join('')}${!list.length?'<p style="color:var(--g400);text-align:center;font-size:13.5px">No student data</p>':''}</div>`).join('')}
     </div>
   </div>`);
-  setTimeout(()=>{makeSubjectChart('chart-subj');},50);
+
 }
 
 function rewardStudent(sid, name, currentStars){
@@ -1972,3 +1970,4 @@ window.addEventListener('resize', () => {
 </html>
 
  
+
