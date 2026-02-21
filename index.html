@@ -770,7 +770,7 @@ body{overflow-x:hidden}
 // ════════════════════════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════════════════════════
-const SHEET_API = "https://script.google.com/macros/s/AKfycbzlN6onU5miTwtgojkNSiJxZaaqkk0WqAYV2qeASuvblYiWA-REpFOM4-VGNqJlix-l/exec";
+const SHEET_API = "https://script.google.com/macros/s/AKfycbz-ZSsvpKDTkUjKH3qGJU5XbR0zj9lXiU8h6VzK4fiu5V3aKaLrnjefxLbG8uLEmHwh/exec";
 
 const S = {
   user:null,role:null,gwMode:'choose',suStep:1,suData:{subjects:[]},
@@ -1764,12 +1764,19 @@ function renderAAssignments(){ if(!requireAdmin()) return;
       <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAAssignments)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddAssignModal()">${IC.plus} New Assignment</button></div>
     </div>
     ${S.assignments.length?`<div class="card"><div class="tw"><table><thead><tr><th>Assignment</th><th>Subject</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>${S.assignments.map(a=>`<tr><td><p style="font-weight:800;font-size:14px;color:var(--g900)">${a.title}</p><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:400">${(a.instructions||'').slice(0,55)}${(a.instructions||'').length>55?'...':''}</p></td><td><span class="chip" style="font-size:11px">${a.subject}</span></td><td style="font-size:13px;color:var(--g500);font-weight:500">${a.dueDate||'TBD'}</td><td>${bdg(a.status||'Pending')}</td><td><div style="display:flex;gap:6px">${a.status==='Submitted'?`<button class="btn btn-gold btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Grade</button>`:''}${a.status==='Graded'?`<button class="btn btn-ghost btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Update</button>`:''}</div></td></tr>`).join('')}
+      <tbody>${S.assignments.map(a=>`<tr><td><p style="font-weight:800;font-size:14px;color:var(--g900)">${a.title}</p><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:400">${(a.instructions||'').slice(0,55)}${(a.instructions||'').length>55?'...':''}</p></td><td><span class="chip" style="font-size:11px">${a.subject}</span></td><td style="font-size:13px;color:var(--g500);font-weight:500">${a.dueDate||'TBD'}</td><td>${bdg(a.status||'Pending')}</td><td><div style="display:flex;gap:6px">${a.status==='Submitted'?`<button class="btn btn-gold btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Grade</button>`:''}${a.status==='Graded'?`<button class="btn btn-ghost btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Update</button>`:''}<button class="btn btn-err btn-xs" onclick="deleteAssignment('${a.id}','${a.title}')">🗑 Delete</button></div></td></tr>`).join('')}
       </tbody></table></div></div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📝</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700)">No assignments yet</h3><p style="color:var(--g400);font-size:14px;margin-top:8px">Create your first assignment.</p></div>`}
   </div>`);
 }
 
+async function deleteAssignment(aid, title){
+  if(!confirm('Delete assignment "'+title+'"?\n\nThis cannot be undone.')) return;
+  await API.post('deleteAssignment',{assignmentId:aid});
+  toast('Assignment deleted.','s');
+  S.assignments=await API.getAssignments();
+  renderAAssignments();
+}
 function gradeModal(aid){
   const a=S.assignments.find(x=>x.id===aid); if(!a) return;
   openModal(`Grade: ${a.title}`,`<div class="fg"><label class="fl">Grade (out of 100) <span class="freq">*</span></label><input class="fi-el" id="grade-score" type="number" min="0" max="100" placeholder="e.g. 85" value="${a.grade||''}"></div><div class="fg"><label class="fl">Feedback for Student</label><textarea class="fi-el" id="grade-fb" rows="4" placeholder="Specific feedback...">${a.feedback||''}</textarea></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitGrade('${aid}')">Submit Grade & Notify</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
@@ -1910,7 +1917,8 @@ function toggleCBTRow(show){
 async function submitAssign(){
   const t=$id('aa-t')?.value.trim(); if(!t){ toast('Please enter a title','e'); return; }
   const isCBT=document.getElementById('aa-type-cbt')?.checked;
-  const cbtLink=isCBT?($id('aa-cbt-link')?.value.trim()||''):'';
+  let cbtLink=isCBT?($id('aa-cbt-link')?.value.trim()||''):'';
+  if(isCBT&&cbtLink&&!cbtLink.startsWith('http')){ cbtLink='https://'+cbtLink; }
   if(isCBT&&!cbtLink){ toast('Please enter the CBT test link','e'); return; }
   const selStudents=[...document.querySelectorAll('.aa-stu-cb:checked')].map(cb=>cb.value);
   const cbtStart=$id('aa-cbt-start')?.value||''; const cbtEnd=$id('aa-cbt-end')?.value||''; await API.addAssignment({title:t,subject:$id('aa-s')?.value||'Algebra',dueDate:$id('aa-d')?.value||'',instructions:$id('aa-i')?.value||'',type:isCBT?'CBT':'Written',cbtLink,cbtStart,cbtEnd,assignedTo:selStudents,status:'Pending'});
@@ -2050,5 +2058,3 @@ window.addEventListener('resize', () => {
 </script>
 </body>
 </html>
-
- 
