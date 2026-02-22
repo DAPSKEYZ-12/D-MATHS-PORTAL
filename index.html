@@ -1240,7 +1240,10 @@ async function doALogin(){
   const admin=ar?.admin||null;
   if(admin){ clearLoginFail('admin'); S.user=admin; S.role='admin'; S.token=ar.token||null;
     try{sessionStorage.setItem('dm_sess',JSON.stringify({user:admin,role:'admin',token:ar.token||null,ts:Date.now()}));}catch(e){}
-    show('vpt'); await initPortal(); }
+    show('vpt'); await initPortal();
+    // Check for ended classes and prompt rewards
+    setTimeout(()=>{ try{ checkAndShowClassEndedAlerts(); }catch(e){} }, 1200);
+  }
   else { recordLoginFail('admin'); if(btn){ btn.disabled=false; btn.innerHTML=`${IC.shield} Access Dashboard`; } gwErr('gw-aerr','Invalid credentials. Please try again.'); }
 }
 
@@ -1799,13 +1802,77 @@ async function addNote(sid){
   ta.value='';
 }
 
+function getClassHistory(){
+  try{ const raw=localStorage.getItem('dm_class_history'); return raw?JSON.parse(raw):[]; }catch(e){ return []; }
+}
+function saveClassHistory(hist){
+  try{ localStorage.setItem('dm_class_history',JSON.stringify(hist)); }catch(e){}
+}
+function archiveExpiredClasses(){
+  // Move classes whose endISO has passed into localStorage history
+  const now=Date.now();
+  const hist=getClassHistory();
+  const histIds=new Set(hist.map(c=>c.id));
+  let changed=false;
+  S.classes.forEach(cls=>{
+    if(cls.endISO && new Date(cls.endISO).getTime()<now && !histIds.has(cls.id)){
+      hist.unshift({...cls, archivedAt: new Date().toISOString()});
+      changed=true;
+    }
+  });
+  if(changed) saveClassHistory(hist);
+  // Return active classes (not expired)
+  return S.classes.filter(cls=>!cls.endISO||new Date(cls.endISO).getTime()>=now);
+}
+function checkAndShowClassEndedAlerts(){
+  // Called on admin login. Show reward prompts for classes that just ended.
+  const now=Date.now();
+  const alerted=new Set(JSON.parse(localStorage.getItem('dm_class_alerted')||'[]'));
+  S.classes.forEach(cls=>{
+    if(cls.endISO && new Date(cls.endISO).getTime()<now && !alerted.has(cls.id)){
+      alerted.add(cls.id);
+      // Show a reward prompt toast + modal
+      setTimeout(()=>{
+        const assignedStudents=S.students.filter(s=>safeArr(cls.students).includes(s.id));
+        if(assignedStudents.length>0){
+          openModal(`🏆 Class Ended — ${cls.subject}`,`
+          <div class="al al-s" style="margin-bottom:16px">✅ <strong>${cls.subject}</strong> with ${cls.tutor} has ended. Would you like to reward the students who attended?</div>
+          <p style="font-size:13.5px;color:var(--g500);margin-bottom:16px;font-weight:500">Assigned students (${assignedStudents.length}):</p>
+          <div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:16px">
+            ${assignedStudents.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--g50);border-radius:var(--r)">${av(`${s.firstName} ${s.lastName}`,32)}<div><p style="font-size:13px;font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</p><p style="font-size:11px;color:var(--g400)">${s.level}</p></div></div>`).join('')}
+          </div>
+          <div class="fg"><label class="fl">Reward Message</label><textarea class="fi-el" id="cls-reward-msg" rows="2" placeholder="e.g. Great participation in today's class! 🌟">Great job attending ${cls.subject}! Keep up the excellent work! ⭐</textarea></div>
+          <div style="display:flex;gap:10px;padding-top:4px">
+            <button class="btn btn-gold" style="flex:1" onclick="sendClassRewards('${cls.id}')">Send Rewards ⭐</button>
+            <button class="btn btn-ghost" onclick="closeModal()">Skip</button>
+          </div>`);
+        }
+      }, 800);
+      localStorage.setItem('dm_class_alerted', JSON.stringify([...alerted]));
+    }
+  });
+}
+async function sendClassRewards(classId){
+  const cls=S.classes.find(c=>c.id===classId); if(!cls) return;
+  const msg=$id('cls-reward-msg')?.value||'Great job attending class! ⭐';
+  const assignedStudents=S.students.filter(s=>safeArr(cls.students).includes(s.id));
+  for(const s of assignedStudents){
+    try{ await API.post('rewardStudent',{studentId:s.id,stars:3,message:msg,date:new Date().toISOString().split('T')[0]}); }catch(e){}
+  }
+  toast(`Rewards sent to ${assignedStudents.length} student(s)! ⭐`,'s');
+  closeModal();
+  renderAClasses();
+}
 function renderAClasses(){ if(!requireAdmin()) return;
+  const activeClasses=archiveExpiredClasses();
+  const history=getClassHistory();
+  const classCardHtml=(cls,isHistory=false)=>`<div class="card" style="${isHistory?'opacity:.85;':''}"><div style="height:3px;background:linear-gradient(90deg,${isHistory?'#94A3B8,#CBD5E1':'var(--gold),var(--gold-b)'})"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:rgba(${isHistory?'148,163,184':'212,160,23'},.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">${isHistory?'🗓':'📹'}</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">${cls.tutor}</p></div></div><div style="display:flex;gap:5px">${!isHistory?`<button class="btn btn-ghost btn-ico btn-xs" onclick="openEditClassModal('${cls.id}')">${IC.edit}</button>`:''}</div></div>${infoRow(IC.cal,'Schedule',cls.date?`${cls.date} at ${fmtTime(cls.time)}`:`${cls.day||''} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.durationLabel||cls.duration||'—')}${infoRow(IC.video,'Platform',cls.platform||'Online')}${isHistory&&cls.archivedAt?`<div style="background:var(--g50);border-radius:var(--r);padding:7px 12px;margin-bottom:10px;font-size:12px;color:var(--g400);font-weight:600">✅ Completed ${fmtDate(cls.archivedAt)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)">${S.students.filter(s=>safeArr(cls.students).includes(s.id)).map(s=>av(`${s.firstName} ${s.lastName}`,26)).join('')}<span style="font-size:12px;color:var(--g400);margin-left:4px;font-weight:600">${safeArr(cls.students).length} student${safeArr(cls.students).length!==1?'s':''}</span></div>${!isHistory?`<div style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="markAttendanceModal('${cls.id}')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="openAssignStudentsModal('${cls.id}')">Assign Students</button></div>`:''}</div></div>`;
   html('portal-pages',`<div class="pg on fi">
-    <div class="phdr"><div><h2 class="ptitle">Class Management</h2><p class="psub">${S.classes.length} active classes</p></div>
+    <div class="phdr"><div><h2 class="ptitle">Class Management</h2><p class="psub">${activeClasses.length} active class${activeClasses.length!==1?'es':''}</p></div>
       <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAClasses)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddClassModal()">${IC.plus} Create Class</button></div>
     </div>
-    ${S.classes.length?`<div class="gcls">${S.classes.map(cls=>`<div class="card"><div style="height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📹</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">${cls.tutor}</p></div></div><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico btn-xs" onclick="openEditClassModal('${cls.id}')">${IC.edit}</button></div></div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.duration)}${infoRow(IC.video,'Platform',cls.platform||'Online')}<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)">${S.students.filter(s=>safeArr(cls.students).includes(s.id)).map(s=>av(`${s.firstName} ${s.lastName}`,26)).join('')}<span style="font-size:12px;color:var(--g400);margin-left:4px;font-weight:600">${safeArr(cls.students).length} student${safeArr(cls.students).length!==1?'s':''}</span></div><div style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="markAttendanceModal('${cls.id}')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="openAssignStudentsModal('${cls.id}')">Assign Students</button></div></div></div>`).join('')}</div>`:
-    `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">🎬</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700)">No classes yet</h3><p style="color:var(--g400);font-size:14px;margin-top:8px">Create your first class to get started.</p></div>`}
+    ${activeClasses.length?`<div class="gcls" style="margin-bottom:30px">${activeClasses.map(cls=>classCardHtml(cls,false)).join('')}</div>`:`<div class="card cp" style="text-align:center;padding:48px;margin-bottom:24px"><div style="font-size:48px;margin-bottom:16px">🎬</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700)">No active classes</h3><p style="color:var(--g400);font-size:14px;margin-top:8px">Create a class to get started.</p></div>`}
+    ${history.length?`<div style="margin-top:8px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g700)">🗓 Class History</h3><span class="badge b-gray">${history.length} completed</span><button class="btn btn-ghost btn-xs" onclick="if(confirm('Clear all class history?')){localStorage.removeItem('dm_class_history');localStorage.removeItem('dm_class_alerted');renderAClasses();}">Clear History</button></div><div class="gcls">${history.map(cls=>classCardHtml(cls,true)).join('')}</div></div>`:''}
   </div>`);
 }
 
@@ -1933,14 +2000,38 @@ async function submitNotice(){
 }
 
 function openAddClassModal(){
+  // Pre-fill date with today's date and current time
+  const now=new Date();
+  const todayDate=now.toISOString().split('T')[0];
+  const currentHH=String(now.getHours()).padStart(2,'0');
+  const currentMM=String(now.getMinutes()).padStart(2,'0');
+  const currentTime=`${currentHH}:${currentMM}`;
   const stuOptions=S.students.length?S.students.map(s=>`<label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--r);cursor:pointer;background:#fff;transition:border-color .15s"><input type="checkbox" value="${s.id}" class="cl-stu-cb" style="width:16px;height:16px;accent-color:var(--gold);flex-shrink:0" onchange="this.closest('label').style.borderColor=this.checked?'var(--gold)':'var(--g200)';this.closest('label').style.background=this.checked?'var(--gold-pale)':'#fff'">${av(`${s.firstName} ${s.lastName}`,28)}<span style="font-size:13px;font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</span><span class="badge b-gray" style="font-size:10px;margin-left:auto">${s.level}</span></label>`).join(''):'<p style="color:var(--g400);font-size:13.5px;padding:12px 0">No registered students yet.</p>';
-  openModal('Create New Class',`<div class="fg"><label class="fl">Subject Name <span class="freq">*</span></label><input class="fi-el" id="cl-subj" placeholder="e.g. Algebra Fundamentals"></div><div class="frow"><div class="fg"><label class="fl">Tutor Name <span class="freq">*</span></label><input class="fi-el" id="cl-tutor" placeholder="e.g. Mr. D. Bakare"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="cl-plat"><option>Zoom</option><option>Google Meet</option><option>Microsoft Teams</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Day</label><select class="fi-el" id="cl-day">${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=>`<option>${d}</option>`).join('')}</select></div><div class="fg"><label class="fl">Time</label><input class="fi-el" id="cl-time" type="time"></div></div><div class="frow"><div class="fg"><label class="fl">Duration</label><input class="fi-el" id="cl-dur" placeholder="e.g. 1.5 hrs"></div><div class="fg"><label class="fl">Class Link <span class="freq">*</span></label><input class="fi-el" id="cl-link" placeholder="https://zoom.us/..."></div></div><div class="fg"><label class="fl" style="display:flex;justify-content:space-between">Assign Students <button type="button" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-body)" onclick="document.querySelectorAll('.cl-stu-cb').forEach(cb=>{cb.checked=!cb.checked;cb.closest('label').style.borderColor=cb.checked?'var(--gold)':'var(--g200)';cb.closest('label').style.background=cb.checked?'var(--gold-pale)':'#fff'})">Toggle All</button></label><div style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px;border:1px solid var(--g100);border-radius:var(--r)">${stuOptions}</div></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitClass()">Create Class</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`,true);
+  openModal('Create New Class',`
+  <div class="fg"><label class="fl">Subject Name <span class="freq">*</span></label><input class="fi-el" id="cl-subj" placeholder="e.g. Algebra Fundamentals"></div>
+  <div class="frow"><div class="fg"><label class="fl">Tutor Name <span class="freq">*</span></label><input class="fi-el" id="cl-tutor" placeholder="e.g. Mr. D. Bakare"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="cl-plat"><option>Zoom</option><option>Google Meet</option><option>Microsoft Teams</option></select></div></div>
+  <div class="frow"><div class="fg"><label class="fl">Class Date <span class="freq">*</span></label><input class="fi-el" id="cl-date" type="date" value="${todayDate}" min="${todayDate}"></div><div class="fg"><label class="fl">Start Time <span class="freq">*</span></label><input class="fi-el" id="cl-time" type="time" value="${currentTime}"></div></div>
+  <div class="frow"><div class="fg"><label class="fl">Duration (hours) <span class="freq">*</span></label><input class="fi-el" id="cl-dur-h" type="number" min="0" max="12" value="1" placeholder="Hours" style="margin-bottom:6px"><input class="fi-el" id="cl-dur-m" type="number" min="0" max="59" step="5" value="0" placeholder="Minutes (0–59)"></div><div class="fg"><label class="fl">Class Link</label><input class="fi-el" id="cl-link" placeholder="https://zoom.us/..."></div></div>
+  <div class="fg"><label class="fl" style="display:flex;justify-content:space-between">Assign Students <button type="button" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:12px;font-family:var(--font-body)" onclick="document.querySelectorAll('.cl-stu-cb').forEach(cb=>{cb.checked=!cb.checked;cb.closest('label').style.borderColor=cb.checked?'var(--gold)':'var(--g200)';cb.closest('label').style.background=cb.checked?'var(--gold-pale)':'#fff'})">Toggle All</button></label><div style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px;border:1px solid var(--g100);border-radius:var(--r)">${stuOptions}</div></div>
+  <div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="submitClass()">Create Class</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`,true);
 }
 async function submitClass(){
   const subj=$id('cl-subj')?.value.trim(), tutor=$id('cl-tutor')?.value.trim();
   if(!subj||!tutor){ toast('Please fill in required fields','e'); return; }
+  const classDate=$id('cl-date')?.value;
+  const classTime=$id('cl-time')?.value;
+  if(!classDate||!classTime){ toast('Please set a class date and time','e'); return; }
+  const durH=parseInt($id('cl-dur-h')?.value||'1',10)||0;
+  const durM=parseInt($id('cl-dur-m')?.value||'0',10)||0;
+  if(durH===0&&durM===0){ toast('Please set a duration greater than 0','e'); return; }
+  const durLabel=durH>0&&durM>0?`${durH}h ${durM}m`:durH>0?`${durH} hr${durH!==1?'s':''}`:` ${durM} min`;
+  // Compute end datetime ISO string
+  const startISO=`${classDate}T${classTime}:00`;
+  const startMs=new Date(startISO).getTime();
+  const endMs=startMs+(durH*60+durM)*60000;
+  const endISO=new Date(endMs).toISOString();
   const selStudents=[...document.querySelectorAll('.cl-stu-cb:checked')].map(cb=>cb.value);
-  await API.addClass({subject:subj,tutor,day:$id('cl-day')?.value,time:$id('cl-time')?.value,duration:$id('cl-dur')?.value||'',platform:$id('cl-plat')?.value,link:$id('cl-link')?.value||'',students:selStudents});
+  await API.addClass({subject:subj,tutor,day:new Date(startISO).toLocaleDateString('en-NG',{weekday:'long'}),date:classDate,time:classTime,durationLabel:durLabel,durationMs:(durH*60+durM)*60000,endISO,platform:$id('cl-plat')?.value,link:$id('cl-link')?.value||'',students:selStudents});
   toast(`Class created — ${selStudents.length} student(s) assigned! 🎬`,'s'); S.classes=await API.getClasses(); closeModal(); renderAClasses();
 }
 
@@ -2084,7 +2175,10 @@ window.addEventListener('DOMContentLoaded', () => {
         S.activePg=sessionStorage.getItem('dm_pg')||'dashboard';
         document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
         const vpt=document.getElementById('vpt'); if(vpt) vpt.classList.add('on');
-        initPortal().then(()=>{ const lov=document.getElementById('lov'); if(lov){ lov.classList.add('fade'); setTimeout(()=>{ try{ lov.remove(); }catch(e){} },520); } }).catch(()=>{ sessionStorage.removeItem('dm_sess'); sessionStorage.removeItem('dm_pg'); S.user=null; S.role=null; bootLanding(); });
+        initPortal().then(()=>{ const lov=document.getElementById('lov'); if(lov){ lov.classList.add('fade'); setTimeout(()=>{ try{ lov.remove(); }catch(e){} },520); }
+          // Check for ended classes on session restore too (admin only)
+          if(sess.role==='admin'){ setTimeout(()=>{ try{ checkAndShowClassEndedAlerts(); }catch(e){} }, 1500); }
+        }).catch(()=>{ sessionStorage.removeItem('dm_sess'); sessionStorage.removeItem('dm_pg'); S.user=null; S.role=null; bootLanding(); });
         return;
       }else{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}
     }
