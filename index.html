@@ -869,7 +869,7 @@ const API = {
   async gradeAssignment(d)    { return await this.post('gradeAssignment',d); },
   async addNotice(d)          { return await this.post('addNotice',d); },
   async deleteNotice(id)      { return await this.post('deleteNotice',{id}); },
-  async saveNote(sid,note)    { return await this.post('saveNote',{studentId:sid,note,date:new Date().toLocaleDateString()}); },
+  async saveNote(sid,note)    { return await this.post('saveNote',{studentId:sid,note,date:fmtToday()}); },
   async sendContact(d)        { return await this.post('sendContact',d); },
   async updateStudent(d)      { return await this.post('updateStudent',d); },
   async addStudent(d)         { return await this.post('addStudent',d); },
@@ -961,6 +961,47 @@ const IC = {
 const $id = id => document.getElementById(id);
 const html = (id,h) => { const e=$id(id); if(e) e.innerHTML=h; };
 const safeArr = v => Array.isArray(v)?v:typeof v==='string'&&v?v.split(',').map(x=>x.trim()).filter(Boolean):[];
+
+// ── DATE FORMATTING UTILITIES ─────────────────────────────────
+// Converts any date string (ISO, YYYY-MM-DD, locale, etc.) to
+// a clean Nigerian-friendly format: "22 Feb 2025" or "22 Feb 2025, 3:45 PM"
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(raw) {
+  if (!raw) return '—';
+  const s = String(raw).trim();
+  if (!s || s === 'undefined' || s === 'null' || s === '—') return '—';
+  // Already looks like "22 Feb 2025" — pass through
+  if (/^\d{1,2}\s[A-Z][a-z]{2}\s\d{4}/.test(s)) return s;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s; // unrecognised — return as-is
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+function fmtDateTime(raw) {
+  if (!raw) return '—';
+  const s = String(raw).trim();
+  if (!s || s === 'undefined' || s === 'null' || s === '—') return '—';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s;
+  const h = d.getHours(), m = d.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hh = h % 12 || 12;
+  const mm = String(m).padStart(2,'0');
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}, ${hh}:${mm} ${ampm}`;
+}
+function fmtTime(raw) {
+  if (!raw) return '—';
+  // Handles "14:30" (HH:MM from time input)
+  const s = String(raw).trim();
+  if (/^\d{1,2}:\d{2}$/.test(s)) {
+    const [hStr, mStr] = s.split(':');
+    const h = parseInt(hStr,10), m = parseInt(mStr,10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+  return fmtDateTime(s); // fall back to datetime formatter
+}
+// today() helper for display (no time) — "22 Feb 2025"
+function fmtToday() { return fmtDate(new Date().toISOString()); }
 
 const logo = (lt=false, sz=34) =>
   `<div style="display:flex;align-items:center;gap:10px">
@@ -1367,7 +1408,7 @@ function renderSDash(){ if(!requireStudent()) return;
     <div>
       <div class="card cp">
         <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">Latest Notices</h3>
-        ${recent.length?recent.map(n=>`<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)"><div style="width:36px;height:36px;border-radius:10px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">🔔</div><div><p style="font-size:13px;color:var(--g700);font-weight:700;line-height:1.4">${n.title}</p><p style="font-size:11px;color:var(--g400);margin-top:2px;font-weight:500">${n.date||''}</p></div></div>`).join(''):'<p style="font-size:13.5px;color:var(--g400);text-align:center;padding:20px 0;font-weight:500">No recent notices</p>'}
+        ${recent.length?recent.map(n=>`<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)"><div style="width:36px;height:36px;border-radius:10px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">🔔</div><div><p style="font-size:13px;color:var(--g700);font-weight:700;line-height:1.4">${n.title}</p><p style="font-size:11px;color:var(--g400);margin-top:2px;font-weight:500">${fmtDate(n.date)}</p></div></div>`).join(''):'<p style="font-size:13.5px;color:var(--g400);text-align:center;padding:20px 0;font-weight:500">No recent notices</p>'}
         <button class="btn btn-ghost btn-sm btn-w" onclick="navTo('notices')" style="margin-top:4px">View All Notices</button>
       </div>
     </div>
@@ -1382,7 +1423,7 @@ function renderSClasses(){ if(!requireStudent()) return;
     <div class="phdr"><div><h2 class="ptitle">My Classes</h2><p class="psub">${myClasses.length} enrolled class${myClasses.length!==1?'es':''}</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSClasses)">${IC.refresh} Refresh</button>
     </div>
-    ${myClasses.length?`<div class="gcls">${myClasses.map(cls=>`<div class="card fu"><div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:4px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">with ${cls.tutor}</p></div>${bdg(cls.platform||'Online')}</div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${cls.time}`)}${infoRow(IC.clock,'Duration',cls.duration)}${cls.link&&cls.link!=='#'?infoRow(IC.video,'Class Link',`<a href="${cls.link}" target="_blank" style="color:var(--blue);text-decoration:underline">Join Now →</a>`):''}
+    ${myClasses.length?`<div class="gcls">${myClasses.map(cls=>`<div class="card fu"><div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:4px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">with ${cls.tutor}</p></div>${bdg(cls.platform||'Online')}</div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.duration)}${cls.link&&cls.link!=='#'?infoRow(IC.video,'Class Link',`<a href="${cls.link}" target="_blank" style="color:var(--blue);text-decoration:underline">Join Now →</a>`):''}
         <div class="div"></div>
         <button class="btn btn-gold btn-w" onclick="${cls.link&&cls.link!=='#'?`window.open('${cls.link}','_blank')`:`toast('Class link not yet available. Check back soon.','i')`}">${IC.video} Join Class</button></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📚</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Classes Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Classes will appear here once admin assigns you to subjects.</p></div>`}
@@ -1402,14 +1443,14 @@ function cbtButtonHtml(a){
     let msg='🕐 CBT Test — ';
     if(hasStart&&!afterStart){
       const d=new Date(a.cbtStart);
-      msg+='Opens '+d.toLocaleDateString()+' at '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      msg+='Opens '+fmtDateTime(d);
     } else if(hasEnd&&!beforeEnd){
-      msg+='Closed on '+new Date(a.cbtEnd).toLocaleDateString();
+      msg+='Closed on '+fmtDate(a.cbtEnd);
     } else { msg+='Not available right now'; }
     return '<div style="margin-top:14px;padding:12px 16px;background:var(--amber-bg);border-radius:var(--r);text-align:center;font-size:13px;color:var(--amber-t);font-weight:700">'+msg+'</div>';
   }
   let timeNote='';
-  if(hasEnd){ const d=new Date(a.cbtEnd); timeNote='<p style="font-size:11px;color:var(--blue-t);opacity:.7;margin-top:4px;text-align:center">Closes '+d.toLocaleDateString()+' at '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</p>'; }
+  if(hasEnd){ const d=new Date(a.cbtEnd); timeNote='<p style="font-size:11px;color:var(--blue-t);opacity:.7;margin-top:4px;text-align:center">Closes '+fmtDateTime(d)+'</p>'; }
   return '<div style="margin-top:14px"><a href="'+a.cbtLink+'" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;background:linear-gradient(135deg,#2563EB,#1E3A8A);color:#fff;border-radius:var(--r);font-size:14px;font-weight:700;font-family:var(--font-body);text-decoration:none;cursor:pointer">🖥️ Start CBT Test</a>'+timeNote+'</div>';
 }
 
@@ -1420,7 +1461,7 @@ function renderSAssignments(){ if(!requireStudent()) return;
     <div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Track and submit your work</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSAssignments)">${IC.refresh}</button>
     </div>
-    ${myAssigns.length?`<div style="display:flex;flex-direction:column;gap:14px">${myAssigns.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:48px;height:48px;border-radius:12px;background:${a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400);font-weight:500">${a.subject} · Due ${a.dueDate||'TBD'}</p></div>${bdg(a.status||'Pending')}${a.type==='CBT'?'<span class="badge b-blue" style="font-size:10px">🖥️ CBT</span>':''}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65;font-weight:400">${a.instructions||''}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 16px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:800;color:var(--green-t);margin-bottom:4px">Grade: ${a.grade}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.85;font-weight:400">${a.feedback||''}</p></div>`:''}${cbtButtonHtml(a)}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="submitAssignmentStudent('${a.id}')">${IC.send} Mark as Submitted</button>`:''}</div></div></div>`).join('')}</div>`:
+    ${myAssigns.length?`<div style="display:flex;flex-direction:column;gap:14px">${myAssigns.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:48px;height:48px;border-radius:12px;background:${a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400);font-weight:500">${a.subject} · Due ${fmtDate(a.dueDate)||'TBD'}</p></div>${bdg(a.status||'Pending')}${a.type==='CBT'?'<span class="badge b-blue" style="font-size:10px">🖥️ CBT</span>':''}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65;font-weight:400">${a.instructions||''}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 16px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:800;color:var(--green-t);margin-bottom:4px">Grade: ${a.grade}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.85;font-weight:400">${a.feedback||''}</p></div>`:''}${cbtButtonHtml(a)}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="submitAssignmentStudent('${a.id}')">${IC.send} Mark as Submitted</button>`:''}</div></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">✅</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Assignments Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Your assignments will appear here once posted by your tutor.</p></div>`}
   </div>`);
 }
@@ -1464,7 +1505,7 @@ function renderSProgress(){ if(!requireStudent()) return;
               <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
                 <span style="font-size:12px;color:var(--g400);font-weight:500">${a.subject}</span>
                 <span style="font-size:12px;color:var(--g400)">·</span>
-                <span style="font-size:12px;color:var(--g400);font-weight:500">Due: ${a.dueDate||'TBD'}</span>
+                <span style="font-size:12px;color:var(--g400);font-weight:500">Due: ${fmtDate(a.dueDate)||'TBD'}</span>
                 <span style="font-size:11px;font-weight:800;color:${statusColor};background:${statusBg};padding:2px 8px;border-radius:99px">${a.status}</span>
               </div>
               ${a.status==='Graded'&&a.feedback?`<p style="font-size:12px;color:var(--g500);margin-top:5px;font-style:italic;line-height:1.5">"${a.feedback}"</p>`:''}
@@ -1543,7 +1584,7 @@ function renderNotices(){
     <div class="phdr"><div><h2 class="ptitle">${isAdmin?'Announcements':'Notices'}</h2><p class="psub">${notices.length} notice${notices.length!==1?'s':''}</p></div>
       ${isAdmin?`<div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderNotices)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddNoticeModal()">${IC.send} Post Notice</button></div>`:''}
     </div>
-    ${notices.length?`<div style="display:flex;flex-direction:column;gap:14px">${notices.map((n,i)=>`<div class="card fu" style="border-left:4px solid var(--gold)"><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:40px;border-radius:11px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🔔</div><div><h3 style="font-weight:800;font-size:15px;color:var(--g900)">${n.title}</h3><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:500">Posted ${n.date||''} · <strong>${n.target==='all'?'All Students':n.target}</strong></p></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${n.target==='all'?'b-navy':'b-blue'}">${n.target==='all'?'All':n.target}</span>${isAdmin?`<button class="btn btn-ghost btn-ico btn-xs" style="color:var(--red)" onclick="deleteNotice('${n.id||i}')">${IC.trash}</button>`:''}</div></div><p style="font-size:14px;color:var(--g500);line-height:1.72;font-weight:400">${n.body}</p></div></div>`).join('')}</div>`:
+    ${notices.length?`<div style="display:flex;flex-direction:column;gap:14px">${notices.map((n,i)=>`<div class="card fu" style="border-left:4px solid var(--gold)"><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:40px;border-radius:11px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🔔</div><div><h3 style="font-weight:800;font-size:15px;color:var(--g900)">${n.title}</h3><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:500">Posted ${fmtDate(n.date)} · <strong>${n.target==='all'?'All Students':n.target}</strong></p></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${n.target==='all'?'b-navy':'b-blue'}">${n.target==='all'?'All':n.target}</span>${isAdmin?`<button class="btn btn-ghost btn-ico btn-xs" style="color:var(--red)" onclick="deleteNotice('${n.id||i}')">${IC.trash}</button>`:''}</div></div><p style="font-size:14px;color:var(--g500);line-height:1.72;font-weight:400">${n.body}</p></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📢</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Notices Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Announcements from your tutors will appear here.</p></div>`}
   </div>`);
 }
@@ -1603,7 +1644,7 @@ function renderAApps(){ if(!requireAdmin()) return;
       <div style="display:flex;gap:8px;flex-wrap:wrap">${['all','pending','approved','rejected'].map(f=>`<button class="btn btn-sm ${S.appFilter===f?'btn-navy':'btn-ghost'}" onclick="S.appFilter='${f}';renderAApps()" style="text-transform:capitalize">${f==='all'?`All (${S.apps.length})`:f+` (${counts[f]||0})`}</button>`).join('')}</div>
     </div>
     ${filtered.length?filtered.map((req,i)=>`<div class="rcard ${req.status}"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px"><div style="display:flex;gap:14px;align-items:flex-start">${av(`${req.firstName} ${req.lastName}`,50)}<div><h3 style="font-weight:800;font-size:16px;color:var(--g900)">${req.firstName} ${req.lastName}</h3><p style="font-size:13px;color:var(--g400);margin-bottom:6px;font-weight:500">${req.email} · ${req.phone}</p><div style="display:flex;gap:5px;flex-wrap:wrap"><span class="chip" style="font-size:11px">${req.level}</span>${safeArr(req.subjects).map(s=>`<span class="badge b-blue" style="font-size:10px">${s}</span>`).join('')}</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">${bdg(req.status)}<button class="btn btn-ghost btn-sm" onclick="openAppModal(${i})">${IC.eye} Details</button></div></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">${[[IC.card,'Ref',req.paymentRef],[IC.card,'Amount',` Naira ${req.paymentAmt}`],[IC.cal,'Pay Date',req.paymentDate],[IC.clock,'Applied',req.applied]].map(([icon,l,v])=>`<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="color:var(--g300)">${icon}</span><span style="color:var(--g400);font-weight:500">${l}:</span><strong style="color:var(--g700)">${v||'—'}</strong></div>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">${[[IC.card,'Ref',req.paymentRef],[IC.card,'Amount',` Naira ${req.paymentAmt}`],[IC.cal,'Pay Date',req.paymentDate],[IC.clock,'Applied',fmtDate(req.applied)]].map(([icon,l,v])=>`<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="color:var(--g300)">${icon}</span><span style="color:var(--g400);font-weight:500">${l}:</span><strong style="color:var(--g700)">${v||'—'}</strong></div>`).join('')}</div>
     ${req.status==='pending'?`<div style="display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)"><button class="btn btn-ok btn-sm" style="flex:1" onclick="approveApp('${req.id}')">${IC.chk} Approve & Create Account</button><button class="btn btn-err btn-sm" style="flex:1" onclick="rejectApp('${req.id}')">${IC.x} Reject Application</button></div>`:''}</div>`).join(''):`<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📋</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No ${S.appFilter==='all'?'':S.appFilter+' '}applications</h3><p style="color:var(--g400);font-size:14px">Applications submitted via the enrolment form appear here.</p></div>`}
   </div>`);
 }
@@ -1701,7 +1742,7 @@ async function renderStudentDetail(){
         </div>
         <div class="card cp">
           <h4 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:14px">Admin Notes</h4>
-          <div id="notes-list">${notes.length?notes.map(n=>`<div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--r);padding:10px 14px;margin-bottom:9px"><p style="font-size:13px;color:var(--g700);line-height:1.55;font-weight:400">${typeof n==='string'?n:(n.note||'')}</p><p style="font-size:11px;color:var(--g400);margin-top:4px;font-weight:600">${n.date||''}</p></div>`).join(''):'<p style="color:var(--g400);font-size:13.5px;margin-bottom:12px;font-weight:500">No notes yet.</p>'}</div>
+          <div id="notes-list">${notes.length?notes.map(n=>`<div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--r);padding:10px 14px;margin-bottom:9px"><p style="font-size:13px;color:var(--g700);line-height:1.55;font-weight:400">${typeof n==='string'?n:(n.note||'')}</p><p style="font-size:11px;color:var(--g400);margin-top:4px;font-weight:600">${fmtDate(n.date)}</p></div>`).join(''):'<p style="color:var(--g400);font-size:13.5px;margin-bottom:12px;font-weight:500">No notes yet.</p>'}</div>
           <textarea class="fi-el" id="note-ta" placeholder="Add a note about this student..." rows="3" style="margin-top:4px;margin-bottom:10px"></textarea>
           <button class="btn btn-gold btn-sm" onclick="addNote('${s.id}')">Add Note</button>
         </div>
@@ -1752,7 +1793,7 @@ async function addNote(sid){
   if(list){
     const el=document.createElement('div');
     el.style.cssText='background:var(--g50);border:1px solid var(--g100);border-radius:var(--r);padding:10px 14px;margin-bottom:9px';
-    el.innerHTML=`<p style="font-size:13px;color:var(--g700);line-height:1.55;font-weight:400">${note}</p><p style="font-size:11px;color:var(--g400);margin-top:4px;font-weight:600">Just now</p>`;
+    el.innerHTML=`<p style="font-size:13px;color:var(--g700);line-height:1.55;font-weight:400">${note}</p><p style="font-size:11px;color:var(--g400);margin-top:4px;font-weight:600">${fmtToday()}</p>`;
     list.insertBefore(el,list.firstChild);
   }
   ta.value='';
@@ -1763,7 +1804,7 @@ function renderAClasses(){ if(!requireAdmin()) return;
     <div class="phdr"><div><h2 class="ptitle">Class Management</h2><p class="psub">${S.classes.length} active classes</p></div>
       <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAClasses)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddClassModal()">${IC.plus} Create Class</button></div>
     </div>
-    ${S.classes.length?`<div class="gcls">${S.classes.map(cls=>`<div class="card"><div style="height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📹</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">${cls.tutor}</p></div></div><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico btn-xs" onclick="openEditClassModal('${cls.id}')">${IC.edit}</button></div></div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${cls.time}`)}${infoRow(IC.clock,'Duration',cls.duration)}${infoRow(IC.video,'Platform',cls.platform||'Online')}<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)">${S.students.filter(s=>safeArr(cls.students).includes(s.id)).map(s=>av(`${s.firstName} ${s.lastName}`,26)).join('')}<span style="font-size:12px;color:var(--g400);margin-left:4px;font-weight:600">${safeArr(cls.students).length} student${safeArr(cls.students).length!==1?'s':''}</span></div><div style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="markAttendanceModal('${cls.id}')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="openAssignStudentsModal('${cls.id}')">Assign Students</button></div></div></div>`).join('')}</div>`:
+    ${S.classes.length?`<div class="gcls">${S.classes.map(cls=>`<div class="card"><div style="height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📹</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">${cls.tutor}</p></div></div><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico btn-xs" onclick="openEditClassModal('${cls.id}')">${IC.edit}</button></div></div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.duration)}${infoRow(IC.video,'Platform',cls.platform||'Online')}<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)">${S.students.filter(s=>safeArr(cls.students).includes(s.id)).map(s=>av(`${s.firstName} ${s.lastName}`,26)).join('')}<span style="font-size:12px;color:var(--g400);margin-left:4px;font-weight:600">${safeArr(cls.students).length} student${safeArr(cls.students).length!==1?'s':''}</span></div><div style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="markAttendanceModal('${cls.id}')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="openAssignStudentsModal('${cls.id}')">Assign Students</button></div></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">🎬</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700)">No classes yet</h3><p style="color:var(--g400);font-size:14px;margin-top:8px">Create your first class to get started.</p></div>`}
   </div>`);
 }
@@ -1774,7 +1815,7 @@ function renderAAssignments(){ if(!requireAdmin()) return;
       <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAAssignments)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddAssignModal()">${IC.plus} New Assignment</button></div>
     </div>
     ${S.assignments.length?`<div class="card"><div class="tw"><table><thead><tr><th>Assignment</th><th>Subject</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>${S.assignments.map(a=>`<tr><td><p style="font-weight:800;font-size:14px;color:var(--g900)">${a.title}</p><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:400">${(a.instructions||'').slice(0,55)}${(a.instructions||'').length>55?'...':''}</p></td><td><span class="chip" style="font-size:11px">${a.subject}</span></td><td style="font-size:13px;color:var(--g500);font-weight:500">${a.dueDate||'TBD'}</td><td>${bdg(a.status||'Pending')}</td><td><div style="display:flex;gap:6px">${a.status==='Submitted'?`<button class="btn btn-gold btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Grade</button>`:''}${a.status==='Graded'?`<button class="btn btn-ghost btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Update</button>`:''}<button class="btn btn-err btn-xs" onclick="deleteAssignment('${a.id}','${a.title}')">🗑 Delete</button></div></td></tr>`).join('')}
+      <tbody>${S.assignments.map(a=>`<tr><td><p style="font-weight:800;font-size:14px;color:var(--g900)">${a.title}</p><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:400">${(a.instructions||'').slice(0,55)}${(a.instructions||'').length>55?'...':''}</p></td><td><span class="chip" style="font-size:11px">${a.subject}</span></td><td style="font-size:13px;color:var(--g500);font-weight:500">${fmtDate(a.dueDate)||'TBD'}</td><td>${bdg(a.status||'Pending')}</td><td><div style="display:flex;gap:6px">${a.status==='Submitted'?`<button class="btn btn-gold btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Grade</button>`:''}${a.status==='Graded'?`<button class="btn btn-ghost btn-xs" onclick="gradeModal('${a.id}')">${IC.edit} Update</button>`:''}<button class="btn btn-err btn-xs" onclick="deleteAssignment('${a.id}','${a.title}')">🗑 Delete</button></div></td></tr>`).join('')}
       </tbody></table></div></div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📝</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700)">No assignments yet</h3><p style="color:var(--g400);font-size:14px;margin-top:8px">Create your first assignment.</p></div>`}
   </div>`);
@@ -1959,7 +2000,7 @@ async function saveClassStudents(classId){
 function markAttendanceModal(classId){
   const cls=S.classes.find(c=>c.id===classId); if(!cls) return;
   const classStudents=S.students.filter(s=>safeArr(cls.students).includes(s.id));
-  openModal(`Attendance — ${cls.subject}`,`<p style="color:var(--g400);font-size:13.5px;margin-bottom:16px;font-weight:500">Mark attendance for today (${new Date().toLocaleDateString()}).</p><div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto">${classStudents.map(s=>`<label style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1.5px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .15s"><input type="checkbox" value="${s.id}" checked style="width:16px;height:16px;accent-color:var(--green)">${av(`${s.firstName} ${s.lastName}`,32)}<span style="font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</span></label>`).join('')}${!classStudents.length?'<p style="text-align:center;color:var(--g400);padding:20px">No students assigned to this class.</p>':''}</div><div style="display:flex;gap:10px;padding-top:16px"><button class="btn btn-ok" style="flex:1" onclick="submitAttendance('${classId}')">Save Attendance</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+  openModal(`Attendance — ${cls.subject}`,`<p style="color:var(--g400);font-size:13.5px;margin-bottom:16px;font-weight:500">Mark attendance for today (${fmtToday()}).</p><div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto">${classStudents.map(s=>`<label style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1.5px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .15s"><input type="checkbox" value="${s.id}" checked style="width:16px;height:16px;accent-color:var(--green)">${av(`${s.firstName} ${s.lastName}`,32)}<span style="font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</span></label>`).join('')}${!classStudents.length?'<p style="text-align:center;color:var(--g400);padding:20px">No students assigned to this class.</p>':''}</div><div style="display:flex;gap:10px;padding-top:16px"><button class="btn btn-ok" style="flex:1" onclick="submitAttendance('${classId}')">Save Attendance</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
 }
 async function submitAttendance(classId){
   const present=[...document.querySelectorAll('input[type=checkbox]:checked')].map(cb=>cb.value);
