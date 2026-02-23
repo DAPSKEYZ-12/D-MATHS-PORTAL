@@ -780,7 +780,7 @@ const SHEET_API = "https://script.google.com/macros/s/AKfycbznmrEfVQB8XFXwLI6qfa
 
 const S = { token:null,
   user:null,role:null,gwMode:'choose',suStep:1,suData:{subjects:[]},
-  activePg:'dashboard',appFilter:'all',selStudent:null,
+  activePg:'dashboard',appFilter:'all',appSearch:'',stuSearch:'',selStudent:null,
   charts:{},
   apps:[],students:[],classes:[],assignments:[],notices:[],
   pollTimer:null
@@ -855,8 +855,8 @@ const API = {
   async studentLoginFull(id,pw){ return await this.call('studentLogin',{studentId:id,password:pw}); },
   async adminLogin(em, pw)    { const r=await this.call('adminLogin',{email:em,password:pw}); return r?.success?r.admin:null; },
   async adminLoginFull(em,pw)  { return await this.call('adminLogin',{email:em,password:pw}); },
-  async getApps()             { const r=await this.call('getApplications');  return Array.isArray(r?.data)?r.data:[]; },
-  async getStudents()         { const r=await this.call('getStudents');       return Array.isArray(r?.data)?r.data:[]; },
+  async getApps()             { const r=await this.call('getApplications');  return Array.isArray(r?.data)?r.data.map(a=>({...a,status:(a.status||'pending').toLowerCase()})):[];},
+  async getStudents()         { const r=await this.call('getStudents');       return Array.isArray(r?.data)?r.data.map(s=>({...s,isActive:s.isActive===true||s.isActive==='true'||s.isActive===1||s.isActive==='TRUE'||s.isActive==='1'})):[];},
   async getClasses()          { const r=await this.call('getClasses');        return Array.isArray(r?.data)?r.data:[]; },
   async getAssignments()      { const r=await this.call('getAssignments');    return Array.isArray(r?.data)?r.data:[]; },
   async getNotices()          { const r=await this.call('getNotices');        return Array.isArray(r?.data)?r.data:[]; },
@@ -884,6 +884,19 @@ const API = {
 function startPolling() {
   stopPolling();
   S.pollTimer = setInterval(syncFromSheets, 45000);
+  // Session expiry warning — alert 10 min before 8hr session ends
+  if(S._sessionWarning) clearTimeout(S._sessionWarning);
+  try{
+    const raw=sessionStorage.getItem('dm_sess');
+    if(raw){
+      const sess=JSON.parse(raw);
+      const remaining=(sess.ts+8*60*60*1000)-Date.now();
+      const warnAt=remaining-(10*60*1000);
+      if(warnAt>0) S._sessionWarning=setTimeout(()=>{
+        toast('⚠️ Session expires in 10 minutes. Save your work!','e');
+      }, warnAt);
+    }
+  }catch(e){}
 }
 function stopPolling() {
   if(S.pollTimer){ clearInterval(S.pollTimer); S.pollTimer=null; }
@@ -1080,7 +1093,7 @@ function show(id){
 function goLanding(){ stopPolling(); show('vl'); }
 function goGateway(){ stopPolling(); show('vg'); renderGW('choose'); }
 function goSignup(){ show('vs'); initSignup(); }
-function logout(){ stopPolling(); S.user=null; S.role=null; try{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}catch(e){} goLanding(); }
+function logout(){ stopPolling(); if(S._sessionWarning) clearTimeout(S._sessionWarning); S.user=null; S.role=null; S.stuSearch=''; S.appSearch=''; try{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}catch(e){} goLanding(); }
 
 window.addEventListener('scroll',()=>{
   const nav=$id('lnav');
@@ -1230,7 +1243,7 @@ async function doSLogin(){
   else { recordLoginFail('student'); if(btn){ btn.disabled=false; btn.innerHTML=`Sign In ${IC.ar}`; } gwErr('gw-err','Invalid Student ID or password. Please check your credentials.'); }
 }
 
-async function doALogin(){
+async function doALogin(){  // admin login handler
   const em=$id('gw-aem')?.value.trim(), pw=$id('gw-apw')?.value;
   if(!em||!pw){ gwErr('gw-aerr','Please enter your credentials.'); return; }
   const lockSecs=checkLoginRate('admin');
@@ -1605,7 +1618,7 @@ async function deleteNotice(id){
 // ════════════════════════════════════════════════════════════════
 function renderADash(){ if(!requireAdmin()) return;
   const pend=S.apps.filter(a=>a.status==='pending').length;
-  const activeS=S.students.filter(s=>s.isActive===true||s.isActive==='true'||s.isActive===1).length;
+  const activeS=S.students.filter(s=>s.isActive===true).length;
   const avgScore=S.students.length?Math.round(S.students.reduce((s,st)=>s+(+st.avgScore||0),0)/S.students.length):0;
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h1 class="ptitle">Admin Dashboard</h1><p class="psub">D-Maths Tuition Centre — Control Panel</p></div>
@@ -1632,7 +1645,7 @@ function renderADash(){ if(!requireAdmin()) return;
         <button class="btn btn-ghost btn-xs" onclick="navTo('students')">View All</button>
       </div>
       <div class="tw"><table><thead><tr><th>Student</th><th>Level</th><th>Avg Score</th><th>Attendance</th><th>Status</th></tr></thead>
-        <tbody>${S.students.slice(0,7).map(s=>`<tr onclick="S.selStudent='${s.id}';navTo('students')" style="cursor:pointer"><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<div><span style="font-weight:800;font-size:13.5px">${s.firstName} ${s.lastName}</span><br><span style="font-size:11px;color:var(--g400);font-family:var(--font-mono)">${s.id}</span></div></div></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.level}</td><td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.attendance||0}%</td><td>${bdg((s.isActive===true||s.isActive==='true'||s.isActive===1)?'Active':'Inactive')}</td></tr>`).join('')}${!S.students.length?`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--g400)">No students yet</td></tr>`:''}</tbody>
+        <tbody>${S.students.slice(0,7).map(s=>`<tr onclick="S.selStudent='${s.id}';navTo('students')" style="cursor:pointer"><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<div><span style="font-weight:800;font-size:13.5px">${sanitize(s.firstName)} ${sanitize(s.lastName)}</span><br><span style="font-size:11px;color:var(--g400);font-family:var(--font-mono)">${s.id}</span></div></div></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.level}</td><td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.attendance||0}%</td><td>${bdg(s.isActive?'Active':'Inactive')}</td></tr>`).join('')}${!S.students.length?`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--g400)">No students yet</td></tr>`:''}</tbody>
       </table></div>
     </div>
   </div>`);
@@ -1640,16 +1653,22 @@ function renderADash(){ if(!requireAdmin()) return;
 }
 
 function renderAApps(){ if(!requireAdmin()) return;
-  const filtered=S.appFilter==='all'?S.apps:S.apps.filter(a=>a.status===S.appFilter);
+  const q=(S.appSearch||'').toLowerCase().trim();
+  const allFiltered=S.appFilter==='all'?S.apps:S.apps.filter(a=>a.status===S.appFilter);
+  const filtered=q?allFiltered.filter(a=>`${a.firstName} ${a.lastName} ${a.email} ${a.phone} ${a.paymentRef}`.toLowerCase().includes(q)):allFiltered;
   const counts={pending:S.apps.filter(a=>a.status==='pending').length,approved:S.apps.filter(a=>a.status==='approved').length,rejected:S.apps.filter(a=>a.status==='rejected').length};
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">Enrolment Applications</h2><p class="psub">${counts.pending} pending · ${counts.approved} approved · ${counts.rejected} rejected</p></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">${['all','pending','approved','rejected'].map(f=>`<button class="btn btn-sm ${S.appFilter===f?'btn-navy':'btn-ghost'}" onclick="S.appFilter='${f}';renderAApps()" style="text-transform:capitalize">${f==='all'?`All (${S.apps.length})`:f+` (${counts[f]||0})`}</button>`).join('')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${['all','pending','approved','rejected'].map(f=>`<button class="btn btn-sm ${S.appFilter===f?'btn-navy':'btn-ghost'}" onclick="S.appFilter='${f}';S.appSearch='';renderAApps()" style="text-transform:capitalize">${f==='all'?`All (${S.apps.length})`:f+` (${counts[f]||0})`}</button>`).join('')}</div>
     </div>
-    ${filtered.length?filtered.map((req,i)=>`<div class="rcard ${req.status}"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px"><div style="display:flex;gap:14px;align-items:flex-start">${av(`${req.firstName} ${req.lastName}`,50)}<div><h3 style="font-weight:800;font-size:16px;color:var(--g900)">${req.firstName} ${req.lastName}</h3><p style="font-size:13px;color:var(--g400);margin-bottom:6px;font-weight:500">${req.email} · ${req.phone}</p><div style="display:flex;gap:5px;flex-wrap:wrap"><span class="chip" style="font-size:11px">${req.level}</span>${safeArr(req.subjects).map(s=>`<span class="badge b-blue" style="font-size:10px">${s}</span>`).join('')}</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">${bdg(req.status)}<button class="btn btn-ghost btn-sm" onclick="openAppModal(${i})">${IC.eye} Details</button></div></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">${[[IC.card,'Ref',req.paymentRef],[IC.card,'Amount',` Naira ${req.paymentAmt}`],[IC.cal,'Pay Date',req.paymentDate],[IC.clock,'Applied',fmtDate(req.applied)]].map(([icon,l,v])=>`<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="color:var(--g300)">${icon}</span><span style="color:var(--g400);font-weight:500">${l}:</span><strong style="color:var(--g700)">${v||'—'}</strong></div>`).join('')}</div>
-    ${req.status==='pending'?`<div style="display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)"><button class="btn btn-ok btn-sm" style="flex:1" onclick="approveApp('${req.id}')">${IC.chk} Approve & Create Account</button><button class="btn btn-err btn-sm" style="flex:1" onclick="rejectApp('${req.id}')">${IC.x} Reject Application</button></div>`:''}</div>`).join(''):`<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📋</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No ${S.appFilter==='all'?'':S.appFilter+' '}applications</h3><p style="color:var(--g400);font-size:14px">Applications submitted via the enrolment form appear here.</p></div>`}
+    <div style="margin-bottom:16px"><input class="fi-el" id="app-search" placeholder="🔍  Search by name, email, phone or payment ref..." value="${S.appSearch||''}" oninput="S.appSearch=this.value;renderAApps()" style="max-width:420px"></div>
+    ${q&&!filtered.length?`<div class="card cp" style="text-align:center;padding:32px"><p style="color:var(--g400)">No applications matching <strong>"${sanitize(q)}"</strong></p><button class="btn btn-ghost btn-sm" onclick="S.appSearch='';renderAApps()">Clear Search</button></div>`:''}
+    ${filtered.length?filtered.map((req,i)=>`<div class="rcard ${req.status}"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px"><div style="display:flex;gap:14px;align-items:flex-start">${av(`${req.firstName} ${req.lastName}`,50)}<div><h3 style="font-weight:800;font-size:16px;color:var(--g900)">${sanitize(req.firstName)} ${sanitize(req.lastName)}</h3><p style="font-size:13px;color:var(--g400);margin-bottom:6px;font-weight:500">${sanitize(req.email)} · ${sanitize(req.phone)}</p><div style="display:flex;gap:5px;flex-wrap:wrap"><span class="chip" style="font-size:11px">${sanitize(req.level)}</span>${safeArr(req.subjects).map(s=>`<span class="badge b-blue" style="font-size:10px">${sanitize(s)}</span>`).join('')}</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">${bdg(req.status)}<button class="btn btn-ghost btn-sm" onclick="openAppModal(${i})">${IC.eye} Details</button></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">${[[IC.card,'Ref',req.paymentRef],[IC.card,'Amount',`₦${req.paymentAmt}`],[IC.cal,'Pay Date',req.paymentDate],[IC.clock,'Applied',fmtDate(req.applied)]].map(([icon,l,v])=>`<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="color:var(--g300)">${icon}</span><span style="color:var(--g400);font-weight:500">${l}:</span><strong style="color:var(--g700)">${sanitize(v)||'—'}</strong></div>`).join('')}</div>
+    ${req.status==='pending'?`<div style="display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)"><button class="btn btn-ok btn-sm" style="flex:1" onclick="approveApp('${req.id}')">${IC.chk} Approve & Create Account</button><button class="btn btn-err btn-sm" style="flex:1" onclick="rejectApp('${req.id}')">${IC.x} Reject Application</button></div>`:req.status==='approved'?`<div class="al al-s" style="margin-top:14px;padding:10px 14px">✅ Approved — credentials emailed.</div>`:`<div class="al al-e" style="margin-top:14px;padding:10px 14px">❌ Rejected.</div>`}</div>`).join(''):`<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📋</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No ${S.appFilter==='all'?'':S.appFilter+' '}applications</h3><p style="color:var(--g400);font-size:14px">Applications submitted via the enrolment form appear here.</p></div>`}
   </div>`);
+  // Restore focus to search box so user can keep typing
+  const si=$id('app-search'); if(si&&q) setTimeout(()=>{ si.focus(); si.setSelectionRange(si.value.length,si.value.length); },0);
 }
 
 function openAppModal(idx){
@@ -1661,45 +1680,58 @@ function openAppModal(idx){
       ${infoRow(IC.phone,'Phone',req.phone)}
       ${infoRow('🎓','Level',req.level)}
       ${infoRow(IC.card,'Payment Ref',req.paymentRef)}
-      ${infoRow(IC.card,'Amount',` Naira ${req.paymentAmt}`)}
+      ${infoRow(IC.card,'Amount',`₦${req.paymentAmt}`)}
       ${infoRow(IC.cal,'Pay Date',req.paymentDate)}
       ${infoRow(IC.card,'Method',req.paymentMethod)}
       ${infoRow(IC.user,'Guardian',req.guardian||'—')}
     </div>
     <div style="margin-bottom:14px"><label class="fl">Subjects</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${safeArr(req.subjects).map(s=>`<span class="badge b-blue">${s}</span>`).join('')||'None'}</div></div>
     ${req.notes?`<div class="fg"><label class="fl">Notes</label><p style="font-size:14px;color:var(--g500)">${req.notes}</p></div>`:''}
-    ${req.status==='pending'?`<div style="display:flex;gap:10px;padding-top:8px"><button class="btn btn-ok" style="flex:1" onclick="approveApp('${req.id}');closeModal()">${IC.chk} Approve & Send Credentials</button><button class="btn btn-err" onclick="rejectApp('${req.id}');closeModal()">${IC.x} Reject</button></div>`:req.status==='approved'?'<div class="al al-s">✅ Application has been <strong>approved</strong>. Credentials were emailed.</div>':'<div class="al al-e">❌ Application was <strong>rejected</strong>.</div>'}
+    ${req.status==='pending'?`<div style="display:flex;gap:10px;padding-top:8px"><button class="btn btn-ok" style="flex:1" onclick="approveApp('${req.id}');closeModal()">${IC.chk} Approve & Send Credentials</button><button class="btn btn-err" onclick="rejectApp('${req.id}');closeModal()">${IC.x} Reject</button></div>`:req.status==='approved'?'<div class="al al-s">✅ Application has been <strong>approved</strong>. Credentials were emailed to the student.</div>':'<div class="al al-e">❌ Application was <strong>rejected</strong>.</div>'}
   `,true);
 }
 
 async function approveApp(id){
   if(!confirm('Approve this application and email credentials to the student?')) return;
+  // Disable ALL approve/reject buttons for this app to prevent double-click
   const btns=document.querySelectorAll(`button[onclick*="${id}"]`);
-  btns.forEach(b=>{b.disabled=true;});
-  await API.approveApp(id);
-  toast('Application approved! Student credentials emailed. ✅','s');
-  S.apps=await API.getApps(); S.students=await API.getStudents();
-  renderAApps();
+  btns.forEach(b=>{b.disabled=true;b.style.opacity='0.5';});
+  try{
+    const res=await API.approveApp(id);
+    if(res?.success===false){ toast('Approval failed — please try again.','e'); btns.forEach(b=>{b.disabled=false;b.style.opacity='';});return;}
+    toast('Application approved! ✅ Student credentials emailed.','s');
+    S.apps=await API.getApps(); S.students=await API.getStudents();
+    closeModal(); renderAApps();
+  }catch(e){ toast('Network error during approval. Try again.','e'); btns.forEach(b=>{b.disabled=false;b.style.opacity='';}); }
 }
 async function rejectApp(id){
-  if(!confirm('Reject this application? The student will be notified by email.')) return;
-  await API.rejectApp(id);
-  toast('Application rejected. Student notified.','s');
-  S.apps=await API.getApps();
-  renderAApps();
+  const reason=prompt('Optional: Enter a rejection reason to include in the student\'s email (leave blank for none):')||'';
+  if(reason===null) return; // user pressed Cancel
+  const btns=document.querySelectorAll(`button[onclick*="${id}"]`);
+  btns.forEach(b=>{b.disabled=true;b.style.opacity='0.5';});
+  try{
+    await API.post('rejectApp',{id,reason});
+    toast('Application rejected. Student notified.','s');
+    S.apps=await API.getApps();
+    closeModal(); renderAApps();
+  }catch(e){ toast('Network error. Try again.','e'); btns.forEach(b=>{b.disabled=false;b.style.opacity='';}); }
 }
 
 function renderAStudents(){ if(!requireAdmin()) return;
   if(S.selStudent){ renderStudentDetail(); return; }
+  const q=(S.stuSearch||'').toLowerCase().trim();
+  const visible=q?S.students.filter(s=>`${s.firstName} ${s.lastName} ${s.id} ${s.level} ${s.email}`.toLowerCase().includes(q)):S.students;
   html('portal-pages',`<div class="pg on fi">
-    <div class="phdr"><div><h2 class="ptitle">Student Management</h2><p class="psub">${S.students.length} registered students</p></div>
-      <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAStudents)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddStudentModal()">${IC.plus} Add Student</button></div>
+    <div class="phdr"><div><h2 class="ptitle">Student Management</h2><p class="psub">${S.students.length} registered students${q?` · ${visible.length} match`:''}ed</p></div>
+      <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAStudents)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddStudentModal()">${IC.plus} Add Student</button><button class="btn btn-ghost btn-sm" onclick="exportStudentsCSV()" title="Export to CSV">⬇ CSV</button></div>
     </div>
+    <div style="margin-bottom:16px"><input class="fi-el" id="stu-search" placeholder="🔍  Search by name, ID, level or email..." value="${S.stuSearch||''}" oninput="S.stuSearch=this.value;renderAStudents()" style="max-width:400px"></div>
     <div class="card"><div class="tw"><table><thead><tr><th>Student</th><th>ID</th><th>Level</th><th>Subjects</th><th>Score</th><th>Attend.</th><th>Status</th><th></th></tr></thead>
-      <tbody>${S.students.length?S.students.map(s=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<span style="font-weight:800;font-size:13.5px">${s.firstName} ${s.lastName}</span></div></td><td><code style="font-size:11px;background:var(--g50);border:1px solid var(--g100);padding:2px 7px;border-radius:6px;font-family:var(--font-mono)">${s.id}</code></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.level}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${safeArr(s.subjects).slice(0,2).map(sub=>`<span class="badge b-blue" style="font-size:10px">${sub}</span>`).join('')}${safeArr(s.subjects).length>2?`<span class="badge b-gray" style="font-size:10px">+${safeArr(s.subjects).length-2}</span>`:''}</div></td><td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.attendance||0}%</td><td>${bdg((s.isActive===true||s.isActive==='true'||s.isActive===1)?'Active':'Inactive')}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico" title="View" onclick="S.selStudent='${s.id}';renderAStudents()">${IC.eye}</button><button class="btn btn-ghost btn-ico" title="Edit" onclick="openEditStudentModal('${s.id}')">${IC.edit}</button><button class="btn btn-err btn-ico" title="Delete" onclick="deleteStudent('${s.id}','${s.firstName} ${s.lastName}')">${IC.trash}</button></div></td></tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--g400)">No students yet. Students appear once applications are approved.</td></tr>`}
+      <tbody>${visible.length?visible.map(s=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${av(`${s.firstName} ${s.lastName}`,34)}<span style="font-weight:800;font-size:13.5px">${sanitize(s.firstName)} ${sanitize(s.lastName)}</span></div></td><td><code style="font-size:11px;background:var(--g50);border:1px solid var(--g100);padding:2px 7px;border-radius:6px;font-family:var(--font-mono);cursor:pointer" title="Click to copy" onclick="navigator.clipboard.writeText('${s.id}').then(()=>toast('ID copied!','s'))">${s.id}</code></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.level}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${safeArr(s.subjects).slice(0,2).map(sub=>`<span class="badge b-blue" style="font-size:10px">${sanitize(sub)}</span>`).join('')}${safeArr(s.subjects).length>2?`<span class="badge b-gray" style="font-size:10px">+${safeArr(s.subjects).length-2}</span>`:''}</div></td><td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td><td style="color:var(--g500);font-size:13px;font-weight:500">${s.attendance||0}%</td><td>${bdg(s.isActive?'Active':'Inactive')}</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-ico" title="View Profile" onclick="S.selStudent='${s.id}';renderAStudents()">${IC.eye}</button><button class="btn btn-ghost btn-ico" title="Edit" onclick="openEditStudentModal('${s.id}')">${IC.edit}</button><button class="btn btn-err btn-ico" title="Delete" onclick="deleteStudent('${s.id}','${s.firstName} ${s.lastName}')">${IC.trash}</button></div></td></tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--g400)">${q?`No students matching "<strong>${sanitize(q)}</strong>"`:' No students yet. Students appear once applications are approved.'}</td></tr>`}
       </tbody>
     </table></div></div>
   </div>`);
+  const si=$id('stu-search'); if(si&&q) setTimeout(()=>{ si.focus(); si.setSelectionRange(si.value.length,si.value.length); },0);
 }
 
 async function renderStudentDetail(){
@@ -1711,10 +1743,10 @@ async function renderStudentDetail(){
       <div style="display:flex;flex-direction:column;gap:16px">
         <div class="card cp" style="text-align:center">
           ${av(`${s.firstName} ${s.lastName}`,72).replace('class="av"','class="av" style="margin:0 auto 16px"')}
-          <h2 style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--g900)">${s.firstName} ${s.lastName}</h2>
-          <p style="font-size:13px;color:var(--g400);margin-bottom:4px;font-family:var(--font-mono)">${s.id}</p>
+          <h2 style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--g900)">${sanitize(s.firstName)} ${sanitize(s.lastName)}</h2>
+          <p style="font-size:13px;color:var(--g400);margin-bottom:4px;font-family:var(--font-mono)">${s.id} <button onclick="navigator.clipboard.writeText('${s.id}').then(()=>toast('ID copied!','s'))" style="background:none;border:none;cursor:pointer;color:var(--gold);font-size:11px;font-weight:700;padding:0 4px" title="Copy ID">⎘</button></p>
           <span class="chip chip-gold" style="font-size:11px;margin-bottom:8px">${s.level}</span>
-          <div style="margin:8px 0">${bdg((s.isActive===true||s.isActive==='true'||s.isActive===1)?'Active':'Inactive')}</div>
+          <div style="margin:8px 0">${bdg(s.isActive?'Active':'Inactive')}</div>
           <div style="display:flex;justify-content:space-around;padding:14px 0;border-top:1px solid var(--g100);margin-top:8px;margin-bottom:8px">
             <div><div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--g900)">${s.avgScore||0}%</div><div style="font-size:11px;color:var(--g400);font-weight:600">Avg Score</div></div>
             <div><div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--g900)">${s.attendance||0}%</div><div style="font-size:11px;color:var(--g400);font-weight:600">Attendance</div></div>
@@ -1722,7 +1754,7 @@ async function renderStudentDetail(){
           <div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:14px">${safeArr(s.subjects).map(sub=>`<span class="badge b-blue">${sub}</span>`).join('')||'<span style="color:var(--g400);font-size:13px">No subjects</span>'}</div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost btn-sm" style="flex:1" onclick="resetStudentPassword('${s.id}','${s.email}')">${IC.lock} Reset PW</button>
-            <button class="btn btn-sm ${(s.isActive===true||s.isActive==='true'||s.isActive===1)?'btn-err':'btn-ok'}" style="flex:1" onclick="toggleStudentStatus('${s.id}')">${(s.isActive===true||s.isActive==='true'||s.isActive===1)?'Deactivate':'Activate'}</button>
+            <button class="btn btn-sm ${s.isActive?'btn-err':'btn-ok'}" style="flex:1" onclick="toggleStudentStatus('${s.id}')">${s.isActive?'Deactivate':'Activate'}</button>
           </div>
           <button class="btn btn-err btn-sm btn-w" style="margin-top:8px" onclick="deleteStudent('${s.id}','${s.firstName} ${s.lastName}')">${IC.trash} Delete Student</button>
         </div>
@@ -1780,11 +1812,21 @@ async function deleteStudent(sid, name){
 }
 async function toggleStudentStatus(sid){
   const s=S.students.find(x=>x.id===sid); if(!s) return;
-  const cur=s.isActive===true||s.isActive==='true'||s.isActive===1;
+  const cur=s.isActive===true;
   await API.updateStudent({id:sid,isActive:!cur});
   toast(!cur?'Student activated ✅':'Student deactivated','s');
   S.students=await API.getStudents();
   renderStudentDetail();
+}
+
+function exportStudentsCSV(){
+  if(!S.students.length){ toast('No students to export','e'); return; }
+  const headers=['ID','First Name','Last Name','Email','Phone','Level','Avg Score','Attendance','Status','Enrolled'];
+  const rows=S.students.map(s=>[s.id,s.firstName,s.lastName,s.email,s.phone,s.level,s.avgScore||0,s.attendance||0,s.isActive?'Active':'Inactive',s.dateEnrolled||''].map(v=>`"${String(v).replace(/"/g,'""')}"`));
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`dmaths-students-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  toast('Students exported to CSV ✅','s');
 }
 
 async function addNote(sid){
