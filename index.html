@@ -776,7 +776,7 @@ body{overflow-x:hidden}
 // ════════════════════════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════════════════════════
-const SHEET_API = "https://script.google.com/macros/s/AKfycbznmrEfVQB8XFXwLI6qfaNurDseihejmKTQ73QdY62BYk3QCD70yB6qlBq8MPlChb32/exec";
+const SHEET_API = "https://script.google.com/macros/s/AKfycbxZRx3DVj8HVujQH4uXE4jpZEeUWHW9EyzIMoV7hIlo34UacNDi-Cgmh7M7CPxTODHx/exec";
 
 const S = { token:null,
   user:null,role:null,gwMode:'choose',suStep:1,suData:{subjects:[]},
@@ -855,8 +855,26 @@ const API = {
   async studentLoginFull(id,pw){ return await this.call('studentLogin',{studentId:id,password:pw}); },
   async adminLogin(em, pw)    { const r=await this.call('adminLogin',{email:em,password:pw}); return r?.success?r.admin:null; },
   async adminLoginFull(em,pw)  { return await this.call('adminLogin',{email:em,password:pw}); },
-  async getApps()             { const r=await this.call('getApplications');  return Array.isArray(r?.data)?r.data.map(a=>({...a,status:(a.status||'pending').toLowerCase()})):[];},
-  async getStudents()         { const r=await this.call('getStudents');       return Array.isArray(r?.data)?r.data.map(s=>({...s,isActive:s.isActive===true||s.isActive==='true'||s.isActive===1||s.isActive==='TRUE'||s.isActive==='1'})):[];},
+  async getApps()             { const r=await this.call('getApplications');  return Array.isArray(r?.data)?r.data.map(a=>({
+      ...a,
+      // Normalize status to lowercase
+      status: (a.status||'pending').toLowerCase(),
+      // Normalize guardian field names (support both old and new sheet headers)
+      guardian:        a.guardian        || a.guardianName  || '',
+      guardianContact: a.guardianContact || a.guardianPhone || '',
+      // Normalize notes/goals
+      notes: a.notes || a.goals || '',
+    })):[];},
+  async getStudents()         { const r=await this.call('getStudents');       return Array.isArray(r?.data)?r.data.map(s=>({
+      ...s,
+      // Normalize boolean
+      isActive: s.isActive===true||s.isActive==='true'||s.isActive===1||s.isActive==='TRUE'||s.isActive==='1',
+      // Normalize guardian field names (support both old and new sheet headers)
+      guardian:        s.guardian        || s.guardianName  || '',
+      guardianContact: s.guardianContact || s.guardianPhone || '',
+      // Normalize notes/goals
+      notes: s.notes || s.goals || '',
+    })):[];},
   async getClasses()          { const r=await this.call('getClasses');        return Array.isArray(r?.data)?r.data:[]; },
   async getAssignments()      { const r=await this.call('getAssignments');    return Array.isArray(r?.data)?r.data:[]; },
   async getNotices()          { const r=await this.call('getNotices');        return Array.isArray(r?.data)?r.data:[]; },
@@ -1568,9 +1586,14 @@ function renderSProfile(){ if(!requireStudent()) return;
           <h4 style="font-family:var(--font-display);font-weight:700;color:var(--g900);margin-bottom:16px;font-size:18px">Personal Details</h4>
           ${infoRow(IC.mail,'Email',u.email)}
           ${infoRow(IC.phone,'Phone',u.phone)}
-          ${infoRow(IC.user,'Guardian',u.guardian)}
-          ${infoRow(IC.phone,'Guardian Contact',u.guardianContact)}
-          ${infoRow(IC.cal,'Date of Birth',u.dob||'—')}
+          ${infoRow(IC.mail,'Email',u.email||'—')}
+          ${infoRow(IC.phone,'Phone',u.phone||'—')}
+          ${infoRow(IC.cal,'Date of Birth',u.dob?fmtDate(u.dob):'—')}
+          ${u.address?infoRow(IC.map,'Address',sanitize(u.address)):''}
+          ${u.school?infoRow('🏫','School',sanitize(u.school)):''}
+          <div class="div" style="margin:10px 0"></div>
+          ${infoRow(IC.user,'Guardian',(u.guardian||u.guardianName||'—'))}
+          ${infoRow(IC.phone,'Guardian Contact',(u.guardianContact||u.guardianPhone||'—'))}
         </div>
         <div class="card cp">
           <h4 style="font-family:var(--font-display);font-weight:700;color:var(--g900);margin-bottom:16px;font-size:18px">Change Password</h4>
@@ -1673,21 +1696,39 @@ function renderAApps(){ if(!requireAdmin()) return;
 
 function openAppModal(idx){
   const req=S.apps[idx]; if(!req) return;
-  openModal(`Application — ${req.firstName} ${req.lastName}`,`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-      ${infoRow(IC.user,'Full Name',`${req.firstName} ${req.lastName}`)}
-      ${infoRow(IC.mail,'Email',req.email)}
-      ${infoRow(IC.phone,'Phone',req.phone)}
-      ${infoRow('🎓','Level',req.level)}
-      ${infoRow(IC.card,'Payment Ref',req.paymentRef)}
-      ${infoRow(IC.card,'Amount',`₦${req.paymentAmt}`)}
-      ${infoRow(IC.cal,'Pay Date',req.paymentDate)}
-      ${infoRow(IC.card,'Method',req.paymentMethod)}
-      ${infoRow(IC.user,'Guardian',req.guardian||'—')}
+  // Support both old field names (guardianName/guardianPhone/goals) and new ones
+  const guardian = req.guardian || req.guardianName || '—';
+  const guardianContact = req.guardianContact || req.guardianPhone || '—';
+  const notes = req.notes || req.goals || '';
+  openModal(`Application — ${sanitize(req.firstName)} ${sanitize(req.lastName)}`,`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      ${infoRow(IC.user,'Full Name',`${sanitize(req.firstName)} ${sanitize(req.lastName)}`)}
+      ${infoRow(IC.mail,'Email',sanitize(req.email))}
+      ${infoRow(IC.phone,'Phone',sanitize(req.phone))}
+      ${infoRow('🎓','Level',sanitize(req.level))}
+      ${infoRow(IC.cal,'Date of Birth',req.dob?fmtDate(req.dob):'—')}
+      ${req.address?infoRow(IC.map,'Address',sanitize(req.address)):''}
+      ${req.school?infoRow('🏫','School',sanitize(req.school)):''}
+      ${req.gender?infoRow(IC.user,'Gender',sanitize(req.gender)):''}
     </div>
-    <div style="margin-bottom:14px"><label class="fl">Subjects</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${safeArr(req.subjects).map(s=>`<span class="badge b-blue">${s}</span>`).join('')||'None'}</div></div>
-    ${req.notes?`<div class="fg"><label class="fl">Notes</label><p style="font-size:14px;color:var(--g500)">${req.notes}</p></div>`:''}
-    ${req.status==='pending'?`<div style="display:flex;gap:10px;padding-top:8px"><button class="btn btn-ok" style="flex:1" onclick="approveApp('${req.id}');closeModal()">${IC.chk} Approve & Send Credentials</button><button class="btn btn-err" onclick="rejectApp('${req.id}');closeModal()">${IC.x} Reject</button></div>`:req.status==='approved'?'<div class="al al-s">✅ Application has been <strong>approved</strong>. Credentials were emailed to the student.</div>':'<div class="al al-e">❌ Application was <strong>rejected</strong>.</div>'}
+    <div style="background:var(--gold-pale);border:1px solid rgba(212,160,23,.25);border-radius:var(--r-l);padding:14px 18px;margin-bottom:16px">
+      <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--gold-dark);margin-bottom:10px">💳 Payment Details</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${infoRow(IC.card,'Reference',sanitize(req.paymentRef)||'—')}
+        ${infoRow(IC.card,'Amount','₦'+sanitize(req.paymentAmt||'—'))}
+        ${infoRow(IC.cal,'Date Paid',req.paymentDate?fmtDate(req.paymentDate):'—')}
+        ${infoRow(IC.card,'Method',sanitize(req.paymentMethod)||'—')}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      ${infoRow(IC.user,'Guardian',sanitize(guardian))}
+      ${infoRow(IC.phone,'Guardian Contact',sanitize(guardianContact))}
+    </div>
+    <div style="margin-bottom:14px"><label class="fl">Subjects</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${safeArr(req.subjects).map(s=>`<span class="badge b-blue">${sanitize(s)}</span>`).join('')||'<span style="color:var(--g400)">None selected</span>'}</div></div>
+    ${notes?`<div class="fg" style="margin-bottom:14px"><label class="fl">Goals / Notes</label><p style="font-size:13.5px;color:var(--g500);line-height:1.65;padding:10px 14px;background:var(--g50);border-radius:var(--r);border:1px solid var(--g100)">${sanitize(notes)}</p></div>`:''}
+    ${infoRow(IC.clock,'Applied',req.applied?fmtDate(req.applied):fmtDate(req.dateSubmitted)||'—')}
+    <div style="height:1px;background:var(--g100);margin:14px 0"></div>
+    ${req.status==='pending'?`<div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-ok" style="flex:1" onclick="approveApp('${req.id}');closeModal()">${IC.chk} Approve & Send Credentials</button><button class="btn btn-err" onclick="rejectApp('${req.id}');closeModal()">${IC.x} Reject</button></div>`:req.status==='approved'?'<div class="al al-s">✅ Application <strong>approved</strong>. Login credentials were emailed.</div>':'<div class="al al-e">❌ Application was <strong>rejected</strong>.</div>'}
   `,true);
 }
 
@@ -1759,11 +1800,30 @@ async function renderStudentDetail(){
           <button class="btn btn-err btn-sm btn-w" style="margin-top:8px" onclick="deleteStudent('${s.id}','${s.firstName} ${s.lastName}')">${IC.trash} Delete Student</button>
         </div>
         <div class="card cp">
-          ${infoRow(IC.mail,'Email',s.email)}
-          ${infoRow(IC.phone,'Phone',s.phone)}
-          ${infoRow(IC.user,'Guardian',s.guardian)}
-          ${infoRow(IC.phone,'Contact',s.guardianContact)}
+          <h4 style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--g700);margin-bottom:12px">Contact & Personal</h4>
+          ${infoRow(IC.mail,'Email',s.email||'—')}
+          ${infoRow(IC.phone,'Phone',s.phone||'—')}
+          ${infoRow(IC.cal,'Date of Birth',s.dob?fmtDate(s.dob):'—')}
+          ${s.address?infoRow(IC.map,'Address',sanitize(s.address)):''}
+          ${s.school?infoRow('🏫','School',sanitize(s.school)):''}
+          ${s.gender?infoRow(IC.user,'Gender',sanitize(s.gender)):''}
         </div>
+        <div class="card cp">
+          <h4 style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--g700);margin-bottom:12px">Guardian Details</h4>
+          ${infoRow(IC.user,'Guardian',(s.guardian||s.guardianName)||'—')}
+          ${infoRow(IC.phone,'Guardian Contact',(s.guardianContact||s.guardianPhone)||'—')}
+        </div>
+        ${(s.paymentRef||s.paymentAmt)?`<div class="card cp" style="border-left:3px solid var(--gold)">
+          <h4 style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--g700);margin-bottom:12px">💳 Payment Record</h4>
+          ${s.paymentRef?infoRow(IC.card,'Reference',sanitize(s.paymentRef)):''}
+          ${s.paymentAmt?infoRow(IC.card,'Amount','₦'+sanitize(s.paymentAmt)):''}
+          ${s.paymentMethod?infoRow(IC.card,'Method',sanitize(s.paymentMethod)):''}
+          ${s.paymentDate?infoRow(IC.cal,'Date Paid',fmtDate(s.paymentDate)):''}
+        </div>`:''}
+        ${(s.notes||s.goals)?`<div class="card cp">
+          <h4 style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--g700);margin-bottom:10px">Goals / Notes from Application</h4>
+          <p style="font-size:13.5px;color:var(--g500);line-height:1.7">${sanitize(s.notes||s.goals)}</p>
+        </div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;gap:16px">
         <div class="card cp"><h4 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:18px">Score Growth</h4><div style="position:relative;width:100%;height:220px;flex-shrink:0"><canvas id="chart-stu" style="position:absolute;inset:0;width:100%!important;height:100%!important"></canvas></div></div>
@@ -2112,10 +2172,29 @@ async function submitAssign(){
 
 function openEditStudentModal(sid){
   const s=S.students.find(x=>x.id===sid); if(!s) return;
-  openModal('Edit Student',`<div class="frow"><div class="fg"><label class="fl">First Name</label><input class="fi-el" id="es-fn" value="${s.firstName}"></div><div class="fg"><label class="fl">Last Name</label><input class="fi-el" id="es-ln" value="${s.lastName}"></div></div><div class="fg"><label class="fl">Email</label><input class="fi-el" id="es-em" type="email" value="${s.email}"></div><div class="frow"><div class="fg"><label class="fl">Level</label><select class="fi-el" id="es-lvl">${['JSS 1','JSS 2','JSS 3','SSS 1','SSS 2','SSS 3'].map(l=>`<option ${s.level===l?'selected':''}>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Phone</label><input class="fi-el" id="es-ph" value="${s.phone}"></div></div><div class="fg"><label class="fl">Guardian</label><input class="fi-el" id="es-gn" value="${s.guardian}"></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="saveEditStudent('${sid}')">Save Changes</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+  const sGuardian=s.guardian||s.guardianName||'';
+  const sGuardianC=s.guardianContact||s.guardianPhone||'';
+  openModal('Edit Student',`
+    <div class="frow"><div class="fg"><label class="fl">First Name</label><input class="fi-el" id="es-fn" value="${sanitize(s.firstName)}"></div><div class="fg"><label class="fl">Last Name</label><input class="fi-el" id="es-ln" value="${sanitize(s.lastName)}"></div></div>
+    <div class="fg"><label class="fl">Email</label><input class="fi-el" id="es-em" type="email" value="${sanitize(s.email)}"></div>
+    <div class="frow"><div class="fg"><label class="fl">Level</label><select class="fi-el" id="es-lvl">${['JSS 1','JSS 2','JSS 3','SSS 1','SSS 2','SSS 3'].map(l=>`<option ${s.level===l?'selected':''}>${l}</option>`).join('')}</select></div><div class="fg"><label class="fl">Phone</label><input class="fi-el" id="es-ph" value="${sanitize(s.phone)}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Guardian Name</label><input class="fi-el" id="es-gn" value="${sanitize(sGuardian)}"></div><div class="fg"><label class="fl">Guardian Contact</label><input class="fi-el" id="es-gc" value="${sanitize(sGuardianC)}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">School</label><input class="fi-el" id="es-sch" value="${sanitize(s.school||'')}"></div><div class="fg"><label class="fl">Address</label><input class="fi-el" id="es-addr" value="${sanitize(s.address||'')}"></div></div>
+    <div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="saveEditStudent('${sid}')">Save Changes</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>
+  `);
 }
 async function saveEditStudent(sid){
-  await API.updateStudent({id:sid,firstName:$id('es-fn')?.value||'',lastName:$id('es-ln')?.value||'',email:$id('es-em')?.value||'',level:$id('es-lvl')?.value||'',phone:$id('es-ph')?.value||'',guardian:$id('es-gn')?.value||''});
+  await API.updateStudent({id:sid,
+    firstName:$id('es-fn')?.value||'',
+    lastName:$id('es-ln')?.value||'',
+    email:$id('es-em')?.value||'',
+    level:$id('es-lvl')?.value||'',
+    phone:$id('es-ph')?.value||'',
+    guardian:$id('es-gn')?.value||'',
+    guardianContact:$id('es-gc')?.value||'',
+    school:$id('es-sch')?.value||'',
+    address:$id('es-addr')?.value||''
+  });
   toast('Student updated! ✅','s'); S.students=await API.getStudents(); closeModal(); renderAStudents();
 }
 
