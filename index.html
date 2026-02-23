@@ -4,6 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta name="theme-color" content="#060E1A"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://script.google.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com; img-src 'self' data: https: blob:; frame-ancestors 'none'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>D-Maths Tuition Centre — Excellence in Mathematics</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -30,6 +34,14 @@
   --font-display:'Playfair Display',serif;
   --font-body:'Nunito',sans-serif;
   --font-mono:'Fira Code',monospace;
+}
+/* ─── DARK MODE ─── */
+[data-theme="dark"]{
+  --bg:#0F172A;--white:#1E293B;--cream:#162032;
+  --g50:#1E293B;--g100:#253047;--g200:#334155;--g300:#475569;
+  --g400:#64748B;--g500:#94A3B8;--g700:#CBD5E1;--g900:#F1F5F9;
+  --sh:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --sh-m:0 6px 20px rgba(0,0,0,.3);--sh-l:0 12px 40px rgba(0,0,0,.4);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -156,6 +168,46 @@ td{padding:13px 14px;font-size:13.5px;color:var(--g700);border-bottom:1px solid 
 tr:last-child td{border-bottom:none}
 tbody tr{transition:background .1s}
 tbody tr:hover td{background:var(--g50)}
+
+/* ═══ PASSWORD STRENGTH ═══ */
+.pw-strength{height:4px;border-radius:99px;background:var(--g200);margin-top:8px;overflow:hidden;transition:all .3s}
+.pw-strength-bar{height:100%;border-radius:99px;transition:width .4s,background .4s}
+.pw-hint{font-size:11px;font-weight:600;margin-top:5px}
+
+/* ═══ NOTIFICATION BELL ═══ */
+.notif-bell{position:relative;cursor:pointer}
+.notif-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;background:var(--red);border-radius:50%;border:2px solid var(--navy);display:none}
+.notif-dot.has{display:block}
+.notif-panel{position:fixed;top:68px;right:16px;width:340px;max-height:460px;background:var(--white);border-radius:var(--r-l);box-shadow:var(--sh-xl);border:1px solid var(--g100);z-index:500;overflow:hidden;display:none;flex-direction:column}
+.notif-panel.open{display:flex}
+.notif-list{overflow-y:auto;flex:1}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .15s;display:flex;gap:10px;align-items:flex-start}
+.notif-item:hover{background:var(--g50)}
+.notif-item.unread{background:rgba(212,160,23,.06)}
+.notif-item.unread::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:6px}
+.notif-item:not(.unread)::before{content:'';width:6px;height:6px;flex-shrink:0;margin-top:6px}
+
+/* ═══ DARK MODE TOGGLE ═══ */
+.dm-toggle{width:42px;height:22px;border-radius:99px;background:var(--g200);position:relative;cursor:pointer;border:none;transition:background .3s;flex-shrink:0}
+.dm-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .3s,background .3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+[data-theme="dark"] .dm-toggle{background:var(--gold)}
+[data-theme="dark"] .dm-toggle::after{transform:translateX(20px)}
+
+/* ═══ CONFIRM MODAL ═══ */
+.confirm-modal{background:var(--white);border-radius:var(--r-xl);padding:28px;max-width:360px;width:calc(100vw - 48px);box-shadow:var(--sh-xl);animation:scaleIn .2s ease}
+.confirm-modal h3{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px}
+.confirm-modal p{font-size:14px;color:var(--g500);line-height:1.65;margin-bottom:20px}
+
+/* ═══ EXPORT BADGE ═══ */
+.export-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+/* ═══ AUDIT LOG ═══ */
+.audit-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--g100);font-size:13px}
+.audit-time{font-family:var(--font-mono);font-size:11px;color:var(--g400);white-space:nowrap;margin-top:2px}
+
+/* ═══ CBT COUNTDOWN ═══ */
+.cbt-timer{display:inline-flex;align-items:center;gap:6px;background:var(--red-bg);color:var(--red-t);border-radius:var(--r);padding:6px 14px;font-size:13px;font-weight:800;font-family:var(--font-mono)}
+.cbt-timer.ok{background:var(--green-bg);color:var(--green-t)}
 
 /* ═══ STAT CARD ═══ */
 .sc{background:var(--white);border-radius:var(--r-l);padding:20px;box-shadow:var(--sh);transition:transform .22s,box-shadow .22s}
@@ -759,11 +811,21 @@ body{overflow-x:hidden}
   </nav>
   <div id="sovl" onclick="closeSB()"></div>
   <header id="ptopbar">
-    <button class="btn btn-ghost btn-ico" style="background:rgba(255,255,255,.08);color:#fff;border-color:transparent" onclick="toggleSB()">
+    <button class="btn btn-ghost btn-ico" style="background:rgba(255,255,255,.08);color:#fff;border-color:transparent" onclick="toggleSB()" aria-label="Toggle sidebar">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
     </button>
     <div id="tb-logo"></div>
-    <div id="tb-av"></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="dm-toggle" onclick="toggleDarkMode()" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+      <div class="notif-bell" onclick="toggleNotifPanel()" aria-label="Notifications" role="button" tabindex="0">
+        <button class="btn btn-ghost btn-ico" style="background:rgba(255,255,255,.08);color:#fff;border-color:transparent" aria-label="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <div class="notif-dot" id="notif-dot"></div>
+      </div>
+      <div id="tb-av"></div>
+    </div>
+    <div id="notif-panel" class="notif-panel" role="dialog" aria-label="Notifications panel"></div>
   </header>
   <main id="pmain">
     <div id="portal-pages"></div>
@@ -794,19 +856,39 @@ const sanitize = s => String(s||'')
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#x27;').replace(/`/g,'&#x60;');
 
+// Sanitize a URL — only allow http/https
+const sanitizeUrl = u => {
+  const s = String(u||'').trim();
+  if(!s) return '#';
+  if(!/^https?:\/\//i.test(s)) return '#';
+  return s;
+};
+
 // Login rate limiter — max 5 attempts per 5 minutes per type
-const _loginAttempts = {student:{count:0,lockedUntil:0}, admin:{count:0,lockedUntil:0}};
+// SECURITY FIX: persist to sessionStorage so page refresh doesn't reset it
+function _loadAttempts(){
+  try{
+    const raw=sessionStorage.getItem('dm_login_attempts');
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {student:{count:0,lockedUntil:0}, admin:{count:0,lockedUntil:0}};
+}
+function _saveAttempts(obj){ try{sessionStorage.setItem('dm_login_attempts',JSON.stringify(obj));}catch(e){} }
+const _loginAttempts = _loadAttempts();
+
 function checkLoginRate(type){
-  const rec=_loginAttempts[type];
+  const rec=_loginAttempts[type]||{count:0,lockedUntil:0};
   if(Date.now()<rec.lockedUntil) return Math.ceil((rec.lockedUntil-Date.now())/1000);
-  return 0; // 0 = not locked
+  return 0;
 }
 function recordLoginFail(type){
+  if(!_loginAttempts[type]) _loginAttempts[type]={count:0,lockedUntil:0};
   const rec=_loginAttempts[type];
   rec.count++;
   if(rec.count>=5){ rec.lockedUntil=Date.now()+5*60*1000; rec.count=0; }
+  _saveAttempts(_loginAttempts);
 }
-function clearLoginFail(type){ _loginAttempts[type].count=0; _loginAttempts[type].lockedUntil=0; }
+function clearLoginFail(type){ if(_loginAttempts[type]){_loginAttempts[type].count=0;_loginAttempts[type].lockedUntil=0;} _saveAttempts(_loginAttempts); }
 
 // Input length validator
 const MAX_LENS = {name:80, id:20, email:100, password:128, text:500, url:2048, note:2000};
@@ -814,6 +896,33 @@ function validateLen(val, type='text'){
   const max=MAX_LENS[type]||500;
   if(!val) return '';
   return String(val).slice(0,max);
+}
+
+// Password strength checker
+function passwordStrength(pw){
+  if(!pw||pw.length<6) return {score:0,label:'Too short',color:'var(--red)'};
+  let score=0;
+  if(pw.length>=8) score++;
+  if(pw.length>=12) score++;
+  if(/[A-Z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  const labels=['Very Weak','Weak','Fair','Good','Strong'];
+  const colors=['var(--red)','#F97316','var(--amber)','#84CC16','var(--green)'];
+  return {score, label:labels[score]||labels[0], color:colors[score]||colors[0], pct:Math.round((score/5)*100)};
+}
+
+// Audit log — track admin actions in sessionStorage
+function auditLog(action, detail){
+  if(S.role!=='admin') return;
+  try{
+    const logs=JSON.parse(sessionStorage.getItem('dm_audit')||'[]');
+    logs.unshift({action,detail,time:new Date().toISOString(),user:S.user?.email||'admin'});
+    sessionStorage.setItem('dm_audit',JSON.stringify(logs.slice(0,100)));
+  }catch(e){}
+}
+function getAuditLog(){
+  try{ return JSON.parse(sessionStorage.getItem('dm_audit')||'[]'); }catch(e){ return []; }
 }
 
 // Role guard — call at top of any admin-only render function
@@ -826,30 +935,102 @@ function requireStudent(){
   return true;
 }
 
+// Custom confirm modal — replaces browser confirm()
+function confirmAction(title, msg, dangerLabel, onConfirm){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,14,26,.65);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease';
+  ov.innerHTML=`<div class="confirm-modal"><h3>${sanitize(title)}</h3><p>${sanitize(msg)}</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-ghost btn-sm" id="cf-cancel">Cancel</button><button class="btn btn-err btn-sm" id="cf-ok">${sanitize(dangerLabel||'Confirm')}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#cf-cancel').onclick=()=>ov.remove();
+  ov.querySelector('#cf-ok').onclick=()=>{ ov.remove(); onConfirm(); };
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+}
+
+// CSV export utility
+function exportCSV(filename, headers, rows){
+  const esc=v=>{ const s=String(v||'').replace(/"/g,'""'); return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s}"`:s; };
+  const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// In-app notification store
+const _notifications = { items:[], unread:0 };
+function addNotification(msg, type='i', link=''){
+  const item={id:Date.now(),msg,type,link,read:false,time:new Date().toISOString()};
+  _notifications.items.unshift(item);
+  _notifications.unread++;
+  if(_notifications.items.length>50) _notifications.items.pop();
+  const dot=document.querySelector('.notif-dot');
+  if(dot) dot.classList.add('has');
+  renderNotifCount();
+}
+function renderNotifCount(){
+  const dot=document.querySelector('.notif-dot');
+  if(dot) dot.classList.toggle('has',_notifications.unread>0);
+}
+function toggleNotifPanel(){
+  const panel=$id('notif-panel');
+  if(!panel) return;
+  const isOpen=panel.classList.toggle('open');
+  if(isOpen){ renderNotifPanel(); _notifications.unread=0; renderNotifCount(); }
+}
+function renderNotifPanel(){
+  const panel=$id('notif-panel'); if(!panel) return;
+  const items=_notifications.items;
+  panel.innerHTML=`<div style="padding:14px 16px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between"><span style="font-weight:800;font-size:14px;color:var(--g900)">Notifications</span><button onclick="clearNotifications()" style="background:none;border:none;font-size:12px;color:var(--g400);cursor:pointer;font-family:var(--font-body);font-weight:600">Clear all</button></div><div class="notif-list">${items.length?items.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div><p style="font-size:13px;font-weight:700;color:var(--g900);margin-bottom:2px">${sanitize(n.msg)}</p><p style="font-size:11px;color:var(--g400);font-weight:500">${new Date(n.time).toLocaleTimeString()}</p></div></div>`).join(''):'<p style="text-align:center;color:var(--g400);font-size:13px;padding:24px 0">No notifications</p>'}</div>`;
+  _notifications.items.forEach(n=>n.read=true);
+}
+function clearNotifications(){ _notifications.items=[]; _notifications.unread=0; renderNotifCount(); renderNotifPanel(); }
+
+// Dark mode
+function initDarkMode(){
+  const saved=localStorage.getItem('dm_theme')||'light';
+  document.documentElement.setAttribute('data-theme',saved);
+}
+function toggleDarkMode(){
+  const cur=document.documentElement.getAttribute('data-theme')||'light';
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('dm_theme',next);}catch(e){}
+}
+initDarkMode();
+
 
 // ════════════════════════════════════════════════════════════════
-//  API LAYER
+//  API LAYER — SECURITY FIXES
+//  1. Token sent in every request
+//  2. POST switched to GET for all read ops; write ops use GET params
+//     (Apps Script doesn't support CORS pre-flight properly)
+//  3. Responses properly parsed (no more "always return success")
 // ════════════════════════════════════════════════════════════════
 const API = {
+  // SECURITY: All calls now include the auth token
   async call(action, params={}) {
     try {
       const url = new URL(SHEET_API);
       url.searchParams.set('action', action);
+      if(S.token) url.searchParams.set('_token', S.token);
       Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, typeof v==='object'?JSON.stringify(v):String(v)));
-      const r = await fetch(url.toString());
+      const r = await fetch(url.toString(), {cache:'no-store'});
       if(!r.ok) throw new Error('HTTP '+r.status);
       return await r.json();
-    } catch(e) { console.warn('API GET error:', action, e.message); return null; }
+    } catch(e) { console.warn('API error:', action, e.message); return null; }
   },
+  // SECURITY FIX: POST now uses GET (Apps Script JSONP pattern) so we get real responses
+  // All write operations go via GET with action params — Apps Script handles both equally
   async post(action, data={}) {
     try {
-      await fetch(SHEET_API, {
-        method:'POST', mode:'no-cors',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action,...data})
-      });
-      return {success:true};
-    } catch(e) { console.warn('API POST error:', action, e.message); return null; }
+      const url = new URL(SHEET_API);
+      url.searchParams.set('action', action);
+      if(S.token) url.searchParams.set('_token', S.token);
+      Object.entries(data).forEach(([k,v]) => url.searchParams.set(k, typeof v==='object'?JSON.stringify(v):String(v)));
+      const r = await fetch(url.toString(), {cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return await r.json();
+    } catch(e) { console.warn('API post error:', action, e.message); return {success:false,error:e.message}; }
   },
   async studentLogin(id, pw)  { const r=await this.call('studentLogin',{studentId:id,password:pw}); return r?.success?r.student:null; },
   async studentLoginFull(id,pw){ return await this.call('studentLogin',{studentId:id,password:pw}); },
@@ -857,22 +1038,16 @@ const API = {
   async adminLoginFull(em,pw)  { return await this.call('adminLogin',{email:em,password:pw}); },
   async getApps()             { const r=await this.call('getApplications');  return Array.isArray(r?.data)?r.data.map(a=>({
       ...a,
-      // Normalize status to lowercase
       status: (a.status||'pending').toLowerCase(),
-      // Normalize guardian field names (support both old and new sheet headers)
       guardian:        a.guardian        || a.guardianName  || '',
       guardianContact: a.guardianContact || a.guardianPhone || '',
-      // Normalize notes/goals
       notes: a.notes || a.goals || '',
     })):[];},
   async getStudents()         { const r=await this.call('getStudents');       return Array.isArray(r?.data)?r.data.map(s=>({
       ...s,
-      // Normalize boolean
       isActive: s.isActive===true||s.isActive==='true'||s.isActive===1||s.isActive==='TRUE'||s.isActive==='1',
-      // Normalize guardian field names (support both old and new sheet headers)
       guardian:        s.guardian        || s.guardianName  || '',
       guardianContact: s.guardianContact || s.guardianPhone || '',
-      // Normalize notes/goals
       notes: s.notes || s.goals || '',
     })):[];},
   async getClasses()          { const r=await this.call('getClasses');        return Array.isArray(r?.data)?r.data:[]; },
@@ -902,6 +1077,10 @@ const API = {
 function startPolling() {
   stopPolling();
   S.pollTimer = setInterval(syncFromSheets, 45000);
+  // Idle timeout — auto-logout after 30 min of inactivity
+  resetIdleTimer();
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(evt=>
+    window.addEventListener(evt, resetIdleTimer, {passive:true}));
   // Session expiry warning — alert 10 min before 8hr session ends
   if(S._sessionWarning) clearTimeout(S._sessionWarning);
   try{
@@ -916,8 +1095,24 @@ function startPolling() {
     }
   }catch(e){}
 }
+let _idleTimer=null;
+const IDLE_TIMEOUT_MS=30*60*1000; // 30 minutes
+const IDLE_WARN_MS=25*60*1000;    // warn at 25 min
+function resetIdleTimer(){
+  if(!S.role) return;
+  if(_idleTimer) clearTimeout(_idleTimer);
+  if(S._idleWarn) clearTimeout(S._idleWarn);
+  S._idleWarn=setTimeout(()=>{
+    if(S.role) toast('⏱ You will be logged out in 5 minutes due to inactivity.','e');
+  }, IDLE_WARN_MS);
+  _idleTimer=setTimeout(()=>{
+    if(S.role){ toast('Session expired due to inactivity.','e'); setTimeout(logout,1500); }
+  }, IDLE_TIMEOUT_MS);
+}
 function stopPolling() {
   if(S.pollTimer){ clearInterval(S.pollTimer); S.pollTimer=null; }
+  if(_idleTimer){ clearTimeout(_idleTimer); _idleTimer=null; }
+  if(S._idleWarn){ clearTimeout(S._idleWarn); S._idleWarn=null; }
 }
 async function syncFromSheets() {
   const dot=$id('sync-dot');
@@ -933,7 +1128,10 @@ async function syncFromSheets() {
       const fresh=S.students.find(x=>x.id===S.user.id);
       if(fresh) S.user=fresh;
     }
-    if(S.notices.length > prevNotices) toast('New announcement posted!','i');
+    if(S.notices.length > prevNotices){
+      toast('New announcement posted!','i');
+      addNotification('New announcement: ' + (S.notices[0]?.title||''), 'i');
+    }
     renderPage(S.activePg);
     if(S.role==='admin') refreshNavBadges();
   } catch(e){ console.warn('Sync error:',e.message); }
@@ -1111,7 +1309,7 @@ function show(id){
 function goLanding(){ stopPolling(); show('vl'); }
 function goGateway(){ stopPolling(); show('vg'); renderGW('choose'); }
 function goSignup(){ show('vs'); initSignup(); }
-function logout(){ stopPolling(); if(S._sessionWarning) clearTimeout(S._sessionWarning); S.user=null; S.role=null; S.stuSearch=''; S.appSearch=''; try{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}catch(e){} goLanding(); }
+function logout(){ ['mousemove','keydown','click','touchstart','scroll'].forEach(evt=>window.removeEventListener(evt,resetIdleTimer)); stopPolling(); if(S._sessionWarning) clearTimeout(S._sessionWarning); S.user=null; S.role=null; S.stuSearch=''; S.appSearch=''; try{sessionStorage.removeItem('dm_sess');sessionStorage.removeItem('dm_pg');}catch(e){} goLanding(); }
 
 window.addEventListener('scroll',()=>{
   const nav=$id('lnav');
@@ -1238,10 +1436,10 @@ function renderGW(mode){
     return;
   }
   if(mode==='student'){
-    host.innerHTML=`<div class="gwcard"><div class="gwhdr"><div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="display:flex;align-items:center;justify-content:space-between">${logo(true)}<span class="badge b-gold">Student Portal</span></div></div><div style="padding:28px"><div id="gw-err"></div><div class="fg"><label class="fl">Student ID <span class="freq">*</span></label><input class="fi-el" id="gw-id" placeholder="e.g. DM-2024-0001" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doSLogin()"></div><div class="fg"><label class="fl">Password <span class="freq">*</span></label><div style="position:relative"><input class="fi-el" id="gw-pw" type="password" placeholder="Enter your password" style="padding-right:52px" onkeydown="if(event.key==='Enter')doSLogin()"><button onclick="tpw('gw-pw',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--g400);font-size:12px;font-weight:700;font-family:var(--font-body)">Show</button></div></div><div style="display:flex;justify-content:space-between;margin:-6px 0 22px"><button onclick="renderGW('choose')" style="background:none;border:none;color:var(--g400);font-size:13px;cursor:pointer;font-family:var(--font-body);font-weight:600">← Back</button><button style="background:none;border:none;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body)" onclick="toast('Contact admin: dmathstuition@gmail.com','i')">Forgot password?</button></div><button class="btn btn-gold btn-w" style="min-height:50px;font-size:15px" id="gw-sb" onclick="doSLogin()">Sign In ${IC.ar}</button><p style="text-align:center;margin-top:18px;font-size:13px;color:var(--g400);font-weight:500">Not enrolled? <button onclick="goSignup()" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:13px;font-family:var(--font-body)">Apply here →</button></p></div></div>`;
+    host.innerHTML=`<div class="gwcard"><div class="gwhdr"><div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="display:flex;align-items:center;justify-content:space-between">${logo(true)}<span class="badge b-gold">Student Portal</span></div></div><div style="padding:28px"><div id="gw-err" role="alert"></div><div class="fg"><label class="fl" for="gw-id">Student ID <span class="freq">*</span></label><input class="fi-el" id="gw-id" placeholder="e.g. DM-2024-0001" autocomplete="username" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doSLogin()" aria-describedby="gw-err"></div><div class="fg"><label class="fl" for="gw-pw">Password <span class="freq">*</span></label><div style="position:relative"><input class="fi-el" id="gw-pw" type="password" placeholder="Enter your password" autocomplete="current-password" style="padding-right:52px" onkeydown="if(event.key==='Enter')doSLogin()" aria-describedby="gw-err"><button onclick="tpw('gw-pw',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--g400);font-size:12px;font-weight:700;font-family:var(--font-body)" aria-label="Toggle password visibility">Show</button></div></div><div style="display:flex;justify-content:space-between;margin:-6px 0 22px"><button onclick="renderGW('choose')" style="background:none;border:none;color:var(--g400);font-size:13px;cursor:pointer;font-family:var(--font-body);font-weight:600">← Back</button><button style="background:none;border:none;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body)" onclick="toast('Contact admin: dmathstuition@gmail.com','i')">Forgot password?</button></div><button class="btn btn-gold btn-w" style="min-height:50px;font-size:15px" id="gw-sb" onclick="doSLogin()">Sign In ${IC.ar}</button><p style="text-align:center;margin-top:18px;font-size:13px;color:var(--g400);font-weight:500">Not enrolled? <button onclick="goSignup()" style="background:none;border:none;color:var(--gold);font-weight:700;cursor:pointer;font-size:13px;font-family:var(--font-body)">Apply here →</button></p></div></div>`;
     return;
   }
-  host.innerHTML=`<div class="gwcard"><div style="background:linear-gradient(145deg,var(--navy-d),var(--navy-l));padding:28px;position:relative;overflow:hidden"><div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="display:flex;align-items:center;justify-content:space-between">${logo(true)}<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);padding:4px 12px;border-radius:99px">${IC.shield}<span style="font-size:11px;color:rgba(255,255,255,.6);font-weight:800;letter-spacing:.08em">ADMIN</span></div></div></div><div style="padding:28px"><div id="gw-aerr"></div><div class="fg"><label class="fl">Admin Email</label><input class="fi-el" id="gw-aem" type="email" placeholder="admin@dmaths.edu.gh" onkeydown="if(event.key==='Enter')doALogin()"></div><div class="fg"><label class="fl">Password</label><input class="fi-el" id="gw-apw" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')doALogin()"></div><div style="margin-bottom:20px"><button onclick="renderGW('choose')" style="background:none;border:none;color:var(--g400);font-size:13px;cursor:pointer;font-family:var(--font-body);font-weight:600">← Back</button></div><button class="btn btn-navy btn-w" style="min-height:50px;font-size:15px;border:1px solid rgba(255,255,255,.1)" id="gw-ab" onclick="doALogin()">${IC.shield} Access Dashboard</button></div></div>`;
+  host.innerHTML=`<div class="gwcard"><div style="background:linear-gradient(145deg,var(--navy-d),var(--navy-l));padding:28px;position:relative;overflow:hidden"><div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(212,160,23,.1)"></div><div style="display:flex;align-items:center;justify-content:space-between">${logo(true)}<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);padding:4px 12px;border-radius:99px">${IC.shield}<span style="font-size:11px;color:rgba(255,255,255,.6);font-weight:800;letter-spacing:.08em">ADMIN</span></div></div></div><div style="padding:28px"><div id="gw-aerr" role="alert"></div><div class="fg"><label class="fl" for="gw-aem">Admin Email</label><input class="fi-el" id="gw-aem" type="email" placeholder="admin@dmaths.edu.ng" autocomplete="username" onkeydown="if(event.key==='Enter')doALogin()"></div><div class="fg"><label class="fl" for="gw-apw">Password</label><input class="fi-el" id="gw-apw" type="password" placeholder="Admin password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doALogin()"></div><div style="margin-bottom:20px"><button onclick="renderGW('choose')" style="background:none;border:none;color:var(--g400);font-size:13px;cursor:pointer;font-family:var(--font-body);font-weight:600">← Back</button></div><button class="btn btn-navy btn-w" style="min-height:50px;font-size:15px;border:1px solid rgba(255,255,255,.1)" id="gw-ab" onclick="doALogin()">${IC.shield} Access Dashboard</button></div></div>`;
 }
 
 function tpw(id,btn){ const el=$id(id); if(!el)return; el.type=el.type==='password'?'text':'password'; btn.textContent=el.type==='password'?'Show':'Hide'; }
@@ -1459,7 +1657,7 @@ function renderSClasses(){ if(!requireStudent()) return;
     </div>
     ${myClasses.length?`<div class="gcls">${myClasses.map(cls=>`<div class="card fu"><div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:4px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">with ${cls.tutor}</p></div>${bdg(cls.platform||'Online')}</div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.duration)}${cls.link&&cls.link!=='#'?infoRow(IC.video,'Class Link',`<a href="${cls.link}" target="_blank" style="color:var(--blue);text-decoration:underline">Join Now →</a>`):''}
         <div class="div"></div>
-        <button class="btn btn-gold btn-w" onclick="${cls.link&&cls.link!=='#'?`window.open('${cls.link}','_blank')`:`toast('Class link not yet available. Check back soon.','i')`}">${IC.video} Join Class</button></div></div>`).join('')}</div>`:
+        <button class="btn btn-gold btn-w" onclick="${cls.link&&cls.link!=='#'?`window.open('${sanitizeUrl(cls.link)}','_blank','noopener,noreferrer')`:`toast('Class link not yet available. Check back soon.','i')`}">${IC.video} Join Class</button></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📚</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Classes Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Classes will appear here once admin assigns you to subjects.</p></div>`}
   </div>`);
 }
@@ -1495,17 +1693,19 @@ function renderSAssignments(){ if(!requireStudent()) return;
     <div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Track and submit your work</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSAssignments)">${IC.refresh}</button>
     </div>
-    ${myAssigns.length?`<div style="display:flex;flex-direction:column;gap:14px">${myAssigns.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:48px;height:48px;border-radius:12px;background:${a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400);font-weight:500">${a.subject} · Due ${fmtDate(a.dueDate)||'TBD'}</p></div>${bdg(a.status||'Pending')}${a.type==='CBT'?'<span class="badge b-blue" style="font-size:10px">🖥️ CBT</span>':''}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65;font-weight:400">${a.instructions||''}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 16px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:800;color:var(--green-t);margin-bottom:4px">Grade: ${a.grade}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.85;font-weight:400">${a.feedback||''}</p></div>`:''}${cbtButtonHtml(a)}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="submitAssignmentStudent('${a.id}')">${IC.send} Mark as Submitted</button>`:''}</div></div></div>`).join('')}</div>`:
+    ${myAssigns.length?`<div style="display:flex;flex-direction:column;gap:14px">${myAssigns.map(a=>`<div class="card cp fu"><div style="display:flex;gap:14px;align-items:flex-start"><div style="width:48px;height:48px;border-radius:12px;background:${a.status==='Graded'?'var(--green-bg)':a.status==='Submitted'?'var(--blue-bg)':'var(--amber-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📝</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><h4 style="font-size:15px;font-weight:700;color:var(--g900);margin-bottom:3px">${a.title}</h4><p style="font-size:13px;color:var(--g400);font-weight:500">${a.subject} · Due ${fmtDate(a.dueDate)||'TBD'}</p></div>${bdg(a.status||'Pending')}${a.type==='CBT'?'<span class="badge b-blue" style="font-size:10px">🖥️ CBT</span>':''}</div><p style="font-size:13.5px;color:var(--g500);margin-top:10px;line-height:1.65;font-weight:400">${a.instructions||''}</p>${a.status==='Graded'?`<div style="margin-top:12px;padding:12px 16px;background:var(--green-bg);border-radius:var(--r);border-left:3px solid var(--green)"><p style="font-size:13px;font-weight:800;color:var(--green-t);margin-bottom:4px">Grade: Grade: ${sanitize(String(a.grade))}/100</p><p style="font-size:13px;color:var(--green-t);opacity:.85;font-weight:400">${sanitize(a.feedback||'')}</p></div>`:''}${cbtButtonHtml(a)}${a.status==='Pending'?`<button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="submitAssignmentStudent('${a.id}')">${IC.send} Mark as Submitted</button>`:''}</div></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">✅</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Assignments Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Your assignments will appear here once posted by your tutor.</p></div>`}
   </div>`);
 }
 
 async function submitAssignmentStudent(aid){
-  if(!confirm('Mark this assignment as submitted?')) return;
-  await API.post('submitAssignment',{assignmentId:aid,studentId:S.user.id,submittedAt:new Date().toISOString()});
-  toast('Assignment marked as submitted! ✅','s');
-  S.assignments=await API.getAssignments();
-  renderSAssignments();
+  confirmAction('Submit Assignment','Mark this assignment as submitted? Your tutor will be notified.','Submit', async()=>{
+    await API.post('submitAssignment',{assignmentId:aid,studentId:S.user.id,submittedAt:new Date().toISOString()});
+    toast('Assignment marked as submitted! ✅','s');
+    addNotification('Assignment submitted successfully','s');
+    S.assignments=await API.getAssignments();
+    renderSAssignments();
+  });
 }
 
 function renderSProgress(){ if(!requireStudent()) return;
@@ -1542,7 +1742,7 @@ function renderSProgress(){ if(!requireStudent()) return;
                 <span style="font-size:12px;color:var(--g400);font-weight:500">Due: ${fmtDate(a.dueDate)||'TBD'}</span>
                 <span style="font-size:11px;font-weight:800;color:${statusColor};background:${statusBg};padding:2px 8px;border-radius:99px">${a.status}</span>
               </div>
-              ${a.status==='Graded'&&a.feedback?`<p style="font-size:12px;color:var(--g500);margin-top:5px;font-style:italic;line-height:1.5">"${a.feedback}"</p>`:''}
+              ${a.status==='Graded'&&a.feedback?`<p style="font-size:12px;color:var(--g500);margin-top:5px;font-style:italic;line-height:1.5">"${sanitize(a.feedback)}"</p>`:''}
             </div>
           </div>`;
         }).join('');
@@ -1584,21 +1784,19 @@ function renderSProfile(){ if(!requireStudent()) return;
       <div style="display:flex;flex-direction:column;gap:16px">
         <div class="card cp">
           <h4 style="font-family:var(--font-display);font-weight:700;color:var(--g900);margin-bottom:16px;font-size:18px">Personal Details</h4>
-          ${infoRow(IC.mail,'Email',u.email)}
-          ${infoRow(IC.phone,'Phone',u.phone)}
-          ${infoRow(IC.mail,'Email',u.email||'—')}
-          ${infoRow(IC.phone,'Phone',u.phone||'—')}
+          ${infoRow(IC.mail,'Email',sanitize(u.email||'—'))}
+          ${infoRow(IC.phone,'Phone',sanitize(u.phone||'—'))}
           ${infoRow(IC.cal,'Date of Birth',u.dob?fmtDate(u.dob):'—')}
           ${u.address?infoRow(IC.map,'Address',sanitize(u.address)):''}
           ${u.school?infoRow('🏫','School',sanitize(u.school)):''}
           <div class="div" style="margin:10px 0"></div>
-          ${infoRow(IC.user,'Guardian',(u.guardian||u.guardianName||'—'))}
-          ${infoRow(IC.phone,'Guardian Contact',(u.guardianContact||u.guardianPhone||'—'))}
+          ${infoRow(IC.user,'Guardian',sanitize(u.guardian||u.guardianName||'—'))}
+          ${infoRow(IC.phone,'Guardian Contact',sanitize(u.guardianContact||u.guardianPhone||'—'))}
         </div>
         <div class="card cp">
           <h4 style="font-family:var(--font-display);font-weight:700;color:var(--g900);margin-bottom:16px;font-size:18px">Change Password</h4>
-          <div class="fg"><label class="fl">Current Password</label><input class="fi-el" type="password" id="pw-cur" placeholder="••••••••"></div>
-          <div class="frow"><div class="fg"><label class="fl">New Password</label><input class="fi-el" type="password" id="pw-new" placeholder="Min 6 characters"></div><div class="fg"><label class="fl">Confirm New</label><input class="fi-el" type="password" id="pw-con" placeholder="Repeat password"></div></div>
+          <div class="fg"><label class="fl">Current Password</label><input class="fi-el" type="password" id="pw-cur" placeholder="••••••••" autocomplete="current-password"></div>
+          <div class="frow"><div class="fg"><label class="fl">New Password</label><input class="fi-el" type="password" id="pw-new" placeholder="Min 8 characters" autocomplete="new-password" oninput="showPwStrength('pw-new','pw-str')"><div class="pw-strength"><div class="pw-strength-bar" id="pw-str" style="width:0"></div></div><div class="pw-hint" id="pw-str-lbl" style="color:var(--g400)"></div></div><div class="fg"><label class="fl">Confirm New</label><input class="fi-el" type="password" id="pw-con" placeholder="Repeat password" autocomplete="new-password"></div></div>
           <button class="btn btn-gold" onclick="changeStudentPassword()">Update Password</button>
         </div>
       </div>
@@ -1610,10 +1808,26 @@ async function changeStudentPassword(){
   const cur=$id('pw-cur')?.value, nw=$id('pw-new')?.value, con=$id('pw-con')?.value;
   if(!cur||!nw||!con){ toast('Please fill in all fields','e'); return; }
   if(nw!==con){ toast('New passwords do not match','e'); return; }
-  if(nw.length<6){ toast('Password must be at least 6 characters','e'); return; }
-  await API.updatePassword({studentId:S.user.id,currentPassword:cur,newPassword:nw});
+  if(nw.length<8){ toast('Password must be at least 8 characters','e'); return; }
+  const str=passwordStrength(nw);
+  if(str.score<2){ toast('Password is too weak — try adding numbers or symbols','e'); return; }
+  const r=await API.updatePassword({studentId:S.user.id,currentPassword:cur,newPassword:nw});
+  if(r?.success===false){ toast(r.error||'Current password is incorrect','e'); return; }
   toast('Password updated successfully! ✅','s');
+  addNotification('Your password was changed successfully','s');
   ['pw-cur','pw-new','pw-con'].forEach(id=>{ const el=$id(id); if(el) el.value=''; });
+  $id('pw-str').style.width='0'; if($id('pw-str-lbl')) $id('pw-str-lbl').textContent='';
+}
+
+function showPwStrength(inputId, barId){
+  const val=$id(inputId)?.value||'';
+  const lbl=$id(barId.replace('pw-str','pw-str-lbl')||barId+'-lbl')||$id('pw-str-lbl');
+  const bar=$id(barId);
+  if(!bar) return;
+  const s=passwordStrength(val);
+  bar.style.width=s.pct+'%';
+  bar.style.background=s.color;
+  if(lbl){ lbl.textContent=val?s.label:''; lbl.style.color=s.color; }
 }
 
 function renderNotices(){
@@ -1623,17 +1837,19 @@ function renderNotices(){
     <div class="phdr"><div><h2 class="ptitle">${isAdmin?'Announcements':'Notices'}</h2><p class="psub">${notices.length} notice${notices.length!==1?'s':''}</p></div>
       ${isAdmin?`<div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderNotices)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddNoticeModal()">${IC.send} Post Notice</button></div>`:''}
     </div>
-    ${notices.length?`<div style="display:flex;flex-direction:column;gap:14px">${notices.map((n,i)=>`<div class="card fu" style="border-left:4px solid var(--gold)"><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:40px;border-radius:11px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🔔</div><div><h3 style="font-weight:800;font-size:15px;color:var(--g900)">${n.title}</h3><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:500">Posted ${fmtDate(n.date)} · <strong>${n.target==='all'?'All Students':n.target}</strong></p></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${n.target==='all'?'b-navy':'b-blue'}">${n.target==='all'?'All':n.target}</span>${isAdmin?`<button class="btn btn-ghost btn-ico btn-xs" style="color:var(--red)" onclick="deleteNotice('${n.id||i}')">${IC.trash}</button>`:''}</div></div><p style="font-size:14px;color:var(--g500);line-height:1.72;font-weight:400">${n.body}</p></div></div>`).join('')}</div>`:
+    ${notices.length?`<div style="display:flex;flex-direction:column;gap:14px">${notices.map((n,i)=>`<div class="card fu" style="border-left:4px solid var(--gold)"><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:40px;border-radius:11px;background:rgba(212,160,23,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🔔</div><div><h3 style="font-weight:800;font-size:15px;color:var(--g900)">${sanitize(n.title)}</h3><p style="font-size:12px;color:var(--g400);margin-top:2px;font-weight:500">Posted ${fmtDate(n.date)} · <strong>${n.target==='all'?'All Students':sanitize(n.target)}</strong></p></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${n.target==='all'?'b-navy':'b-blue'}">${n.target==='all'?'All':sanitize(n.target)}</span>${isAdmin?`<button class="btn btn-ghost btn-ico btn-xs" style="color:var(--red)" onclick="deleteNotice('${sanitize(n.id||String(i))}')" aria-label="Delete notice">${IC.trash}</button>`:''}</div></div><p style="font-size:14px;color:var(--g500);line-height:1.72;font-weight:400">${sanitize(n.body||n.message||'')}</p></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📢</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Notices Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Announcements from your tutors will appear here.</p></div>`}
   </div>`);
 }
 
 async function deleteNotice(id){
-  if(!confirm('Delete this notice?')) return;
-  await API.deleteNotice(id);
-  S.notices=await API.getNotices();
-  renderNotices();
-  toast('Notice deleted','s');
+  confirmAction('Delete Notice','This notice will be permanently removed. Continue?','Delete', async()=>{
+    auditLog('deleteNotice', `id=${id}`);
+    await API.deleteNotice(id);
+    S.notices=await API.getNotices();
+    renderNotices();
+    toast('Notice deleted','s');
+  });
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1682,7 +1898,7 @@ function renderAApps(){ if(!requireAdmin()) return;
   const counts={pending:S.apps.filter(a=>a.status==='pending').length,approved:S.apps.filter(a=>a.status==='approved').length,rejected:S.apps.filter(a=>a.status==='rejected').length};
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">Enrolment Applications</h2><p class="psub">${counts.pending} pending · ${counts.approved} approved · ${counts.rejected} rejected</p></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">${['all','pending','approved','rejected'].map(f=>`<button class="btn btn-sm ${S.appFilter===f?'btn-navy':'btn-ghost'}" onclick="S.appFilter='${f}';S.appSearch='';renderAApps()" style="text-transform:capitalize">${f==='all'?`All (${S.apps.length})`:f+` (${counts[f]||0})`}</button>`).join('')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="exportApplicationsCSV()">📥 Export</button>${['all','pending','approved','rejected'].map(f=>`<button class="btn btn-sm ${S.appFilter===f?'btn-navy':'btn-ghost'}" onclick="S.appFilter='${f}';S.appSearch='';renderAApps()" style="text-transform:capitalize">${f==='all'?`All (${S.apps.length})`:f+` (${counts[f]||0})`}</button>`).join('')}</div>
     </div>
     <div style="margin-bottom:16px"><input class="fi-el" id="app-search" placeholder="🔍  Search by name, email, phone or payment ref..." value="${S.appSearch||''}" oninput="S.appSearch=this.value;renderAApps()" style="max-width:420px"></div>
     ${q&&!filtered.length?`<div class="card cp" style="text-align:center;padding:32px"><p style="color:var(--g400)">No applications matching <strong>"${sanitize(q)}"</strong></p><button class="btn btn-ghost btn-sm" onclick="S.appSearch='';renderAApps()">Clear Search</button></div>`:''}
@@ -1991,11 +2207,13 @@ function renderAAssignments(){ if(!requireAdmin()) return;
 }
 
 async function deleteAssignment(aid, title){
-  if(!confirm('Delete assignment "'+title+'"?\n\nThis cannot be undone.')) return;
-  await API.post('deleteAssignment',{assignmentId:aid});
-  toast('Assignment deleted.','s');
-  S.assignments=await API.getAssignments();
-  renderAAssignments();
+  confirmAction('Delete Assignment', `"${title}" will be permanently removed. This cannot be undone.`, 'Delete', async()=>{
+    auditLog('deleteAssignment', `id=${aid} title=${title}`);
+    await API.post('deleteAssignment',{assignmentId:aid});
+    toast('Assignment deleted.','s');
+    S.assignments=await API.getAssignments();
+    renderAAssignments();
+  });
 }
 function gradeModal(aid){
   const a=S.assignments.find(x=>x.id===aid); if(!a) return;
@@ -2030,9 +2248,13 @@ function renderReports(){ if(!requireAdmin()) return;
   const top=[...S.students].sort((a,b)=>(+b.avgScore||0)-(+a.avgScore||0));
   const needs=[...S.students].sort((a,b)=>(+a.avgScore||0)-(+b.avgScore||0));
   const actRanked=[...S.students].map(s=>{const r=calcActivity(s);return{...s,...r};}).sort((a,b)=>b.actScore-a.actScore);
+  const logs=getAuditLog();
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">Reports & Analytics</h2><p class="psub">Student activity, submissions & rewards</p></div>
-      <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderReports)">${IC.refresh} Sync</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="exportStudentsCSV()">📥 Export Students</button>
+        <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderReports)">${IC.refresh} Sync</button>
+      </div>
     </div>
     <div class="g4" style="margin-bottom:22px">
       ${statCard('👥','Total Students',S.students.length,null,'var(--blue)')}
@@ -2054,23 +2276,53 @@ function renderReports(){ if(!requireAdmin()) return;
           const stars=s.actScore>=90?5:s.actScore>=75?4:s.actScore>=60?3:s.actScore>=45?2:s.actScore>=25?1:0;
           return `<tr>
             <td style="font-weight:900;font-size:13px;color:${rankColor}">#${i+1}</td>
-            <td><div style="display:flex;align-items:center;gap:9px">${av(`${s.firstName} ${s.lastName}`,32)}<div><p style="font-weight:700;font-size:13px">${s.firstName} ${s.lastName}</p><p style="font-size:11px;color:var(--g400);font-family:var(--font-mono)">${s.id}</p></div></div></td>
+            <td><div style="display:flex;align-items:center;gap:9px">${av(`${s.firstName} ${s.lastName}`,32)}<div><p style="font-weight:700;font-size:13px">${sanitize(s.firstName)} ${sanitize(s.lastName)}</p><p style="font-size:11px;color:var(--g400);font-family:var(--font-mono)">${sanitize(s.id)}</p></div></div></td>
             <td><span style="font-weight:800;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=60?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></td>
             <td><span style="font-weight:700;color:${(+s.attendance||0)>=80?'var(--green)':'var(--amber)'}">${s.attendance||0}%</span></td>
             <td style="font-size:13px;font-weight:600">${s.sub.submitted}/${s.sub.total} <span style="color:var(--g400)">(${s.sub.rate}%)</span></td>
             <td><div style="display:flex;align-items:center;gap:8px"><div class="pt" style="width:72px"><div class="pf" style="width:${s.actScore}%"></div></div><strong>${s.actScore}</strong></div></td>
             <td style="font-size:14px;letter-spacing:1px">${starsHtml(stars)}</td>
-            <td><button class="btn btn-gold btn-xs" onclick="rewardStudent('${s.id}','${s.firstName} ${s.lastName}',${stars})">${IC.edit} Reward</button></td>
+            <td><button class="btn btn-gold btn-xs" onclick="rewardStudent('${sanitize(s.id)}','${sanitize(s.firstName)} ${sanitize(s.lastName)}',${stars})">${IC.edit} Reward</button></td>
           </tr>`;
         }).join(''):`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--g400)">No student data yet.</td></tr>`}</tbody>
       </table></div>
     </div>
 
-    <div class="g2">
-      ${[{title:'🏆 Top Performers',list:top},{title:'⚠️ Needs Attention',list:needs}].map(({title,list})=>`<div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">${title}</h3>${list.slice(0,5).map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;cursor:pointer" onclick="S.selStudent='${s.id}';navTo('students')"><span style="width:24px;font-size:13px;font-weight:900;color:${i===0&&title.includes('Top')?'var(--gold)':'var(--g300)'};text-align:center">#${i+1}</span>${av(`${s.firstName} ${s.lastName}`,34)}<div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:700;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.firstName} ${s.lastName}</p><div class="pt" style="margin-top:5px"><div class="pf" style="width:${s.avgScore||0}%;${(+s.avgScore||0)<70&&title.includes('Attention')?'background:linear-gradient(90deg,var(--red),#f87171)':''}"></div></div></div><span style="font-weight:900;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></div>`).join('')}${!list.length?'<p style="color:var(--g400);text-align:center;font-size:13.5px">No student data</p>':''}</div>`).join('')}
+    <div class="g2" style="margin-bottom:22px">
+      ${[{title:'🏆 Top Performers',list:top},{title:'⚠️ Needs Attention',list:needs}].map(({title,list})=>`<div class="card cp"><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">${title}</h3>${list.slice(0,5).map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;cursor:pointer" onclick="S.selStudent='${sanitize(s.id)}';navTo('students')"><span style="width:24px;font-size:13px;font-weight:900;color:${i===0&&title.includes('Top')?'var(--gold)':'var(--g300)'};text-align:center">#${i+1}</span>${av(`${s.firstName} ${s.lastName}`,34)}<div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:700;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sanitize(s.firstName)} ${sanitize(s.lastName)}</p><div class="pt" style="margin-top:5px"><div class="pf" style="width:${s.avgScore||0}%;${(+s.avgScore||0)<70&&title.includes('Attention')?'background:linear-gradient(90deg,var(--red),#f87171)':''}"></div></div></div><span style="font-weight:900;color:${(+s.avgScore||0)>=80?'var(--green)':(+s.avgScore||0)>=70?'var(--gold)':'var(--red)'}">${s.avgScore||0}%</span></div>`).join('')}${!list.length?'<p style="color:var(--g400);text-align:center;font-size:13.5px">No student data</p>':''}</div>`).join('')}
+    </div>
+
+    <div class="card cp">
+      <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">🔐 Admin Audit Log <span style="font-size:12px;color:var(--g400);font-weight:500">(this session)</span></h3>
+      ${logs.length?logs.slice(0,20).map(l=>`<div class="audit-item"><div class="audit-time">${new Date(l.time).toLocaleTimeString()}</div><div><strong style="color:var(--g900)">${sanitize(l.action)}</strong> <span style="color:var(--g500)">${sanitize(l.detail)}</span></div></div>`).join(''):'<p style="color:var(--g400);font-size:13px;font-weight:500">No actions recorded this session.</p>'}
     </div>
   </div>`);
+}
 
+function exportStudentsCSV(){
+  auditLog('exportStudents', `count=${S.students.length}`);
+  const headers=['ID','First Name','Last Name','Email','Phone','Level','School','Subjects','Guardian','Guardian Contact','Avg Score','Attendance','Stars','Status','Date Enrolled'];
+  const rows=S.students.map(s=>[
+    s.id, s.firstName, s.lastName, s.email, s.phone, s.level, s.school,
+    (Array.isArray(s.subjects)?s.subjects:safeArr(s.subjects)).join('; '),
+    s.guardian||s.guardianName||'', s.guardianContact||s.guardianPhone||'',
+    s.avgScore||0, s.attendance||0, s.stars||0,
+    s.isActive?'Active':'Inactive', s.dateEnrolled||''
+  ]);
+  exportCSV(`dmaths-students-${new Date().toISOString().split('T')[0]}.csv`, headers, rows);
+  toast('Student data exported to CSV ✅','s');
+}
+
+function exportApplicationsCSV(){
+  auditLog('exportApplications', `count=${S.apps.length}`);
+  const headers=['ID','First Name','Last Name','Email','Phone','Level','Subjects','Guardian','Payment Ref','Amount','Status','Date Submitted'];
+  const rows=S.apps.map(a=>[
+    a.id, a.firstName, a.lastName, a.email, a.phone, a.level,
+    (Array.isArray(a.subjects)?a.subjects:safeArr(a.subjects)).join('; '),
+    a.guardian||'', a.paymentRef||'', a.paymentAmt||'', a.status, a.dateSubmitted||''
+  ]);
+  exportCSV(`dmaths-applications-${new Date().toISOString().split('T')[0]}.csv`, headers, rows);
+  toast('Applications exported to CSV ✅','s');
 }
 
 function rewardStudent(sid, name, currentStars){
@@ -2081,8 +2333,9 @@ async function submitReward(sid, name){
   const stars=+($id('reward-stars')?.value||1);
   const msg=$id('reward-msg')?.value||'';
   if(!msg){ toast('Please add a reward message','e'); return; }
+  auditLog('rewardStudent', `id=${sid} name=${name} stars=${stars}`);
   await API.post('rewardStudent',{studentId:sid,stars,message:msg,date:new Date().toISOString().split('T')[0]});
-  toast('Reward sent to '+name+'! ⭐','s');
+  toast('Reward sent to '+sanitize(name)+'! ⭐','s');
   closeModal();
 }
 
@@ -2223,11 +2476,28 @@ async function submitAttendance(classId){
 
 function openEditClassModal(classId){
   const cls=S.classes.find(c=>c.id===classId); if(!cls) return;
-  openModal('Edit Class',`<div class="fg"><label class="fl">Subject Name</label><input class="fi-el" id="ec-subj" value="${cls.subject}"></div><div class="frow"><div class="fg"><label class="fl">Tutor</label><input class="fi-el" id="ec-tutor" value="${cls.tutor}"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="ec-plat"><option ${cls.platform==='Zoom'?'selected':''}>Zoom</option><option ${cls.platform==='Google Meet'?'selected':''}>Google Meet</option><option ${cls.platform==='Microsoft Teams'?'selected':''}>Microsoft Teams</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Day</label><select class="fi-el" id="ec-day">${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=>`<option ${cls.day===d?'selected':''}>${d}</option>`).join('')}</select></div><div class="fg"><label class="fl">Time</label><input class="fi-el" id="ec-time" type="time" value="${cls.time}"></div></div><div class="fg"><label class="fl">Class Link</label><input class="fi-el" id="ec-link" value="${cls.link||''}"></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="saveEditClass('${classId}')">Save Changes</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
+  openModal('Edit Class',`<div class="fg"><label class="fl">Subject Name</label><input class="fi-el" id="ec-subj" value="${sanitize(cls.subject)}"></div><div class="frow"><div class="fg"><label class="fl">Tutor</label><input class="fi-el" id="ec-tutor" value="${sanitize(cls.tutor)}"></div><div class="fg"><label class="fl">Platform</label><select class="fi-el" id="ec-plat"><option ${cls.platform==='Zoom'?'selected':''}>Zoom</option><option ${cls.platform==='Google Meet'?'selected':''}>Google Meet</option><option ${cls.platform==='Microsoft Teams'?'selected':''}>Microsoft Teams</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Date <span style="font-size:11px;color:var(--g400)">(specific session)</span></label><input class="fi-el" id="ec-date" type="date" value="${cls.date||''}"></div><div class="fg"><label class="fl">Time</label><input class="fi-el" id="ec-time" type="time" value="${cls.time||''}"></div></div><div class="frow"><div class="fg"><label class="fl">Recurring Day</label><select class="fi-el" id="ec-day">${['','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=>`<option ${cls.day===d?'selected':''}>${d||'— None (one-off) —'}</option>`).join('')}</select></div><div class="fg"><label class="fl">Duration</label><input class="fi-el" id="ec-dur" placeholder="e.g. 1h 30m" value="${sanitize(cls.durationLabel||cls.duration||'')}"></div></div><div class="fg"><label class="fl">Class Link</label><input class="fi-el" id="ec-link" type="url" value="${sanitize(cls.link||'')}"></div><div style="display:flex;gap:10px;padding-top:4px"><button class="btn btn-gold" style="flex:1" onclick="saveEditClass('${classId}')">Save Changes</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
 }
 async function saveEditClass(classId){
-  await API.post('updateClass',{id:classId,subject:$id('ec-subj')?.value,tutor:$id('ec-tutor')?.value,platform:$id('ec-plat')?.value,day:$id('ec-day')?.value,time:$id('ec-time')?.value,link:$id('ec-link')?.value});
+  const timeVal=$id('ec-time')?.value||'';
+  const dateVal=$id('ec-date')?.value||'';
+  const durLabel=($id('ec-dur')?.value||'').trim();
+  const durMs=parseDurationToMs(durLabel);
+  let endISO='';
+  if(dateVal&&timeVal&&durMs){try{const start=new Date(dateVal+'T'+timeVal);endISO=new Date(start.getTime()+durMs).toISOString();}catch(e){}}
+  await API.post('updateClass',{id:classId,subject:$id('ec-subj')?.value||'',tutor:$id('ec-tutor')?.value||'',platform:$id('ec-plat')?.value||'',day:$id('ec-day')?.value||'',date:dateVal,time:timeVal,link:$id('ec-link')?.value||'',durationLabel:durLabel,durationMs:durMs,endISO});
+  auditLog('editClass',`id=${classId}`);
   toast('Class updated! ✅','s'); S.classes=await API.getClasses(); closeModal(); renderAClasses();
+}
+
+// Parse duration strings like "1h 30m", "90m", "2h" → milliseconds
+function parseDurationToMs(str){
+  if(!str) return 0;
+  const hm=str.match(/(\d+)\s*h(?:r|ours?)?\s*(?:(\d+)\s*m)?/i);
+  if(hm) return ((+hm[1]||0)*60+(+hm[2]||0))*60000;
+  const mo=str.match(/(\d+)\s*m(?:in)?/i);
+  if(mo) return (+mo[1]||0)*60000;
+  return 0;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2236,8 +2506,38 @@ async function saveEditClass(classId){
 const FONT="'Nunito',sans-serif";
 const CHART_DEFAULTS={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:FONT,size:12},color:'#64748B',boxWidth:12}},tooltip:{backgroundColor:'#0A1628',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10,titleFont:{family:FONT,size:13},bodyFont:{family:FONT,size:12}}},scales:{x:{grid:{display:false},ticks:{font:{family:FONT,size:11},color:'#94A3B8'},border:{display:false}},y:{grid:{color:'#F1F5F9'},ticks:{font:{family:FONT,size:11},color:'#94A3B8'},border:{display:false}}}};
 function destroyChart(id){if(S.charts[id]){S.charts[id].destroy();delete S.charts[id];}}
-function getScoreData(){return[{m:'Sep',A:72,C:68,S:80},{m:'Oct',A:78,C:74,S:83},{m:'Nov',A:82,C:79,S:86},{m:'Dec',A:85,C:83,S:89},{m:'Jan',A:88,C:87,S:91},{m:'Feb',A:87,C:90,S:92}];}
-function getEnrollData(){const mo=['Jan','Feb','Mar','Apr','May','Jun'];return mo.map((m,i)=>({m,n:Math.max(6,S.students.length-5+i)}));}
+function getScoreData(){
+  // Build month-by-month average from graded assignments in current year
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const byMonth={};
+  S.assignments.filter(a=>a.status==='Graded'&&a.dueDate).forEach(a=>{
+    try{
+      const d=new Date(a.dueDate); if(isNaN(d)) return;
+      const key=months[d.getMonth()];
+      if(!byMonth[key]) byMonth[key]={sum:0,cnt:0};
+      byMonth[key].sum+=(+a.grade||0); byMonth[key].cnt++;
+    }catch(e){}
+  });
+  const result=[];
+  // Show last 6 months up to today
+  const now=new Date(); const curMo=now.getMonth();
+  for(let i=5;i>=0;i--){
+    const mi=((curMo-i)+12)%12;
+    const m=months[mi];
+    const avg=byMonth[m]?(Math.round(byMonth[m].sum/byMonth[m].cnt)):null;
+    result.push({m,avg});
+  }
+  return result;
+}
+function getEnrollData(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const base=Math.max(1,S.students.length);
+  const now=new Date(); const curMo=now.getMonth();
+  return Array.from({length:6},(_,i)=>{
+    const mi=((curMo-5+i)+12)%12;
+    return {m:months[mi],n:Math.max(1,Math.round(base*(0.6+i*0.08)))};
+  });
+}
 
 // Wraps a canvas inside a fixed-height flex div to prevent overflow
 function chartWrap(canvasId,height){
@@ -2248,17 +2548,57 @@ function chartWrap(canvasId,height){
 function makeScoreChart(canvasId){
   const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
   const d=getScoreData();
-  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:d.map(x=>x.m),datasets:[{label:'Algebra',data:d.map(x=>x.A),borderColor:'#F2BC3B',backgroundColor:'rgba(242,188,59,.12)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4},{label:'Calculus',data:d.map(x=>x.C),borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4},{label:'Statistics',data:d.map(x=>x.S),borderColor:'#34D399',backgroundColor:'rgba(52,211,153,.1)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:60,max:100}}}});
+  const hasData=d.some(x=>x.avg!==null);
+  const avgData=d.map(x=>x.avg);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{
+    labels:d.map(x=>x.m),
+    datasets:[{
+      label:hasData?'Class Average':'Sample Data',
+      data:hasData?avgData:[72,78,82,85,88,87],
+      borderColor:'#F2BC3B',backgroundColor:'rgba(242,188,59,.12)',
+      fill:true,tension:.4,borderWidth:2.5,pointRadius:4,
+      spanGaps:true
+    }]
+  },options:{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,subtitle:{display:!hasData,text:'Add graded assignments to see real data',color:'#94A3B8',font:{size:11,family:"'Nunito',sans-serif"}}},scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:100}}}});
 }
 function makeProgressChart(canvasId){
   const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
   const d=getScoreData();
-  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:d.map(x=>x.m),datasets:[{label:'Algebra',data:d.map(x=>x.A),borderColor:'#F2BC3B',tension:.4,borderWidth:2.5,pointRadius:3},{label:'Calculus',data:d.map(x=>x.C),borderColor:'#60A5FA',tension:.4,borderWidth:2.5,pointRadius:3},{label:'Statistics',data:d.map(x=>x.S),borderColor:'#34D399',tension:.4,borderWidth:2.5,pointRadius:3}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:60,max:100}}}});
+  const avgData=d.map(x=>x.avg);
+  const hasData=d.some(x=>x.avg!==null);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{
+    labels:d.map(x=>x.m),
+    datasets:[{
+      label:hasData?'Avg Score':'Sample',
+      data:hasData?avgData:[72,78,82,85,88,87],
+      borderColor:'#D4A017',backgroundColor:'rgba(212,160,23,.08)',
+      fill:true,tension:.4,borderWidth:2.5,pointRadius:4,
+      spanGaps:true
+    }]
+  },options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:100}}}});
 }
-function makeStudentChart(canvasId){
+function makeStudentChart(canvasId, student){
   const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
-  const d=getScoreData();
-  S.charts[canvasId]=new Chart(el,{type:'line',data:{labels:d.map(x=>x.m),datasets:[{label:'Score',data:d.map(x=>x.A),borderColor:'#D4A017',backgroundColor:'rgba(212,160,23,.12)',fill:true,tension:.4,borderWidth:2.5,pointRadius:4}]},options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:100}}}});
+  // Use real graded assignments for this specific student
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now=new Date(); const curMo=now.getMonth();
+  const labels=Array.from({length:6},(_,i)=>months[((curMo-5+i)+12)%12]);
+  const sid=student?.id;
+  const myGraded=S.assignments.filter(a=>a.status==='Graded'&&safeArr(a.assignedTo).includes(sid)&&a.dueDate);
+  const byLabel={};
+  myGraded.forEach(a=>{try{const d=new Date(a.dueDate);const lbl=months[d.getMonth()];if(!byLabel[lbl]){byLabel[lbl]={s:0,c:0}}byLabel[lbl].s+=(+a.grade||0);byLabel[lbl].c++;}catch(e){}});
+  const data=labels.map(l=>byLabel[l]?Math.round(byLabel[l].s/byLabel[l].c):null);
+  const hasReal=data.some(v=>v!==null);
+  S.charts[canvasId]=new Chart(el,{type:'line',data:{
+    labels,
+    datasets:[{
+      label:hasReal?'My Scores':'Sample',
+      data:hasReal?data:[60,65,72,78,75,80],
+      borderColor:'#D4A017',backgroundColor:'rgba(212,160,23,.12)',
+      fill:true,tension:.4,borderWidth:2.5,pointRadius:5,
+      spanGaps:true
+    }]
+  },options:{...CHART_DEFAULTS,scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:100}}}});
 }
 function makeEnrollChart(canvasId){
   const el=$id(canvasId); if(!el)return; destroyChart(canvasId);
