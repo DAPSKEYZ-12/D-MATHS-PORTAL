@@ -1188,7 +1188,20 @@ const IC = {
 // ════════════════════════════════════════════════════════════════
 const $id = id => document.getElementById(id);
 const html = (id,h) => { const e=$id(id); if(e) e.innerHTML=h; };
-const safeArr = v => Array.isArray(v)?v:typeof v==='string'&&v?v.split(',').map(x=>x.trim()).filter(Boolean):[];
+const normalizeId = v => String(v||'').trim().toLowerCase();
+const safeArr = v => {
+  if(Array.isArray(v)) return v;
+  if(typeof v==='string'&&v){
+    const s=v.trim();
+    if(!s) return [];
+    if((s.startsWith('[')&&s.endsWith(']'))||(s.startsWith('{')&&s.endsWith('}'))){
+      try{ const parsed=JSON.parse(s); return Array.isArray(parsed)?parsed:[]; }catch(e){}
+    }
+    return s.split(',').map(x=>x.trim()).filter(Boolean);
+  }
+  return [];
+};
+const hasId = (arr,id) => safeArr(arr).some(x=>normalizeId(x)===normalizeId(id));
 
 // ── DATE FORMATTING UTILITIES ─────────────────────────────────
 // Converts any date string (ISO, YYYY-MM-DD, locale, etc.) to
@@ -1619,8 +1632,8 @@ function renderPage(id){
 // ════════════════════════════════════════════════════════════════
 function renderSDash(){ if(!requireStudent()) return;
   const u=S.user;
-  const myClasses=S.classes.filter(c=>safeArr(c.students).includes(u.id));
-  const myAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||safeArr(a.assignedTo).includes(u.id));
+  const myClasses=S.classes.filter(c=>hasId(c.students,u.id));
+  const myAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||hasId(a.assignedTo,u.id));
   const pending=myAssigns.filter(a=>a.status==='Pending').length;
   const recent=S.notices.slice(0,3);
   html('portal-pages',`<div class="pg on fi">
@@ -1649,12 +1662,12 @@ function renderSDash(){ if(!requireStudent()) return;
 
 function renderSClasses(){ if(!requireStudent()) return;
   const u=S.user;
-  const myClasses=S.classes.filter(c=>safeArr(c.students).includes(u.id));
+  const myClasses=S.classes.filter(c=>hasId(c.students,u.id));
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">My Classes</h2><p class="psub">${myClasses.length} enrolled class${myClasses.length!==1?'es':''}</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSClasses)">${IC.refresh} Refresh</button>
     </div>
-    ${myClasses.length?`<div class="gcls">${myClasses.map(cls=>`<div class="card fu"><div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:4px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">with ${cls.tutor}</p></div>${bdg(cls.platform||'Online')}</div>${infoRow(IC.cal,'Schedule',`${cls.day} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.duration)}${cls.link&&cls.link!=='#'?infoRow(IC.video,'Class Link',`<a href="${cls.link}" target="_blank" style="color:var(--blue);text-decoration:underline">Join Now →</a>`):''}
+    ${myClasses.length?`<div class="gcls">${myClasses.map(cls=>`<div class="card fu"><div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-b))"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:4px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">with ${cls.tutor}</p></div>${bdg(cls.platform||'Online')}</div>${infoRow(IC.cal,'Schedule',cls.date?`${fmtDate(cls.date)} at ${fmtTime(cls.time)}`:`${cls.day} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.duration)}${cls.link&&cls.link!=='#'?infoRow(IC.video,'Class Link',`<a href="${cls.link}" target="_blank" style="color:var(--blue);text-decoration:underline">Join Now →</a>`):''}
         <div class="div"></div>
         <button class="btn btn-gold btn-w" onclick="${cls.link&&cls.link!=='#'?`window.open('${sanitizeUrl(cls.link)}','_blank','noopener,noreferrer')`:`toast('Class link not yet available. Check back soon.','i')`}">${IC.video} Join Class</button></div></div>`).join('')}</div>`:
     `<div class="card cp" style="text-align:center;padding:48px"><div style="font-size:48px;margin-bottom:16px">📚</div><h3 style="font-family:var(--font-display);font-weight:700;color:var(--g700);margin-bottom:8px">No Classes Yet</h3><p style="color:var(--g400);font-size:14px;font-weight:500">Classes will appear here once admin assigns you to subjects.</p></div>`}
@@ -1687,7 +1700,7 @@ function cbtButtonHtml(a){
 
 function renderSAssignments(){ if(!requireStudent()) return;
   const u=S.user;
-  const myAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||safeArr(a.assignedTo).includes(u.id));
+  const myAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||hasId(a.assignedTo,u.id));
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">Assignments</h2><p class="psub">Track and submit your work</p></div>
       <button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderSAssignments)">${IC.refresh}</button>
@@ -1720,7 +1733,7 @@ function renderSProgress(){ if(!requireStudent()) return;
     <div class="card cp" style="margin-bottom:20px">
       <h3 style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--g900);margin-bottom:16px">📋 My Activity Log</h3>
       ${(()=>{
-        const allAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||safeArr(a.assignedTo).includes(u.id));
+        const allAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).length===0||hasId(a.assignedTo,u.id));
         if(!allAssigns.length) return '<p style="color:var(--g400);font-size:13.5px;font-weight:500;padding:8px 0">No activity yet — your assignment history will appear here.</p>';
         return allAssigns.slice().reverse().map(a=>{
           const statusColor=a.status==='Graded'?'var(--green)':a.status==='Submitted'?'var(--blue)':'var(--amber)';
@@ -1831,7 +1844,7 @@ function showPwStrength(inputId, barId){
 
 function renderNotices(){
   const isAdmin=S.role==='admin';
-  const notices=isAdmin?S.notices:S.notices.filter(n=>n.target==='all'||safeArr(S.user?.subjects).includes(n.target));
+  const notices=isAdmin?S.notices:S.notices.filter(n=>n.target==='all'||hasId(S.user?.subjects,n.target));
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">${isAdmin?'Announcements':'Notices'}</h2><p class="psub">${notices.length} notice${notices.length!==1?'s':''}</p></div>
       ${isAdmin?`<div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderNotices)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddNoticeModal()">${IC.send} Post Notice</button></div>`:''}
@@ -2150,7 +2163,7 @@ function checkAndShowClassEndedAlerts(){
       alerted.add(cls.id);
       // Show a reward prompt toast + modal
       setTimeout(()=>{
-        const assignedStudents=S.students.filter(s=>safeArr(cls.students).includes(s.id));
+        const assignedStudents=S.students.filter(s=>hasId(cls.students,s.id));
         if(assignedStudents.length>0){
           openModal(`🏆 Class Ended — ${cls.subject}`,`
           <div class="al al-s" style="margin-bottom:16px">✅ <strong>${cls.subject}</strong> with ${cls.tutor} has ended. Would you like to reward the students who attended?</div>
@@ -2172,7 +2185,7 @@ function checkAndShowClassEndedAlerts(){
 async function sendClassRewards(classId){
   const cls=S.classes.find(c=>c.id===classId); if(!cls) return;
   const msg=$id('cls-reward-msg')?.value||'Great job attending class! ⭐';
-  const assignedStudents=S.students.filter(s=>safeArr(cls.students).includes(s.id));
+  const assignedStudents=S.students.filter(s=>hasId(cls.students,s.id));
   for(const s of assignedStudents){
     try{ await API.post('rewardStudent',{studentId:s.id,stars:3,message:msg,date:new Date().toISOString().split('T')[0]}); }catch(e){}
   }
@@ -2183,7 +2196,7 @@ async function sendClassRewards(classId){
 function renderAClasses(){ if(!requireAdmin()) return;
   const activeClasses=archiveExpiredClasses();
   const history=getClassHistory();
-  const classCardHtml=(cls,isHistory=false)=>`<div class="card" style="${isHistory?'opacity:.85;':''}"><div style="height:3px;background:linear-gradient(90deg,${isHistory?'#94A3B8,#CBD5E1':'var(--gold),var(--gold-b)'})"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:rgba(${isHistory?'148,163,184':'212,160,23'},.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">${isHistory?'🗓':'📹'}</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">${cls.tutor}</p></div></div><div style="display:flex;gap:5px">${!isHistory?`<button class="btn btn-ghost btn-ico btn-xs" onclick="openEditClassModal('${cls.id}')">${IC.edit}</button>`:''}</div></div>${infoRow(IC.cal,'Schedule',cls.date?`${cls.date} at ${fmtTime(cls.time)}`:`${cls.day||''} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.durationLabel||cls.duration||'—')}${infoRow(IC.video,'Platform',cls.platform||'Online')}${isHistory&&cls.archivedAt?`<div style="background:var(--g50);border-radius:var(--r);padding:7px 12px;margin-bottom:10px;font-size:12px;color:var(--g400);font-weight:600">✅ Completed ${fmtDate(cls.archivedAt)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)">${S.students.filter(s=>safeArr(cls.students).includes(s.id)).map(s=>av(`${s.firstName} ${s.lastName}`,26)).join('')}<span style="font-size:12px;color:var(--g400);margin-left:4px;font-weight:600">${safeArr(cls.students).length} student${safeArr(cls.students).length!==1?'s':''}</span></div>${!isHistory?`<div style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="markAttendanceModal('${cls.id}')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="openAssignStudentsModal('${cls.id}')">Assign Students</button></div>`:''}</div></div>`;
+  const classCardHtml=(cls,isHistory=false)=>`<div class="card" style="${isHistory?'opacity:.85;':''}"><div style="height:3px;background:linear-gradient(90deg,${isHistory?'#94A3B8,#CBD5E1':'var(--gold),var(--gold-b)'})"></div><div class="cp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:rgba(${isHistory?'148,163,184':'212,160,23'},.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">${isHistory?'🗓':'📹'}</div><div><h3 style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--g900);margin-bottom:3px">${cls.subject}</h3><p style="font-size:13px;color:var(--g400);font-weight:500">${cls.tutor}</p></div></div><div style="display:flex;gap:5px">${!isHistory?`<button class="btn btn-ghost btn-ico btn-xs" onclick="openEditClassModal('${cls.id}')">${IC.edit}</button>`:''}</div></div>${infoRow(IC.cal,'Schedule',cls.date?`${cls.date} at ${fmtTime(cls.time)}`:`${cls.day||''} at ${fmtTime(cls.time)}`)}${infoRow(IC.clock,'Duration',cls.durationLabel||cls.duration||'—')}${infoRow(IC.video,'Platform',cls.platform||'Online')}${isHistory&&cls.archivedAt?`<div style="background:var(--g50);border-radius:var(--r);padding:7px 12px;margin-bottom:10px;font-size:12px;color:var(--g400);font-weight:600">✅ Completed ${fmtDate(cls.archivedAt)}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--g100)">${S.students.filter(s=>hasId(cls.students,s.id)).map(s=>av(`${s.firstName} ${s.lastName}`,26)).join('')}<span style="font-size:12px;color:var(--g400);margin-left:4px;font-weight:600">${safeArr(cls.students).length} student${safeArr(cls.students).length!==1?'s':''}</span></div>${!isHistory?`<div style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" style="flex:1" onclick="markAttendanceModal('${cls.id}')">Mark Attendance</button><button class="btn btn-ghost btn-sm" onclick="openAssignStudentsModal('${cls.id}')">Assign Students</button></div>`:''}</div></div>`;
   html('portal-pages',`<div class="pg on fi">
     <div class="phdr"><div><h2 class="ptitle">Class Management</h2><p class="psub">${activeClasses.length} active class${activeClasses.length!==1?'es':''}</p></div>
       <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="syncFromSheets().then(renderAClasses)">${IC.refresh}</button><button class="btn btn-gold" onclick="openAddClassModal()">${IC.plus} Create Class</button></div>
@@ -2229,7 +2242,7 @@ async function submitGrade(aid){
 }
 
 function calcActivity(s){
-  const stuAssigns=S.assignments.filter(a=>safeArr(a.assignedTo).includes(s.id)||safeArr(s.subjects||[]).some(sub=>a.subject===sub));
+  const stuAssigns=S.assignments.filter(a=>hasId(a.assignedTo,s.id)||safeArr(s.subjects||[]).some(sub=>a.subject===sub));
   const stuSub=stuAssigns.filter(a=>a.status==='Submitted'||a.status==='Graded').length;
   const subRate=stuAssigns.length?Math.round((stuSub/stuAssigns.length)*100):0;
   const sub={total:stuAssigns.length,submitted:stuSub,rate:subRate};
@@ -2463,7 +2476,7 @@ async function saveClassStudents(classId){
 
 function markAttendanceModal(classId){
   const cls=S.classes.find(c=>c.id===classId); if(!cls) return;
-  const classStudents=S.students.filter(s=>safeArr(cls.students).includes(s.id));
+  const classStudents=S.students.filter(s=>hasId(cls.students,s.id));
   openModal(`Attendance — ${cls.subject}`,`<p style="color:var(--g400);font-size:13.5px;margin-bottom:16px;font-weight:500">Mark attendance for today (${fmtToday()}).</p><div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto">${classStudents.map(s=>`<label style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1.5px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .15s"><input type="checkbox" value="${s.id}" checked style="width:16px;height:16px;accent-color:var(--green)">${av(`${s.firstName} ${s.lastName}`,32)}<span style="font-weight:700;color:var(--g900)">${s.firstName} ${s.lastName}</span></label>`).join('')}${!classStudents.length?'<p style="text-align:center;color:var(--g400);padding:20px">No students assigned to this class.</p>':''}</div><div style="display:flex;gap:10px;padding-top:16px"><button class="btn btn-ok" style="flex:1" onclick="submitAttendance('${classId}')">Save Attendance</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`);
 }
 async function submitAttendance(classId){
@@ -2583,7 +2596,7 @@ function makeStudentChart(canvasId, student){
   const now=new Date(); const curMo=now.getMonth();
   const labels=Array.from({length:6},(_,i)=>months[((curMo-5+i)+12)%12]);
   const sid=student?.id;
-  const myGraded=S.assignments.filter(a=>a.status==='Graded'&&safeArr(a.assignedTo).includes(sid)&&a.dueDate);
+  const myGraded=S.assignments.filter(a=>a.status==='Graded'&&hasId(a.assignedTo,sid)&&a.dueDate);
   const byLabel={};
   myGraded.forEach(a=>{try{const d=new Date(a.dueDate);const lbl=months[d.getMonth()];if(!byLabel[lbl]){byLabel[lbl]={s:0,c:0}}byLabel[lbl].s+=(+a.grade||0);byLabel[lbl].c++;}catch(e){}});
   const data=labels.map(l=>byLabel[l]?Math.round(byLabel[l].s/byLabel[l].c):null);
