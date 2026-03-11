@@ -38,6 +38,53 @@ const ADMIN_EMAIL    = 'admin@dmaths.edu.gh';
 const ADMIN_PASSWORD = 'Admin@2024!';      // plain text for simplicity
                                              // upgrade to hashed in production
 
+const TOKEN_SECRET = 'change-this-before-production';
+const TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
+
+function sha256(text) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text || ''), Utilities.Charset.UTF_8);
+  return bytes.map(b => ((b < 0 ? b + 256 : b).toString(16)).padStart(2, '0')).join('');
+}
+function safeEqual(a,b){
+  const sa=String(a||''), sb=String(b||'');
+  let diff = sa.length ^ sb.length;
+  for(let i=0;i<Math.max(sa.length,sb.length);i++) diff |= (sa.charCodeAt(i)||0) ^ (sb.charCodeAt(i)||0);
+  return diff===0;
+}
+function maybeHashPassword(pw){
+  const v=String(pw||'');
+  return /^[0-9a-f]{64}$/.test(v) ? v : sha256(v);
+}
+function generateToken(subject, role){
+  const payload = JSON.stringify({sub:String(subject||''), role:String(role||'user'), iat:Date.now(), exp:Date.now()+TOKEN_TTL_MS});
+  const payloadB64 = Utilities.base64EncodeWebSafe(payload);
+  const sig = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(payloadB64, TOKEN_SECRET));
+  return payloadB64 + '.' + sig;
+}
+function validateToken(token){
+  try{
+    const parts=String(token||'').split('.');
+    if(parts.length!==2) return null;
+    const payloadB64=parts[0], providedSig=parts[1];
+    const expectedSig=Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(payloadB64, TOKEN_SECRET));
+    if(!safeEqual(providedSig, expectedSig)) return null;
+    const payload=JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(payloadB64)).getDataAsString());
+    if(Date.now() > Number(payload.exp||0)) return null;
+    return payload;
+  }catch(e){ return null; }
+}
+function authRequired(action){
+  const pub=['studentLogin','adminLogin','submitApplication','addApp','sendContact','setup'];
+  return pub.indexOf(action)===-1;
+}
+function parseList(value){
+  if(Array.isArray(value)) return value;
+  const raw=String(value||'').trim();
+  if(!raw) return [];
+  try{ const parsed=JSON.parse(raw); if(Array.isArray(parsed)) return parsed; }catch(e){}
+  return raw.split(',').map(s=>s.trim()).filter(Boolean);
+}
+
 // ─── CORS & entry points ───────────────────────────────────────────────────
 function doGet(e)  { return handleRequest(e); }
 function doPost(e) { return handleRequest(e); }
@@ -63,6 +110,13 @@ function handleRequest(e) {
   let result;
 
   try {
+    if (authRequired(action)) {
+      const tokenPayload = validateToken(params._token || params.token);
+      if (!tokenPayload) {
+        return ContentService.createTextOutput(JSON.stringify({ success:false, error:'Unauthorized' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
     switch (action) {
       // ── Auth ──────────────────────────────────────────────
       case 'studentLogin':
@@ -74,16 +128,20 @@ function handleRequest(e) {
 
       // ── Applications ──────────────────────────────────────
       case 'submitApplication':
+      case 'addApp':
         result = submitApplication(params);
         break;
       case 'getApplications':
         result = { success:true, data: getSheet('Applications').toObjects() };
         break;
       case 'approveApplication':
-        result = approveApplication(params.id);
+      case 'approveApp':
+      case 'updateAppStatus':
+        result = approveApplication(params.id || params.appId);
         break;
       case 'rejectApplication':
-        result = rejectApplication(params.id);
+      case 'rejectApp':
+        result = rejectApplication(params.id || params.appId);
         break;
 
       // ── Students ──────────────────────────────────────────
@@ -225,7 +283,7 @@ function setupSheets() {
     Applications: ['id','firstName','lastName','email','phone','level','subjects','guardian','guardianContact','paymentRef','paymentMethod','paymentAmt','paymentDate','status','applied','notes'],
     Students:     ['id','firstName','lastName','email','phone','level','subjects','guardian','guardianContact','isActive','avgScore','attendance','password','createdAt'],
     Classes:      ['id','subject','tutor','day','time','duration','platform','link','students','recording','createdAt'],
-    Assignments:  ['id','title','subject','dueDate','instructions','status','grade','feedback','createdAt'],
+    Assignments:  ['id','title','subject','dueDate','type','cbtLink','cbtStart','cbtEnd','instructions','assignedTo','status','grade','feedback','createdAt'],
     Notices:      ['id','title','body','date','target','createdAt'],
     Scores:       ['id','studentId','subject','month','score','createdAt'],
     Attendance:   ['id','studentId','classId','date','present','createdAt'],
@@ -252,7 +310,7 @@ function setupSheets() {
   // Seed admin credentials
   const credSheet = getSheet('Credentials');
   if (credSheet.getLastRow() <= 1) {
-    credSheet.appendRow([ADMIN_EMAIL, ADMIN_PASSWORD, 'admin', new Date().toISOString()]);
+    credSheet.appendRow([ADMIN_EMAIL, sha256(ADMIN_PASSWORD), 'admin', new Date().toISOString()]);
   }
 
   Logger.log('✅ D-Maths sheets created successfully!');
@@ -272,7 +330,7 @@ function studentLogin(studentId, password) {
   const obj = {};
   headers.forEach((h, i) => { obj[h] = rowData[i]; });
 
-  if (String(obj.password) !== String(password)) {
+  if (!safeEqual(String(obj.password), maybeHashPassword(password))) {
     return { success:false, error:'Incorrect password' };
   }
   if (!obj.isActive || obj.isActive === 'FALSE' || obj.isActive === false) {
@@ -282,7 +340,7 @@ function studentLogin(studentId, password) {
   // Parse subjects (stored as comma-separated string)
   obj.subjects = String(obj.subjects || '').split(',').map(s=>s.trim()).filter(Boolean);
   delete obj.password; // never return password to client
-  return { success:true, student: obj };
+  return { success:true, student: obj, token: generateToken(obj.id || studentId, 'student') };
 }
 
 function adminLogin(email, password) {
@@ -291,7 +349,7 @@ function adminLogin(email, password) {
   if (row === -1) {
     // Fallback to hardcoded admin
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      return { success:true, admin:{ name:'Administrator', email, role:'admin' } };
+      return { success:true, admin:{ name:'Administrator', email, role:'admin' }, token: generateToken(email, 'admin') };
     }
     return { success:false, error:'Email not found' };
   }
@@ -301,10 +359,10 @@ function adminLogin(email, password) {
   const obj = {};
   headers.forEach((h,i) => { obj[h] = rowData[i]; });
 
-  if (String(obj.passwordHash) !== String(password)) {
+  if (!safeEqual(String(obj.passwordHash), maybeHashPassword(password))) {
     return { success:false, error:'Incorrect password' };
   }
-  return { success:true, admin:{ name:'Administrator', email, role: obj.role || 'admin' } };
+  return { success:true, admin:{ name:'Administrator', email, role: obj.role || 'admin' }, token: generateToken(email, obj.role || 'admin') };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -377,7 +435,7 @@ function approveApplication(appId) {
     app.level,     app.subjects,
     app.guardian,  app.guardianContact,
     true,          0, 0,
-    tempPassword,
+    sha256(tempPassword),
     new Date().toISOString(),
   ]);
 
@@ -456,7 +514,7 @@ function addStudent(data) {
     id, data.firstName, data.lastName, data.email, data.phone,
     data.level, Array.isArray(data.subjects)?data.subjects.join(','):data.subjects,
     data.guardian, data.guardianContact,
-    true, 0, 0, data.password || 'dmaths123', new Date().toISOString(),
+    true, 0, 0, maybeHashPassword(data.password || 'dmaths123'), new Date().toISOString(),
   ]);
   return { success:true, id };
 }
@@ -492,19 +550,28 @@ function addClass(data) {
 function addAssignment(data) {
   const sheet = getSheet('Assignments');
   const id = 'ASN-' + Date.now();
+  const assignedTo = parseList(data.assignedTo);
+  const type = data.type || 'Written';
+  let cbtLink = data.cbtLink || '';
+  if (cbtLink && !/^https?:\/\//i.test(cbtLink)) cbtLink = 'https://' + cbtLink;
+
   sheet.appendRow([
-    id, data.title, data.subject, data.dueDate, data.instructions,
+    id, data.title || '', data.subject || '', data.dueDate || '',
+    type, cbtLink, data.cbtStart || '', data.cbtEnd || '',
+    data.instructions || '', assignedTo.join(','),
     'Pending', '', '', new Date().toISOString(),
   ]);
   return { success:true, id };
 }
 
+
 function gradeAssignment(id, grade, feedback) {
   const sheet = getSheet('Assignments');
-  const row = sheet.findRow('id', id);
+  const aid = id || '';
+  const row = sheet.findRow('id', aid);
   if (row === -1) return { success:false, error:'Assignment not found' };
   sheet.updateRow(row, 'status', 'Graded');
-  sheet.updateRow(row, 'grade', grade);
+  sheet.updateRow(row, 'grade', Number(grade) || 0);
   sheet.updateRow(row, 'feedback', feedback || '');
   return { success:true };
 }
